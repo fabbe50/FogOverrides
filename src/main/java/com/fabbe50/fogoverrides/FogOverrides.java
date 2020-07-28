@@ -1,7 +1,5 @@
 package com.fabbe50.fogoverrides;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,29 +7,22 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.Tag;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.Dimension;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.stream.Collectors;
 
 @Mod("fogoverrides")
 @Mod.EventBusSubscriber
@@ -66,12 +57,12 @@ public class FogOverrides {
                 event.setDensity(0);
             event.setCanceled(true);
         } else if (!(player.areEyesInFluid(FluidTags.LAVA) || player.areEyesInFluid(FluidTags.WATER))) {
-            if (checkDimensionConditions(player, DimensionType.OVERWORLD)) {
+            if (checkDimensionConditions(player, new ResourceLocation("overworld"))) {
                 event.setDensity(config.getGeneral().getOverworldFogDistance().get().floatValue());
                 if (config.getGeneral().getOverworldFogRemove().get())
                     event.setDensity(0);
                 event.setCanceled(true);
-            } else if (checkDimensionConditions(player, DimensionType.THE_NETHER)) {
+            } else if (checkDimensionConditions(player, new ResourceLocation("the_nether"))) {
                 event.setDensity(config.getGeneral().getNetherFogDistance().get().floatValue());
                 if (config.getGeneral().getNetherFogRemove().get())
                     event.setDensity(0);
@@ -98,11 +89,11 @@ public class FogOverrides {
             event.getMatrixStack().translate(0, config.getGeneral().getFireOverlayOffset().get(), 0);
     }
 
-    public static boolean checkFluidConditions(PlayerEntity player, Tag<Fluid> tag, Effect effect) {
+    public static boolean checkFluidConditions(PlayerEntity player, ITag.INamedTag<Fluid> tag, Effect effect) {
         return player.areEyesInFluid(tag) && (config.getGeneral().getPotionAffectsVision().get() ? player.isPotionActive(effect) : true);
     }
 
-    public static boolean checkDimensionConditions(PlayerEntity player, DimensionType dimension) {
-        return player.dimension == dimension;
+    public static boolean checkDimensionConditions(PlayerEntity player, ResourceLocation dimension) {
+        return player.getEntityWorld().func_234923_W_().func_240901_a_().equals(dimension);
     }
 }
