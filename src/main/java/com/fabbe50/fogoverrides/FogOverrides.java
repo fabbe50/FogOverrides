@@ -13,6 +13,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.dimension.DimensionType;
@@ -65,7 +66,7 @@ public class FogOverrides {
                 event.setDensity(config.getOverworld().getOverworldFogDistance().get().floatValue());
                 if (config.getOverworld().getOverworldFogRemove().get())
                     event.setDensity(0);
-                if (config.getOverworld().getEnableVoidFog().get() && player.getPosition().getY() < (config.getOverworld().getyLevelActivate().get()))
+                if (config.getOverworld().getEnableVoidFog().get() && player.getPosition().getY() < (config.getOverworld().getyLevelActivate().get()) && player.world.getWorldType() != WorldType.FLAT && (player.world.getLightFor(LightType.SKY, player.getPosition()) < 8 && config.getOverworld().getVoidFogAffectedBySkylight().get()))
                     event.setDensity(config.getOverworld().getVoidFogDensity().get().floatValue());
                 event.setCanceled(true);
             } else if (checkDimensionConditions(player, DimensionType.THE_NETHER)) {
@@ -86,7 +87,7 @@ public class FogOverrides {
         }
 
         if (((player.isCreative() || player.isSpectator()) && config.getGeneral().getCreativeOverrides().get())) {}
-        else if (player.getPosition().getY() < config.getOverworld().getyLevelActivate().get() && config.getOverworld().getEnableVoidFog().get() && checkDimensionConditions(player, DimensionType.OVERWORLD)) {
+        else if (player.getPosition().getY() < config.getOverworld().getyLevelActivate().get() && config.getOverworld().getEnableVoidFog().get() && checkDimensionConditions(player, DimensionType.OVERWORLD) && player.world.getWorldType() != WorldType.FLAT && (player.world.getLightFor(LightType.SKY, player.getPosition()) < 8 && config.getOverworld().getVoidFogAffectedBySkylight().get())) {
             event.setRed(0);
             event.setGreen(0);
             event.setBlue(0);
@@ -102,7 +103,7 @@ public class FogOverrides {
             return;
 
         if (((player.isCreative() || player.isSpectator()) && config.getGeneral().getCreativeOverrides().get())) {}
-        else if (player.getPosition().getY() < config.getOverworld().getyLevelActivate().get() && config.getOverworld().getEnableVoidParticles().get() && checkDimensionConditions(player, DimensionType.OVERWORLD)) {
+        else if (player.getPosition().getY() < config.getOverworld().getyLevelActivate().get() && config.getOverworld().getEnableVoidParticles().get() && checkDimensionConditions(player, DimensionType.OVERWORLD) && (player.world.getLightFor(LightType.SKY, player.getPosition()) < 8 && config.getOverworld().getVoidFogAffectedBySkylight().get())) {
             int x = MathHelper.floor(player.getPosX());
             int y = MathHelper.floor(player.getPosY());
             int z = MathHelper.floor(player.getPosZ());
@@ -115,7 +116,7 @@ public class FogOverrides {
                 BlockState block = world.getBlockState(new BlockPos(j, k, l));
 
                 if (block.getMaterial() == Material.AIR) {
-                    if (world.rand.nextInt(8) > k && (world.getWorldType() != WorldType.FLAT && checkDimensionConditions(player, DimensionType.OVERWORLD))) {
+                    if (world.rand.nextInt(8) > k && world.getWorldType() != WorldType.FLAT) {
                         float h = k + world.rand.nextFloat();
                         if (h >= 0 && config.getOverworld().getyLevelActivate().get() > h)
                             world.addParticle(ParticleTypes.MYCELIUM, j + world.rand.nextFloat(), h, l + world.rand.nextFloat(), 0, 0, 0);

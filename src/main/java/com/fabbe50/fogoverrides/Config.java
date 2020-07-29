@@ -95,6 +95,7 @@ public class Config {
         ForgeConfigSpec.DoubleValue voidFogDensity;
         ForgeConfigSpec.IntValue yLevelActivate;
         ForgeConfigSpec.BooleanValue enableVoidParticles;
+        ForgeConfigSpec.BooleanValue voidFogAffectedBySkylight;
 
         public Overworld() {
             builder.push("overworld");
@@ -105,6 +106,7 @@ public class Config {
             voidFogDensity = builder.comment("This is so you can adjust the density of the fog").defineInRange("Void Fog Density", 0.3, 0.001, 0.5);
             yLevelActivate = builder.comment("At what Y-level should the fog active on").defineInRange("Y-Level Activation", 16, 0, 255);
             enableVoidParticles = builder.comment("Readds the void particles that was removed in 1.8").define("Enable Void Particles", false);
+            voidFogAffectedBySkylight = builder.comment("If the player is in a skylight level of 8, the fog disappears").define("Void scared of sky", true);
 
             builder.pop();
         }
@@ -131,6 +133,10 @@ public class Config {
 
         public ForgeConfigSpec.BooleanValue getEnableVoidParticles() {
             return enableVoidParticles;
+        }
+
+        public ForgeConfigSpec.BooleanValue getVoidFogAffectedBySkylight() {
+            return voidFogAffectedBySkylight;
         }
     }
 
