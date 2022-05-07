@@ -1,5 +1,7 @@
 package com.fabbe50.fogoverrides;
 
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
@@ -101,10 +103,10 @@ public class Config {
             builder.push("overworld");
 
             overworldFogRemove = builder.comment("Disable Overworld Fog?").define("Disable Overworld Fog", false);
-            overworldFogDistance = builder.comment("Overworld Fog Density").defineInRange("Overworld Fog Density", 0.0015, 0.001, 0.5);
+            overworldFogDistance = builder.comment("Overworld Fog Starting Distance").defineInRange("Overworld Fog Starting Distance", 0.65, 0.1, 1);
             enableVoidFog = builder.comment("Readds the void fog that was removed in 1.8").define("Enable Void Fog", false);
-            voidFogDensity = builder.comment("This is so you can adjust the density of the fog").defineInRange("Void Fog Density", 0.3, 0.001, 0.5);
-            yLevelActivate = builder.comment("At what Y-level should the fog active on").defineInRange("Y-Level Activation", 16, 0, 255);
+            voidFogDensity = builder.comment("This is so you can adjust the starting distance of the fog").defineInRange("Void Fog Starting Distance", 0.02, 0.001, 10);
+            yLevelActivate = builder.comment("At what Y-level should the fog active on").defineInRange("Y-Level Activation", 0, -64, 319);
             enableVoidParticles = builder.comment("Readds the void particles that was removed in 1.8").define("Enable Void Particles", false);
             voidFogAffectedBySkylight = builder.comment("If the player is in a skylight level of 8, the fog disappears").define("Void scared of sky", true);
 
@@ -148,7 +150,7 @@ public class Config {
             builder.push("nether");
 
             netherFogRemove = builder.comment("Disable Nether Fog?").define("Disable Nether Fog", false);
-            netherFogDistance = builder.comment("Nether Fog Density").defineInRange("Nether Fog Density", 0.01, 0.001, 0.5);
+            netherFogDistance = builder.comment("Nether Fog Starting Distance").defineInRange("Nether Fog Starting Distance", 0.65, 0.1, 1);
 
             builder.pop();
         }
@@ -170,7 +172,7 @@ public class Config {
             builder.push("lava");
 
             lavaFogRemove = builder.comment("Disable Lava Fog?").define("Disable Lava Fog", false);
-            lavaFogDistance = builder.comment("Lava Fog Density").defineInRange("Lava Fog Density", 0.03, 0.001, 0.5);
+            lavaFogDistance = builder.comment("Lava Fog Starting Distance").defineInRange("Lava Fog Starting Distance", 30, 0.1, 100);
 
             builder.pop();
         }
@@ -192,7 +194,7 @@ public class Config {
             builder.push("water");
 
             waterFogRemove = builder.comment("Disable Water Fog?").define("Disable Water Fog", false);
-            waterFogDistance = builder.comment("Water Fog Density").defineInRange("Water Fog Density", 0.01, 0.001, 0.5);
+            waterFogDistance = builder.comment("Water Fog Density").defineInRange("Water Fog Density", 18, 0.1, 50);
 
             builder.pop();
         }
