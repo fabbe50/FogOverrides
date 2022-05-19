@@ -103,7 +103,7 @@ public class Config {
             builder.push("overworld");
 
             overworldFogRemove = builder.comment("Disable Overworld Fog?").define("Disable Overworld Fog", false);
-            overworldFogDistance = builder.comment("Overworld Fog Starting Distance").defineInRange("Overworld Fog Starting Distance", 0.65, 0.1, 1);
+            overworldFogDistance = builder.comment("Overworld Fog Starting Distance").defineInRange("Overworld Fog Starting Distance", 0.65, 0.1, 10);
             enableVoidFog = builder.comment("Readds the void fog that was removed in 1.8").define("Enable Void Fog", false);
             voidFogDensity = builder.comment("This is so you can adjust the starting distance of the fog").defineInRange("Void Fog Starting Distance", 0.02, 0.001, 10);
             yLevelActivate = builder.comment("At what Y-level should the fog active on").defineInRange("Y-Level Activation", 0, -64, 319);
@@ -150,7 +150,7 @@ public class Config {
             builder.push("nether");
 
             netherFogRemove = builder.comment("Disable Nether Fog?").define("Disable Nether Fog", false);
-            netherFogDistance = builder.comment("Nether Fog Starting Distance").defineInRange("Nether Fog Starting Distance", 0.65, 0.1, 1);
+            netherFogDistance = builder.comment("Nether Fog Starting Distance").defineInRange("Nether Fog Starting Distance", 0.65, 0.1, 10);
 
             builder.pop();
         }
