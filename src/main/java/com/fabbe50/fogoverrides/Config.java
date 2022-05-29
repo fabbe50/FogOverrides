@@ -150,7 +150,7 @@ public class Config {
             builder.push("nether");
 
             netherFogRemove = builder.comment("Disable Nether Fog?").define("Disable Nether Fog", false);
-            netherFogDistance = builder.comment("Nether Fog Starting Distance").defineInRange("Nether Fog Starting Distance", 0.65, 0.1, 10);
+            netherFogDistance = builder.comment("Nether Fog Starting Distance").defineInRange("Nether Fog Starting Distance", 0.65, 0.1, 50);
 
             builder.pop();
         }
