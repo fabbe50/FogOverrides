@@ -1,61 +1,55 @@
 package com.fabbe50.fogoverrides;
 
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class Config {
-    private ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
     private ForgeConfigSpec spec;
 
     public ForgeConfigSpec getSpec() {
         return spec;
     }
 
-    private General general;
-    private Overworld overworld;
-    private Nether nether;
-    private Lava lava;
-    private Water water;
+    private static final General GENERAL;
+    private static final ForgeConfigSpec GENERAL_SPEC;
+    private static final Overworld OVERWORLD;
+    private static final ForgeConfigSpec OVERWORLD_SPEC;
+    private static final Nether NETHER;
+    private static final ForgeConfigSpec NETHER_SPEC;
+    private static final Lava LAVA;
+    private static final ForgeConfigSpec LAVA_SPEC;
+    private static final Water WATER;
+    private static final ForgeConfigSpec WATER_SPEC;
 
     public Config() {
-        general = new General();
-        overworld = new Overworld();
-        nether = new Nether();
-        lava = new Lava();
-        water = new Water();
-
-        spec = builder.build();
     }
 
-    public General getGeneral() {
-        return general;
+    static {
+        final Pair<General, ForgeConfigSpec> generalSpec = new ForgeConfigSpec.Builder().configure(General::new);
+        GENERAL = generalSpec.getLeft();
+        GENERAL_SPEC = generalSpec.getRight();
+        final Pair<Overworld, ForgeConfigSpec> overworldSpec = new ForgeConfigSpec.Builder().configure(Overworld::new);
+        OVERWORLD = overworldSpec.getLeft();
+        OVERWORLD_SPEC = overworldSpec.getRight();
+        final Pair<Nether, ForgeConfigSpec> netherSpec = new ForgeConfigSpec.Builder().configure(Nether::new);
+        NETHER = netherSpec.getLeft();
+        NETHER_SPEC = netherSpec.getRight();
+        final Pair<Lava, ForgeConfigSpec> lavaSpec = new ForgeConfigSpec.Builder().configure(Lava::new);
+        LAVA = lavaSpec.getLeft();
+        LAVA_SPEC = lavaSpec.getRight();
+        final Pair<Water, ForgeConfigSpec> waterSpec = new ForgeConfigSpec.Builder().configure(Water::new);
+        WATER = waterSpec.getLeft();
+        WATER_SPEC = waterSpec.getRight();
     }
 
-    public Overworld getOverworld() {
-        return overworld;
-    }
-
-    public Nether getNether() {
-        return nether;
-    }
-
-    public Lava getLava() {
-        return lava;
-    }
-
-    public Water getWater() {
-        return water;
-    }
-
-    public class General {
+    public static class General {
         ForgeConfigSpec.BooleanValue potionAffectsVision;
         ForgeConfigSpec.BooleanValue creativeOverrides;
         ForgeConfigSpec.BooleanValue disableFireOverlay;
         ForgeConfigSpec.DoubleValue fireOverlayOffset;
         ForgeConfigSpec.BooleanValue disableWaterOverlay;
 
-        public General() {
+        General(ForgeConfigSpec.Builder builder) {
             builder.push("general");
 
             potionAffectsVision = builder.comment("Overrides are dependent on potion effects").define("Potion Active", true);
@@ -90,7 +84,7 @@ public class Config {
 
     }
 
-    public class Overworld {
+    public static class Overworld {
         ForgeConfigSpec.BooleanValue overworldFogRemove;
         ForgeConfigSpec.DoubleValue overworldFogDistance;
         ForgeConfigSpec.BooleanValue enableVoidFog;
@@ -99,7 +93,7 @@ public class Config {
         ForgeConfigSpec.BooleanValue enableVoidParticles;
         ForgeConfigSpec.BooleanValue voidFogAffectedBySkylight;
 
-        public Overworld() {
+        Overworld(ForgeConfigSpec.Builder builder) {
             builder.push("overworld");
 
             overworldFogRemove = builder.comment("Disable Overworld Fog?").define("Disable Overworld Fog", false);
@@ -142,11 +136,11 @@ public class Config {
         }
     }
 
-    public class Nether {
+    public static class Nether {
         ForgeConfigSpec.BooleanValue netherFogRemove;
         ForgeConfigSpec.DoubleValue netherFogDistance;
 
-        public Nether() {
+        Nether(ForgeConfigSpec.Builder builder) {
             builder.push("nether");
 
             netherFogRemove = builder.comment("Disable Nether Fog?").define("Disable Nether Fog", false);
@@ -164,11 +158,11 @@ public class Config {
         }
     }
 
-    public class Lava {
+    public static class Lava {
         ForgeConfigSpec.BooleanValue lavaFogRemove;
         ForgeConfigSpec.DoubleValue lavaFogDistance;
 
-        public Lava() {
+        Lava(ForgeConfigSpec.Builder builder) {
             builder.push("lava");
 
             lavaFogRemove = builder.comment("Disable Lava Fog?").define("Disable Lava Fog", false);
@@ -186,11 +180,11 @@ public class Config {
         }
     }
 
-    public class Water {
+    public static class Water {
         ForgeConfigSpec.BooleanValue waterFogRemove;
         ForgeConfigSpec.DoubleValue waterFogDistance;
 
-        public Water() {
+        Water(ForgeConfigSpec.Builder builder) {
             builder.push("water");
 
             waterFogRemove = builder.comment("Disable Water Fog?").define("Disable Water Fog", false);
@@ -206,5 +200,25 @@ public class Config {
         public ForgeConfigSpec.DoubleValue getWaterFogDistance() {
             return waterFogDistance;
         }
+    }
+
+    public static General getGeneral() {
+        return GENERAL;
+    }
+
+    public static Overworld getOverworld() {
+        return OVERWORLD;
+    }
+
+    public static Nether getNether() {
+        return NETHER;
+    }
+
+    public static Lava getLava() {
+        return LAVA;
+    }
+
+    public static Water getWater() {
+        return WATER;
     }
 }
