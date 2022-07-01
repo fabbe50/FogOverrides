@@ -1,11 +1,10 @@
 package com.fabbe50.fogoverrides;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.worldselection.WorldPreset;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -15,19 +14,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +39,7 @@ public class FogOverrides {
     }
 
     public FogOverrides() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, config.getSpec(), "FogOverrides.toml");
+        Config.init();
     }
 
     @SubscribeEvent
@@ -60,32 +57,32 @@ public class FogOverrides {
             if (Config.getLava().getLavaFogRemove().get())
                 setDensity(event, Integer.MAX_VALUE, Integer.MAX_VALUE);
             else {
-                setDensity(event, Config.getLava().getLavaFogDistance().get().floatValue(), Config.getLava().getLavaFogDistance().get().floatValue() + 0.4f);
+                setDensity(event, Config.getLava().getLavaFogDistance().get().floatValue(), Config.getLava().getLavaFogEndDistance().get().floatValue());
             }
             event.setCanceled(true);
         } else if (checkFluidConditions(player, FluidTags.WATER, MobEffects.WATER_BREATHING)) {
             if (Config.getWater().getWaterFogRemove().get())
                 setDensity(event,Integer.MAX_VALUE, Integer.MAX_VALUE);
             else
-                setDensity(event, Config.getWater().getWaterFogDistance().get().floatValue(), Config.getWater().getWaterFogDistance().get().floatValue() + 0.4f);
+                setDensity(event, Config.getWater().getWaterFogDistance().get().floatValue(), Config.getWater().getWaterFogEndDistance().get().floatValue());
             event.setCanceled(true);
         } else if (!(player.isEyeInFluid(FluidTags.LAVA) || player.isEyeInFluid(FluidTags.WATER))) {
-            if (checkDimensionConditions(player, DimensionType.DEFAULT_OVERWORLD)) {
+            if (checkDimensionConditions(player, BuiltinDimensionTypes.OVERWORLD)) {
                 if ((Config.getOverworld().getEnableVoidFog().get() && player.getOnPos().getY() < (Config.getOverworld().getyLevelActivate().get())) &&
-                        !ForgeHooksClient.hasPresetEditor(java.util.Optional.of(WorldPreset.FLAT)) &&
+                        /*!ForgeHooksClient.hasPresetEditor(java.util.Optional.of(WorldPreset.FLAT)) &&*/
                         (player.level.getBrightness(LightLayer.SKY, player.getOnPos()) < 8 || !Config.getOverworld().getVoidFogAffectedBySkylight().get())) {
-                    setDensity(event, Config.getOverworld().getVoidFogDensity().get().floatValue(), Config.getOverworld().getVoidFogDensity().get().floatValue() + 0.04f);
+                    setDensity(event, Config.getOverworld().getVoidFogDensity().get().floatValue(), Config.getOverworld().getVoidFogEndDensity().get().floatValue());
                 } else if (Config.getOverworld().getOverworldFogRemove().get()) {
                     setDensity(event, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 } else {
-                    setDensity(event, Config.getOverworld().getOverworldFogDistance().get().floatValue(), Config.getOverworld().getOverworldFogDistance().get().floatValue() + 0.4f);
+                    setDensity(event, Config.getOverworld().getOverworldFogDistance().get().floatValue(), Config.getOverworld().getOverworldFogEndDistance().get().floatValue());
                 }
                 event.setCanceled(true);
-            } else if (checkDimensionConditions(player, DimensionType.DEFAULT_NETHER)) {
+            } else if (checkDimensionConditions(player, BuiltinDimensionTypes.NETHER)) {
                 if (Config.getNether().getNetherFogRemove().get())
                     setDensity(event,Integer.MAX_VALUE, Integer.MAX_VALUE);
                 else
-                    setDensity(event, Config.getNether().getNetherFogDistance().get().floatValue(), Config.getNether().getNetherFogDistance().get().floatValue() + 0.4f);
+                    setDensity(event, Config.getNether().getNetherFogDistance().get().floatValue(), Config.getNether().getNetherFogEndDistance().get().floatValue());
                 event.setCanceled(true);
             }
         }
@@ -101,7 +98,7 @@ public class FogOverrides {
 
         if (((player.isCreative() || player.isSpectator()) && Config.getGeneral().getCreativeOverrides().get())) {}
         else if (player.getOnPos().getY() < Config.getOverworld().getyLevelActivate().get() && Config.getOverworld().getEnableVoidFog().get() &&
-                checkDimensionConditions(player, DimensionType.DEFAULT_OVERWORLD) && !ForgeHooksClient.hasPresetEditor(java.util.Optional.of(WorldPreset.FLAT)) &&
+                checkDimensionConditions(player, BuiltinDimensionTypes.OVERWORLD) /*&& !ForgeHooksClient.hasPresetEditor(java.util.Optional.of(WorldPreset.FLAT))*/ &&
                 (player.level.getBrightness(LightLayer.SKY, player.getOnPos()) < 8 || !Config.getOverworld().getVoidFogAffectedBySkylight().get())) {
             event.setRed(0);
             event.setGreen(0);
@@ -118,7 +115,7 @@ public class FogOverrides {
             return;
 
         if (((player.isCreative() || player.isSpectator()) && Config.getGeneral().getCreativeOverrides().get())) {}
-        else if (player.getOnPos().getY() < Config.getOverworld().getyLevelActivate().get() && Config.getOverworld().getEnableVoidParticles().get() && checkDimensionConditions(player, DimensionType.DEFAULT_OVERWORLD) && (player.level.getLightEmission(player.getOnPos()) < 8 && config.getOverworld().getVoidFogAffectedBySkylight().get())) {
+        else if (player.getOnPos().getY() < Config.getOverworld().getyLevelActivate().get() && Config.getOverworld().getEnableVoidParticles().get() && checkDimensionConditions(player, BuiltinDimensionTypes.OVERWORLD) && (player.level.getLightEmission(player.getOnPos()) < 8 && Config.getOverworld().getVoidFogAffectedBySkylight().get())) {
             int x = Mth.floor(player.getBlockX());
             int y = Mth.floor(player.getBlockY());
             int z = Mth.floor(player.getBlockZ());
@@ -131,7 +128,7 @@ public class FogOverrides {
                 BlockState block = world.getBlockState(new BlockPos(j, k, l));
 
                 if (block.getMaterial() == Material.AIR) {
-                    if (world.random.nextInt(8) > k && !ForgeHooksClient.hasPresetEditor(java.util.Optional.of(WorldPreset.FLAT))) {
+                    if (world.random.nextInt(8) > k /*&& !ForgeHooksClient.hasPresetEditor(java.util.Optional.of(WorldPreset.FLAT))*/) {
                         float h = k + world.random.nextFloat();
                         if (h >= -64 && Config.getOverworld().getyLevelActivate().get() > h) {
                             world.addParticle(ParticleTypes.MYCELIUM, j + world.random.nextFloat(), h, l + world.random.nextFloat(), 0, 0, 0);
@@ -164,8 +161,8 @@ public class FogOverrides {
         return player.isEyeInFluid(tag) && (!Config.getGeneral().getPotionAffectsVision().get() || player.hasEffect(effect));
     }
 
-    public static boolean checkDimensionConditions(Player player, DimensionType dimension) {
-        return player.getLevel().dimensionType() == dimension;
+    public static boolean checkDimensionConditions(Player player, ResourceKey<DimensionType> dimension) {
+        return player.getLevel().dimensionTypeId().location() == dimension.location();
     }
 
     public static void setDensity(EntityViewRenderEvent.RenderFogEvent event, float near, float far) {
