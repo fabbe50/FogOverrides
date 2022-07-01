@@ -63,7 +63,7 @@ public class Config {
             builder.push("general");
 
             potionAffectsVision = builder.comment("Overrides are dependent on potion effects").define("Potion Active", true);
-            creativeOverrides = builder.comment("Creative Mode Always Removes Fog").define("Creative Overrides", true);
+            creativeOverrides = builder.comment("Creative Mode Always Removes Fog").define("Creative Overrides", false);
             disableFireOverlay = builder.comment("Disable the fire overlay when you're burning").define("Disable Fire Overlay", false);
             fireOverlayOffset = builder.comment("Offset the fire overlay, negative values means down and positive is up.").defineInRange("Fire Overlay Offset", -0.25, -1, 1);
             disableWaterOverlay = builder.comment("Disable the water overlay when you're in water").define("Disable Water Overlay", false);
