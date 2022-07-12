@@ -119,12 +119,11 @@ public class FogOverrides {
             int x = Mth.floor(player.getBlockX());
             int y = Mth.floor(player.getBlockY());
             int z = Mth.floor(player.getBlockZ());
-            byte b = Config.getOverworld().getyLevelActivate().get().byteValue();
 
             for (int i = 0; i < 500; i++) {
-                int j = x + world.random.nextInt(b) - world.random.nextInt(b);
-                int k = y + world.random.nextInt(b) - world.random.nextInt(b);
-                int l = z + world.random.nextInt(b) - world.random.nextInt(b);
+                int j = x + (-20 + world.random.nextInt(40));
+                int k = y + (-10 + world.random.nextInt(20));
+                int l = z + (-20 + world.random.nextInt(40));
                 BlockState block = world.getBlockState(new BlockPos(j, k, l));
 
                 if (block.getMaterial() == Material.AIR) {
