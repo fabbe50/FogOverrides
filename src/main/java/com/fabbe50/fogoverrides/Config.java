@@ -106,8 +106,8 @@ public class Config {
             overworldFogDistance = builder.comment("Overworld Fog Starting Distance").defineInRange("Overworld Fog Starting Distance", 0.65, 0.1, 100);
             overworldFogEndDistance = builder.comment("Overworld Fog End Distance").defineInRange("Overworld Fog End Distance", 0.70, 0.1, 100);
             enableVoidFog = builder.comment("Readds the void fog that was removed in 1.8").define("Enable Void Fog", false);
-            voidFogDensity = builder.comment("This is so you can adjust the starting distance of the fog").defineInRange("Void Fog Starting Distance", 0.002, 0.001, 10);
-            voidFogEndDensity = builder.comment("This is so you can adjust the ending distance of the fog").defineInRange("Void Fog End Distance", 0.04, 0.001, 10);
+            voidFogDensity = builder.comment("This is so you can adjust the starting distance of the fog").defineInRange("Void Fog Starting Distance", 0.01, 0.001, 10);
+            voidFogEndDensity = builder.comment("This is so you can adjust the ending distance of the fog").defineInRange("Void Fog End Distance", 0.08, 0.001, 10);
             yLevelActivate = builder.comment("At what Y-level should the fog active on").defineInRange("Y-Level Activation", 0, -64, 319);
             enableVoidParticles = builder.comment("Readds the void particles that was removed in 1.8").define("Enable Void Particles", false);
             voidFogAffectedBySkylight = builder.comment("If the player is in a skylight level of 8, the fog disappears").define("Void scared of sky", true);

@@ -21,8 +21,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
+import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -45,7 +46,7 @@ public class FogOverrides {
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void densityAdjust(EntityViewRenderEvent.RenderFogEvent event) {
+    public static void densityAdjust(ViewportEvent.RenderFog event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
@@ -90,7 +91,7 @@ public class FogOverrides {
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void colorAdjust(EntityViewRenderEvent.FogColors event) {
+    public static void colorAdjust(ViewportEvent.ComputeFogColor event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
@@ -108,7 +109,7 @@ public class FogOverrides {
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void particles(TickEvent.WorldTickEvent event) {
+    public static void particles(RenderLevelStageEvent event) {
         LocalPlayer player = Minecraft.getInstance().player;
         Level world = Minecraft.getInstance().level;
         if (player == null || world == null)
@@ -140,13 +141,13 @@ public class FogOverrides {
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void overlayAdjust(RenderBlockOverlayEvent event) {
+    public static void overlayAdjust(RenderBlockScreenEffectEvent event) {
         Player player = event.getPlayer();
 
-        if (event.getOverlayType() == RenderBlockOverlayEvent.OverlayType.WATER && Config.getGeneral().getDisableWaterOverlay().get())
+        if (event.getOverlayType() == RenderBlockScreenEffectEvent.OverlayType.WATER && Config.getGeneral().getDisableWaterOverlay().get())
             event.setCanceled(true);
 
-        if (event.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
+        if (event.getOverlayType() == RenderBlockScreenEffectEvent.OverlayType.FIRE) {
             if ((player.isCreative() && Config.getGeneral().getCreativeOverrides().get()) || Config.getGeneral().getDisableFireOverlay().get())
                 event.setCanceled(true);
             else if (player.isOnFire() && (player.hasEffect(MobEffects.FIRE_RESISTANCE) || !Config.getGeneral().getPotionAffectsVision().get()))
@@ -166,7 +167,7 @@ public class FogOverrides {
         return player.getLevel().dimensionTypeId().location() == dimension;
     }
 
-    public static void setDensity(EntityViewRenderEvent.RenderFogEvent event, float near, float far) {
+    public static void setDensity(ViewportEvent.RenderFog event, float near, float far) {
         event.scaleNearPlaneDistance(near);
         event.scaleFarPlaneDistance(far);
     }
