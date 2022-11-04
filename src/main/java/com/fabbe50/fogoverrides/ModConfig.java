@@ -6,23 +6,23 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 @Config(name = "fogoverrides")
 public class ModConfig implements ConfigData {
-    @ConfigEntry.Category(value = "General")
+    @ConfigEntry.Gui.CollapsibleObject
     General general = new General();
-    @ConfigEntry.Category(value = "Overworld")
+    @ConfigEntry.Gui.CollapsibleObject
     Overworld overworld = new Overworld();
-    @ConfigEntry.Category(value = "Void")
+    @ConfigEntry.Gui.CollapsibleObject
     Void void_ = new Void();
-    @ConfigEntry.Category(value = "Nether")
+    @ConfigEntry.Gui.CollapsibleObject
     Nether nether = new Nether();
-    @ConfigEntry.Category(value = "End")
+    @ConfigEntry.Gui.CollapsibleObject
     End end = new End();
-    @ConfigEntry.Category(value = "Lava")
+    @ConfigEntry.Gui.CollapsibleObject
     Lava lava = new Lava();
-    @ConfigEntry.Category(value = "Water")
+    @ConfigEntry.Gui.CollapsibleObject
     Water water = new Water();
-    @ConfigEntry.Category(value = "Frostbite")
+    @ConfigEntry.Gui.CollapsibleObject
     Frostbite frostbite = new Frostbite();
-    @ConfigEntry.Category(value = "Blindness")
+    @ConfigEntry.Gui.CollapsibleObject
     Blindness blindness = new Blindness();
 
 
