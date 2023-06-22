@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.fabbe50.fogoverrides.mixins",
+  "refmap": "fogoverrides-refmap.json",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
