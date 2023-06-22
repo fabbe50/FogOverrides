@@ -65,6 +65,8 @@ public class GuiHandler {
             }
         }
 
+    }
+
     @Mod.EventBusSubscriber(modid = "fogoverrides", value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientModBusEvents {
         @SubscribeEvent
