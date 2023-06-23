@@ -46,6 +46,8 @@ public class ModConfig {
     static String biomeResourceKey = "";
     private int selectedCategory = 0;
     private double listWidgetScroll = 0;
+    private int mouseX = -1;
+    private int mouseY = -1;
     private static Map<Component, Boolean> subCatExpanded = new HashMap<>();
 
     //TODO: Re-add block-fog functionality. I.E. Frostbite etc.
@@ -65,6 +67,7 @@ public class ModConfig {
                 for (Renderable renderable : configScreen.renderables) {
                     if (renderable instanceof Button button) {
                         if (button.getMessage().equals(Component.empty())) {
+                            button.active = false;
                             toRemove = renderable;
                         }
                         if (button.getMessage().getContents() instanceof TranslatableContents contents) {
@@ -126,6 +129,12 @@ public class ModConfig {
                         super.render(poseStack, mouseX, mouseY, delta);
                     }
                 });
+
+                if (mouseX == -1 && mouseY == -1) {
+                    mouseX = (int) configScreen.getMinecraft().mouseHandler.xpos();
+                    mouseY = (int) configScreen.getMinecraft().mouseHandler.ypos();
+                }
+                GLFW.glfwSetCursorPos(configScreen.getMinecraft().getWindow().getWindow(), mouseX, mouseY);
 
                 configScreen.listWidget.scrollTo(listWidgetScroll, false);
                 if (configScreen.listWidget.getScroll() == 0 && listWidgetScroll != 0) { //Dumb fix for nested subcategories.
@@ -352,6 +361,8 @@ public class ModConfig {
     private void saveCurrentScreenState(ClothConfigScreen configScreen) {
         selectedCategory = configScreen.selectedCategoryIndex;
         listWidgetScroll = configScreen.listWidget.getScroll();
+        mouseX = (int) configScreen.getMinecraft().mouseHandler.xpos();
+        mouseY = (int) configScreen.getMinecraft().mouseHandler.ypos();
         System.out.println("Current Scroll: " + (listWidgetScroll) + "/" + (configScreen.listWidget.height) + " (" + configScreen.listWidget.getScrollBottom() + ") ");
         subCatExpanded = new HashMap<>();
         for (List<AbstractConfigEntry<?>> entries : configScreen.getCategorizedEntries().values()) {

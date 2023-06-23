@@ -155,7 +155,7 @@ public class FogHandler {
     }
 
     public float animationCurve(int target, float current) {
-        return (current > target + 300) ? 10F : ((current > target + 100) ? 1F : ((current > target + 5F) ? 0.015F : 0.008F));
+        return ((current > target + 1000) ? 10F : ((current > target + 300) ? 0.075F : ((current > target + 100) ? 0.05F : ((current > target + 5F) ? 0.015F : 0.008F))));
     }
 
 

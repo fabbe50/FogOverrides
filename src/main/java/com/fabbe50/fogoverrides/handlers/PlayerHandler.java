@@ -109,7 +109,7 @@ public class PlayerHandler {
 
     private boolean applyBiomeOverrides(LocalPlayer player) {
         for (BiomeData biomeData : BiomeHolder.getBiomeDataList()) {
-            if (Util.checkBiomeConditions(player, biomeData.getResourceLocation())) {
+            if (Util.checkBiomeConditions(player, biomeData.getResourceLocation()) && biomeData.isEnabled()) {
                 if (!applyVoidFog(player, player.getLevel().dimensionTypeId().equals(Dimensions.OVERWORLD.getResourceKey()) ? Dimensions.OVERWORLD : Dimensions.NETHER)) {
                     FogOverrides.data.setBaseTargets(biomeData);
                     return true;
@@ -121,7 +121,7 @@ public class PlayerHandler {
 
     private boolean applyDimensionOverrides(LocalPlayer player) {
         for (Dimensions dimension : Dimensions.values()) {
-            if (Util.checkDimensionConditions(player, dimension.getResourceKey())) {
+            if (Util.checkDimensionConditions(player, dimension.getResourceKey()) && dimension.isEnabled()) {
                 if (!applyVoidFog(player, dimension)) {
                     FogOverrides.data.setBaseTargets(dimension);
                 }

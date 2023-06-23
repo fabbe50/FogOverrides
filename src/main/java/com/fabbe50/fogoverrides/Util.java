@@ -4,6 +4,7 @@ import com.fabbe50.fogoverrides.holders.Biomes;
 import com.fabbe50.fogoverrides.holders.ConfigHolder;
 import com.fabbe50.fogoverrides.holders.Liquids;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -23,7 +24,11 @@ public class Util {
     public static boolean checkBlockConditions(Player player, Level level, Block block) {
         if (block instanceof LiquidBlock)
             return false;
-        return level.getBlockState(new BlockPos(player.getEyePosition())).is(block);
+        Vec3 vec3 = player.getEyePosition();
+        double x = vec3.x;
+        double y = vec3.y;
+        double z = vec3.z;
+        return level.getBlockState(new BlockPos(new Vec3i((int) x, (int) y, (int) z))).is(block);
     }
 
     public static boolean checkFluidConditions(Player player) {
