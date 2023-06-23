@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public enum BlockEffects implements IHolder {
-    FROSTBITE("frostbite", "", true, false, 1, 5, 1, 100, false, 0x000000, Blocks.POWDER_SNOW);
+    FROSTBITE("frostbite", "", true, false, 1, 5, 0, 512, false, 0x000000, Blocks.POWDER_SNOW);
 
     private final DefaultVariables variables;
     private final Block block;

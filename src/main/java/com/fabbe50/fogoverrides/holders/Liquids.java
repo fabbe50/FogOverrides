@@ -10,9 +10,9 @@ import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 public enum Liquids implements IOverrideHolder {
-    WATER("water", "", true, true, 40, 80, -8, 32, 1, 500, false, 0x0000FF, 50, Fluids.WATER, MobEffects.WATER_BREATHING),
-    LAVA("lava", "", true, true, 10, 20, 0, 1, 1, 500, false, 0xFF6600, 80, Fluids.LAVA, MobEffects.FIRE_RESISTANCE),
-    EMPTY("empty", "", false, false, 10, 20, -1, -1, 1, 500, false, 0xFFFFFF, 0, Fluids.EMPTY, null);
+    WATER("water", "", true, true, 40, 80, -8, 32, 0, 512, false, 0x0000FF, 50, Fluids.WATER, MobEffects.WATER_BREATHING),
+    LAVA("lava", "", true, true, 10, 20, 0, 1, 0, 512, false, 0xFF6600, 80, Fluids.LAVA, MobEffects.FIRE_RESISTANCE),
+    EMPTY("empty", "", false, false, 10, 20, -1, -1, 0, 512, false, 0xFFFFFF, 0, Fluids.EMPTY, null);
 
     private final DefaultVariables variables;
     private final Fluid fluid;

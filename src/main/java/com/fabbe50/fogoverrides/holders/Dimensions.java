@@ -7,9 +7,9 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 
 public enum Dimensions implements IHolder {
-    OVERWORLD("overworld", "", true, false, 80, 100, 1, 500, false, 0xFFFFFF, BuiltinDimensionTypes.OVERWORLD),
-    NETHER("nether", "",true, false, 32, 64, 1, 500, false, 0xFFFFFF, BuiltinDimensionTypes.NETHER),
-    THE_END("the_end", "",true, false, 32,64, 1, 500, false, 0xFFFFFF, BuiltinDimensionTypes.END);
+    OVERWORLD("overworld", "", true, false, 80, 100, 0, 512, false, 0xFFFFFF, BuiltinDimensionTypes.OVERWORLD),
+    NETHER("nether", "",true, false, 32, 64, 0, 512, false, 0xFFFFFF, BuiltinDimensionTypes.NETHER),
+    THE_END("the_end", "",true, false, 32,64, 0, 512, false, 0xFFFFFF, BuiltinDimensionTypes.END);
 
     private final DefaultVariables defaultVariables;
     private final ResourceKey<DimensionType> resourceKey;

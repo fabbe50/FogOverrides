@@ -6,8 +6,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 
 public enum PotionEffects implements IHolder {
-    BLINDNESS("blindness", "", true, true, 2, 4, 1,  500, false, 0x000000, MobEffects.BLINDNESS),
-    DARKNESS("darkness", "", true, true, 11, 15, 1,  500, false, 0x000000, MobEffects.DARKNESS);
+    BLINDNESS("blindness", "", true, true, 2, 4, 0,  512, false, 0x000000, MobEffects.BLINDNESS),
+    DARKNESS("darkness", "", true, true, 11, 15, 0,  512, false, 0x000000, MobEffects.DARKNESS);
 
     private final DefaultVariables variables;
     private final MobEffect mobEffect;

@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientLevel.class)
 public class MixinClientLevel {
-    @Inject(at = @At("RETURN"), method = "getCloudColor", cancellable = true)
+    @Inject(at = @At("RETURN"), method = "getCloudColor(F)Lnet/minecraft/world/phys/Vec3;", cancellable = true)
     private void injectGetCloudColor(float p_104809_, CallbackInfoReturnable<Vec3> cir) {
-        if (ConfigHolder.general.isAdjustCloudColors() && FogOverrides.data.getTargetColor() != -1) {
+        if (ConfigHolder.getGeneral().isAdjustColors() && ConfigHolder.general.isAdjustCloudColors() && FogOverrides.data.getTargetColor() != -1) {
             cir.setReturnValue(Util.getVec3ColorFromInteger(Util.getBlendedColor(Util.getColorIntegerFromVec3(cir.getReturnValue()), FogOverrides.data.getTargetColor(), ConfigHolder.getGeneral().getCloudColorBlendRatio())));
         }
     }

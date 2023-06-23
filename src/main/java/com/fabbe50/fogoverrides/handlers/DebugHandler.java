@@ -2,6 +2,7 @@ package com.fabbe50.fogoverrides.handlers;
 
 import com.fabbe50.fogoverrides.FogOverrides;
 import com.fabbe50.fogoverrides.Util;
+import com.fabbe50.fogoverrides.holders.ConfigHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,7 +39,10 @@ public class DebugHandler {
         }
 
         public String getFogType() {
-            return FogOverrides.data.getCurrentFogType();
+            if (ConfigHolder.getGeneral().isAdjustDistance() || ConfigHolder.getGeneral().isAdjustColors()) {
+                return FogOverrides.data.getCurrentFogType();
+            }
+            return "MOD DISABLED";
         }
 
         public String getString() {
@@ -84,9 +88,14 @@ public class DebugHandler {
 
             public List<String> getTexts() {
                 List<String> texts = new ArrayList<>();
-                texts.add("Fog Color Builder: " + (getActive() ? "ACTIVE" : "INACTIVE"));
-                texts.add("Fog Color Blend: #: " + Util.getFormattedColor(getBaseColor()) + ", &: " + Util.getFormattedColor(getBlendColor()) + ", R: " + getColorBlendPercentage());
-                texts.add("Fog Color: C: " + Util.getFormattedColor(getCurrentColor()) + ", T: " + Util.getFormattedColor(getTargetColor()) + ", S: " + getCurrentColorStatus());
+                if (ConfigHolder.getGeneral().isAdjustColors()) {
+                    texts.add("Fog Color Builder: " + (getActive() ? "ACTIVE" : "INACTIVE"));
+                    texts.add("Fog Color Blend: #: " + Util.getFormattedColor(getBaseColor()) + ", &: " + Util.getFormattedColor(getBlendColor()) + ", R: " + getColorBlendPercentage());
+                    texts.add("Fog Color: C: " + Util.getFormattedColor(getCurrentColor()) + ", T: " + Util.getFormattedColor(getTargetColor()) + ", S: " + getCurrentColorStatus());
+                    texts.add("Cloud Color Adjust: " + (ConfigHolder.getGeneral().isAdjustCloudColors() ? "TRUE" : "FALSE"));
+                } else {
+                    texts.add("Fog Color Builder: DISABLED");
+                }
                 return texts;
             }
         }
@@ -135,9 +144,13 @@ public class DebugHandler {
 
             public List<String> getTexts() {
                 List<String> texts = new ArrayList<>();
-                texts.add("Fog Distance Builder: " + (getActive() ? "ACTIVE" : "IDLE"));
-                texts.add("Starting Fog: " + "C: " + getStartingCurrent() + ", T: " + getStartingTarget() + ", S: " + getCurrentStartStatus().getLabel());
-                texts.add("Ending Fog: " + "C: " + getEndingCurrent() + ", T: " + getEndingTarget() + ", S: " + getCurrentEndStatus().getLabel());
+                if (ConfigHolder.getGeneral().isAdjustDistance()) {
+                    texts.add("Fog Distance Builder: " + (getActive() ? "ACTIVE" : "IDLE"));
+                    texts.add("Starting Fog: " + "C: " + getStartingCurrent() + ", T: " + getStartingTarget() + ", S: " + getCurrentStartStatus().getLabel());
+                    texts.add("Ending Fog: " + "C: " + getEndingCurrent() + ", T: " + getEndingTarget() + ", S: " + getCurrentEndStatus().getLabel());
+                } else {
+                    texts.add("Fog Distance Builder: DISABLED");
+                }
                 return texts;
             }
 

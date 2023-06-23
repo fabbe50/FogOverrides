@@ -14,7 +14,7 @@ public class BiomeData implements IHolder {
                 80,
                 100,
                 0,
-                500,
+                512,
                 false,
                 0xFFFFFF
         );

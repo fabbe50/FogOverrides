@@ -234,11 +234,11 @@ public class ModConfig {
                     }
                 })
                 .build());
-        IntegerSliderEntry voidFogStartDistance = (createIntSliderConfigOption(entryBuilder, "fog-start-distance", ConfigHolder.getVoid_().getVoidFogStartDistance(), 7, 1, 100)
+        IntegerSliderEntry voidFogStartDistance = (createIntSliderConfigOption(entryBuilder, "fog-start-distance", ConfigHolder.getVoid_().getVoidFogStartDistance(), 7, 0, 511)
                 .setSaveConsumer(integer -> ConfigHolder.getVoid_().setVoidFogStartDistance(integer))
                 .setTextGetter(integer -> Component.translatable("option.fogoverrides.fog-start-distance.text", integer))
                 .build());
-        IntegerSliderEntry voidFogEndDistance = (createIntSliderConfigOption(entryBuilder, "fog-end-distance", ConfigHolder.getVoid_().getVoidFogEndDistance(), 80, 1, 100)
+        IntegerSliderEntry voidFogEndDistance = (createIntSliderConfigOption(entryBuilder, "fog-end-distance", ConfigHolder.getVoid_().getVoidFogEndDistance(), 80, 1, 512)
                 .setSaveConsumer(integer -> ConfigHolder.getVoid_().setVoidFogEndDistance(integer))
                 .setTextGetter(integer -> Component.translatable("option.fogoverrides.fog-end-distance.text", integer))
                 .build());
@@ -382,11 +382,11 @@ public class ModConfig {
                             }
                         })
                 .setSaveConsumer(holder::setEnabled);
-        IntegerSliderEntry fogStartDistance = createIntSliderConfigOption(entryBuilder, "fog-start-distance", holder.getStartDistance(), holder.getDefaultStartDistance(), holder.getMinDistance(), holder.getMaxDistance())
+        IntegerSliderEntry fogStartDistance = createIntSliderConfigOption(entryBuilder, "fog-start-distance", holder.getStartDistance(), holder.getDefaultStartDistance(), holder.getMinDistance(), holder.getMaxDistance() - 1)
                 .setTextGetter(integer -> Component.translatable("option.fogoverrides.fog-start-distance.text", integer))
                 .setSaveConsumer(holder::setStartDistance)
                 .build();
-        IntegerSliderEntry fogEndDistance = createIntSliderConfigOption(entryBuilder, "fog-end-distance", holder.getEndDistance(), holder.getDefaultEndDistance(), holder.getMinDistance(), holder.getMaxDistance())
+        IntegerSliderEntry fogEndDistance = createIntSliderConfigOption(entryBuilder, "fog-end-distance", holder.getEndDistance(), holder.getDefaultEndDistance(), holder.getMinDistance() + 1, holder.getMaxDistance())
                 .setTextGetter(integer -> Component.translatable("option.fogoverrides.fog-end-distance.text", integer))
                 .setSaveConsumer(holder::setEndDistance)
                 .build();
