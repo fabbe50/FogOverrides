@@ -20,6 +20,7 @@ import me.shedaniel.clothconfig2.gui.entries.SubCategoryListEntry;
 import me.shedaniel.clothconfig2.impl.builders.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
@@ -88,7 +89,7 @@ public class ModConfig {
                     configScreen.getMinecraft().setScreen(init(parent));
                 }, Supplier::get) {
                     @Override
-                    public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float delta) {
+                    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
                         boolean hasErrors = false;
                         for (List<AbstractConfigEntry<?>> entries : Lists.newArrayList(configScreen.getCategorizedEntries().values())) {
                             for (AbstractConfigEntry<?> entry : entries) {
@@ -103,7 +104,7 @@ public class ModConfig {
                         }
                         this.active = configScreen.isEdited() && !hasErrors;
                         this.setMessage(hasErrors ? Component.translatable("text.cloth-config.error_cannot_save") : Component.translatable("option.fogoverrides.setting.save"));
-                        super.render(poseStack, mouseX, mouseY, delta);
+                        super.render(guiGraphics, mouseX, mouseY, delta);
                     }
                 });
                 configScreen.addRenderableWidget(new SaveButton((int)(configScreen.width / 2 + (buttonWidth * 0.5) + 3), configScreen.height - 26, buttonWidth, 20, Component.empty(), (button) -> {
@@ -111,7 +112,7 @@ public class ModConfig {
                     configScreen.saveAll(true);
                 }, Supplier::get) {
                     @Override
-                    public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float delta) {
+                    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
                         boolean hasErrors = false;
                         for (List<AbstractConfigEntry<?>> entries : Lists.newArrayList(configScreen.getCategorizedEntries().values())) {
                             for (AbstractConfigEntry<?> entry : entries) {
@@ -126,7 +127,7 @@ public class ModConfig {
                         }
                         this.active = configScreen.isEdited() && !hasErrors;
                         this.setMessage(hasErrors ? Component.translatable("text.cloth-config.error_cannot_save") : Component.translatable("text.cloth-config.save_and_done"));
-                        super.render(poseStack, mouseX, mouseY, delta);
+                        super.render(guiGraphics, mouseX, mouseY, delta);
                     }
                 });
 
@@ -320,7 +321,7 @@ public class ModConfig {
         ConfigCategory biomeOverrides = builder.getOrCreateCategory(Component.translatable("category.fogoverrides.biome-overrides"));
         Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
         if (cameraEntity instanceof Player player) {
-            Level level = player.getLevel();
+            Level level = player.level();
             if (level != null) {
                 biomeResourceKey = level.getBiome(player.getOnPos()).unwrapKey().orElse(Biomes.PLAINS).location().toString();
                 Component biomeComponent = Component.translatable("biome." + biomeResourceKey.replace(":", "."));

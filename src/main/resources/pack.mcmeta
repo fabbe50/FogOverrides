@@ -1,6 +1,8 @@
 {
     "pack": {
-        "description": "FogOverrides resources",
+        "description": {
+            "text": "${mod_id} resources"
+        },
         "pack_format": 12
     }
 }

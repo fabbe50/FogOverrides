@@ -22,7 +22,7 @@ public class PlayerHandler {
         if (player == null) {
             return;
         }
-        FogOverrides.data.setCurrentBiome(player.getLevel().getBiome(player.getOnPos()));
+        FogOverrides.data.setCurrentBiome(player.level().getBiome(player.getOnPos()));
         if (!applyGameModeOverrides(player)) {
             if (!applyBiomeOverrides(player))
                 if (!applyDimensionOverrides(player))
@@ -65,11 +65,11 @@ public class PlayerHandler {
         for (Liquids liquid : Liquids.values()) {
             if (liquid != Liquids.EMPTY) {
                 if (Util.checkFluidConditions(player, liquid)) {
-                    if (Util.areEyesInFluid(player.getLevel(), player)) {
+                    if (Util.areEyesInFluid(player.level(), player)) {
                         FogOverrides.data.setBlendTargets(liquid);
                         return true;
                     }
-                } else if (player.isEyeInFluidType(liquid.getFluidType()) && Util.areEyesInFluid(player.getLevel(), player)) {
+                } else if (player.isEyeInFluidType(liquid.getFluidType()) && Util.areEyesInFluid(player.level(), player)) {
                     FogOverrides.data.setTargetStartDistance(liquid.getDefaultFogStartDistance());
                     FogOverrides.data.setTargetEndDistance(liquid.getDefaultFogEndDistance());
                     if (liquid.shouldOverrideColor()) {
@@ -89,7 +89,7 @@ public class PlayerHandler {
 
     private boolean applyBlockOverrides(LocalPlayer player) {
         for (BlockEffects blockEffects : BlockEffects.values()) {
-            if (Util.checkBlockConditions(player, player.getLevel(), blockEffects.getBlock())) {
+            if (Util.checkBlockConditions(player, player.level(), blockEffects.getBlock())) {
                 FogOverrides.data.setBlendTargets(blockEffects);
                 return true;
             }
@@ -110,7 +110,7 @@ public class PlayerHandler {
     private boolean applyBiomeOverrides(LocalPlayer player) {
         for (BiomeData biomeData : BiomeHolder.getBiomeDataList()) {
             if (Util.checkBiomeConditions(player, biomeData.getResourceLocation()) && biomeData.isEnabled()) {
-                if (!applyVoidFog(player, player.getLevel().dimensionTypeId().equals(Dimensions.OVERWORLD.getResourceKey()) ? Dimensions.OVERWORLD : Dimensions.NETHER)) {
+                if (!applyVoidFog(player, player.level().dimensionTypeId().equals(Dimensions.OVERWORLD.getResourceKey()) ? Dimensions.OVERWORLD : Dimensions.NETHER)) {
                     FogOverrides.data.setBaseTargets(biomeData);
                     return true;
                 }

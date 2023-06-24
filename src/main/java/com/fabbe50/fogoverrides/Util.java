@@ -65,12 +65,12 @@ public class Util {
     }
 
     public static boolean checkDimensionConditions(Player player, ResourceLocation dimension) {
-        return player.getLevel().dimensionTypeId().location() == dimension;
+        return player.level().dimensionTypeId().location() == dimension;
     }
 
     public static boolean checkBiomeConditions(Player player, Biomes biome) {
         for (TagKey<Biome> tagKey : biome.getBiomesTags()) {
-            if (player.getLevel().getBiome(player.getOnPos()).is(tagKey)) {
+            if (player.level().getBiome(player.getOnPos()).is(tagKey)) {
                 return true;
             }
         }
@@ -78,15 +78,15 @@ public class Util {
     }
 
     public static boolean checkBiomeConditions(Player player, TagKey<Biome> biome) {
-        return player.level.getBiome(player.getOnPos()).is(biome);
+        return player.level().getBiome(player.getOnPos()).is(biome);
     }
 
     public static boolean checkBiomeConditions(Player player, ResourceKey<Biome> biome) {
-        return player.level.getBiome(player.getOnPos()).is(biome);
+        return player.level().getBiome(player.getOnPos()).is(biome);
     }
 
     public static boolean checkBiomeConditions(Player player, ResourceLocation resourceLocation) {
-        return player.level.getBiome(player.getOnPos()).is(resourceLocation);
+        return player.level().getBiome(player.getOnPos()).is(resourceLocation);
     }
 
     public static void setMaxDensity(ViewportEvent.RenderFog event) {

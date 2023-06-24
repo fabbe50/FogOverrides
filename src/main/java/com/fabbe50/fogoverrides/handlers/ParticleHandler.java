@@ -10,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
@@ -28,7 +27,7 @@ public class ParticleHandler {
             return;
 
         if (((player.isCreative() || player.isSpectator()) && ConfigHolder.getGeneral().getCreativeModeSettings() == ConfigHolder.General.CreativeModeSettings.DISABLED)) {}
-        else if (player.getOnPos().getY() < ConfigHolder.getVoid_().getyLevelActivate() && ConfigHolder.getVoid_().isEnableVoidParticles() && checkDimensionConditions(player, BuiltinDimensionTypes.OVERWORLD) && (player.level.getBrightness(LightLayer.SKY, player.getOnPos().above()) < 8 && ConfigHolder.getVoid_().isVoidFogAffectedBySkylight())) {
+        else if (player.getOnPos().getY() < ConfigHolder.getVoid_().getyLevelActivate() && ConfigHolder.getVoid_().isEnableVoidParticles() && checkDimensionConditions(player, BuiltinDimensionTypes.OVERWORLD) && (player.level().getBrightness(LightLayer.SKY, player.getOnPos().above()) < 8 && ConfigHolder.getVoid_().isVoidFogAffectedBySkylight())) {
             int x = Mth.floor(player.getBlockX());
             int y = Mth.floor(player.getBlockY());
             int z = Mth.floor(player.getBlockZ());
@@ -39,7 +38,7 @@ public class ParticleHandler {
                 int l = z + (-20 + world.random.nextInt(40));
                 BlockState block = world.getBlockState(new BlockPos(j, k, l));
 
-                if (block.getMaterial() == Material.AIR) {
+                if (block.isAir()) {
                     if (world.random.nextInt(8) > k) {
                         float h = k + world.random.nextFloat();
                         if (h >= -64 && ConfigHolder.getVoid_().getyLevelActivate() >= h) {
