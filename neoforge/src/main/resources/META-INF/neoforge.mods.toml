@@ -19,6 +19,13 @@ config = "fogoverrides.mixins.json"
 config = "fogoverrides-common.mixins.json"
 
 [[dependencies.fogoverrides]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.fogoverrides]]
 modId = "neoforge"
 type = "required"
 versionRange = "[21,)"
