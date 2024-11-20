@@ -1,0 +1,98 @@
+{
+  "title.fogoverrides.config": "Fog Overrides 迷霧覆蓋",
+
+  "category.fogoverrides.general": "一般",
+  "option.fogoverrides.general.creative-overrides": "創造模式覆蓋",
+  "option.fogoverrides.general.creative-overrides.tooltip[0]": "遊戲在創造模式或旁觀者模式時的行為方式。",
+  "option.fogoverrides.general.creative-overrides.tooltip[1]": "停用：完全停用所有迷霧。",
+  "option.fogoverrides.general.creative-overrides.tooltip[2]": "預設：使用標準的預設迷霧。",
+  "option.fogoverrides.general.creative-overrides.tooltip[3]": "覆蓋：使用自訂的迷霧覆蓋。",
+  "option.fogoverrides.special.potion-affects-vision": "藥水效果",
+  "option.fogoverrides.special.potion-affects-vision.tooltip": "如果啟用：需要抗火藥水來延長熔岩迷霧 & 需要水下呼吸藥水來延長水迷霧。",
+  "option.fogoverrides.general.adjust-distance": "覆蓋迷霧距離",
+  "option.fogoverrides.general.adjust-distance.tooltip": "切換迷霧距離覆蓋模組。",
+  "option.fogoverrides.general.adjust-colors": "覆蓋迷霧顏色",
+  "option.fogoverrides.general.adjust-colors.tooltip": "切換迷霧顏色覆蓋模組。",
+
+  "subcategory.fogoverrides.overlay": "覆蓋",
+  "option.fogoverrides.special.fire-overlay-enabled": "啟用燃燒覆蓋",
+  "option.fogoverrides.special.fire-overlay-enabled.tooltip": "如果在燃燒時，動畫火焰紋理是否應該顯示在畫面上。",
+  "option.fogoverrides.special.fire-overlay-offset": "燃燒覆蓋偏移",
+  "option.fogoverrides.special.fire-overlay-offset.tooltip": "上下重新定位燃燒覆蓋。負數表示在畫面上較低，正數表示較高。",
+  "option.fogoverrides.special.water-overlay-enabled": "啟用水下覆蓋",
+  "option.fogoverrides.special.water-overlay-enabled.tooltip": "在水下時是否應該繪製覆蓋紋理。",
+  "option.fogoverrides.special.frostbite-overlay-enabled": "啟用凍傷覆蓋",
+  "option.fogoverrides.special.frostbite-overlay-enabled.tooltip": "受凍傷影響時是否應該啟用覆蓋紋理。",
+
+  "subcategory.fogoverrides.clouds": "雲",
+  "option.fogoverrides.general.cloud-height": "雲高度",
+  "option.fogoverrides.general.cloud-height.tooltip": "設定雲的 y 座標。",
+  "option.fogoverrides.general.cloud-color-override": "雲顏色覆蓋",
+  "option.fogoverrides.general.cloud-color-override.tooltip": "根據迷霧顏色調整雲的顏色。",
+  "option.fogoverrides.general.cloud-color-blend": "雲顏色混合比例",
+  "option.fogoverrides.general.cloud-color-blend.tooltip[0]": "設定顏色與預設雲顏色混合的程度。",
+  "option.fogoverrides.general.cloud-color-blend.tooltip[1]": "允許一些混合可以讓雲的顏色根據天氣和時間條件進行調整。",
+
+
+  "category.fogoverrides.fogs": "迷霧設定",
+
+  "subcategory.fogoverrides.vanilla-dimensions": "預設維度",
+  "subcategory.fogoverrides.dimensions.overworld": "主世界 [+ 虛空迷霧]",
+  "subcategory.fogoverrides.dimensions.nether": "地獄",
+  "subcategory.fogoverrides.dimensions.the_end": "終界",
+
+  "subcategory.fogoverrides.vanilla-liquids": "預設液體",
+  "subcategory.fogoverrides.liquids.water": "水",
+  "subcategory.fogoverrides.liquids.lava": "熔岩",
+
+  "subcategory.fogoverrides.vanilla-potions": "預設藥水效果",
+  "subcategory.fogoverrides.potion-effects.blindness": "失明",
+  "subcategory.fogoverrides.potion-effects.darkness": "黑暗",
+  "subcategory.fogoverrides.potion-effects.frostbite": "凍傷",
+
+  "subcategory.fogoverrides.effects.void": "虛空迷霧",
+
+  "option.fogoverrides.void.y-level-activate": "Y 啟用等級",
+  "option.fogoverrides.void.y-level-activate.text": "Y 等級：%s",
+  "option.fogoverrides.void.y-level-activate.tooltip": "允許虛空迷霧存在的 Y 座標。",
+  "option.fogoverrides.void.enable-void-particles": "啟用虛空粒子",
+  "option.fogoverrides.void.enable-void-particles.tooltip": "虛空迷霧出現時是否應該啟用舊的虛空粒子。",
+  "option.fogoverrides.void.affected-by-sky-light": "天空光線效果",
+  "option.fogoverrides.void.affected-by-sky-light.tooltip": "當你在天空光線等級 8 或更高時，虛空迷霧是否應該關閉。",
+
+
+  "category.fogoverrides.biome-overrides": "生態域覆蓋",
+  "option.fogoverrides.biomes-to-override": "要覆蓋的生態域",
+  "option.fogoverrides.biomes-to-override.tooltip": "要覆蓋的生態域清單。",
+
+  "biome.fogoverrides.current": "當前生態域：%s %s",
+
+  "option.fogoverrides.setting.enabled": "已啟用",
+  "option.fogoverrides.setting.disabled": "已停用",
+  "option.fogoverrides.setting.save": "儲存",
+
+
+  "option.fogoverrides.fog-enabled": "啟用迷霧",
+  "option.fogoverrides.fog-enabled.tooltip": "迷霧是否應該啟用。",
+  "option.fogoverrides.fog-override": "啟用迷霧覆蓋",
+  "option.fogoverrides.fog-override.tooltip": "在選定的生態域中，迷霧是否應該被覆蓋。",
+  "option.fogoverrides.fog-start-distance": "迷霧開始距離",
+  "option.fogoverrides.fog-start-distance.text": "開始：%s 個方塊",
+  "option.fogoverrides.fog-start-distance.tooltip": "距離玩家多遠時，迷霧應該開始淡入。",
+  "option.fogoverrides.fog-end-distance": "迷霧結束距離",
+  "option.fogoverrides.fog-end-distance.text": "結束：%s 個方塊",
+  "option.fogoverrides.fog-end-distance.tooltip": "距離玩家多遠時，迷霧應該達到最大濃度。",
+  "option.fogoverrides.fog-distance.error": "開始距離不能大於或等於結束距離。",
+  "option.fogoverrides.override-fog-color": "覆蓋迷霧顏色",
+  "option.fogoverrides.override-fog-color.tooltip": "將選定區域中的迷霧覆蓋為下方設定的顏色。",
+  "option.fogoverrides.fog-color": "迷霧顏色",
+  "option.fogoverrides.fog-color.tooltip": "選定區域中迷霧的顏色。",
+  "option.fogoverrides.fog-color-blend": "迷霧顏色混合",
+  "option.fogoverrides.fog-color-blend.text": "比例：%s%%",
+  "option.fogoverrides.fog-color-blend.tooltip": "覆蓋迷霧顏色應該與當地迷霧顏色混合的比例。",
+
+
+  "key.category.fogoverrides.controls": "Fog Overrides 迷霧覆蓋",
+  "key.fogoverrides.config_menu": "開啟設定畫面",
+  "key.fogoverrides.config_menu.inuse": "按鈕正在使用中"
+}
