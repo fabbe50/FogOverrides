@@ -10,6 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BiomeTags;
@@ -22,11 +23,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.FogType;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FogRenderer.class)
 public abstract class MixinFogRenderer {
@@ -38,7 +41,7 @@ public abstract class MixinFogRenderer {
     }
 
     @Inject(at = @At(value = "HEAD"), method = "setupFog", cancellable = true)
-    private static void injectSetupFog(Camera camera, FogRenderer.FogMode fogMode, float renderDistance, boolean isSpecialFog, float smoothingVar, CallbackInfo ci) {
+    private static void injectSetupFog(Camera camera, FogRenderer.FogMode fogMode, Vector4f vector4f, float renderDistance, boolean isSpecialFog, float smoothingVar, CallbackInfoReturnable<FogParameters> cir) {
         CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
         FogType fogType = camera.getFluidInCamera();
         Entity entity = camera.getEntity();
@@ -158,8 +161,7 @@ public abstract class MixinFogRenderer {
                         fogData.end = modFogData.getFarDistance();
                     }
                 } else {
-                    fogData.start = Integer.MAX_VALUE - 1;
-                    fogData.end = Integer.MAX_VALUE;
+                    cir.setReturnValue(FogParameters.NO_FOG);
                 }
             } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
                 if (dimensionFogData.isFogEnabled()) {
@@ -168,8 +170,7 @@ public abstract class MixinFogRenderer {
                         fogData.end = dimensionFogData.getFarDistance();
                     }
                 } else {
-                    fogData.start = Integer.MAX_VALUE - 1;
-                    fogData.end = Integer.MAX_VALUE;
+                    cir.setReturnValue(FogParameters.NO_FOG);
                 }
             }
             fogData.shape = FogShape.CYLINDER;
@@ -185,8 +186,7 @@ public abstract class MixinFogRenderer {
                         fogData.end = modFogData.getFarDistance();
                     }
                 } else {
-                    fogData.start = Integer.MAX_VALUE - 1;
-                    fogData.end = Integer.MAX_VALUE;
+                    cir.setReturnValue(FogParameters.NO_FOG);
                 }
             } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
                 if (dimensionFogData.isFogEnabled()) {
@@ -196,17 +196,13 @@ public abstract class MixinFogRenderer {
                         fogData.end = dimensionFogData.getFarDistance();
                     }
                 } else {
-                    fogData.start = Integer.MAX_VALUE - 1;
-                    fogData.end = Integer.MAX_VALUE;
+                    cir.setReturnValue(FogParameters.NO_FOG);
                 }
             }
             fogData.shape = FogShape.CYLINDER;
         }
 
         FogOverrides.setCurrentFogData(fogData);
-        RenderSystem.setShaderFogStart(fogData.start);
-        RenderSystem.setShaderFogEnd(fogData.end);
-        RenderSystem.setShaderFogShape(fogData.shape);
-        ci.cancel();
+        cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, vector4f.x, vector4f.y, vector4f.z, vector4f.w));
     }
 }
