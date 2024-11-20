@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[1,)"
+loaderVersion = "${loader_version_range}"
 #issueTrackerURL = ""
 license = "LGPLv3"
 
@@ -20,14 +20,21 @@ config = "fogoverrides-common.mixins.json"
 
 [[dependencies.fogoverrides]]
 modId = "neoforge"
-mandatory = true
-versionRange = "[20.2,)"
+type = "required"
+versionRange = "[21,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fogoverrides]]
 modId = "architectury"
-mandatory = true
-versionRange = "[10.1.17,)"
+type = "required"
+versionRange = "[13,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.fogoverrides]]
+modId = "cloth_config"
+type = "required"
+versionRange = "[15,)"
+ordering = "AFTER"
+side = "CLIENT"

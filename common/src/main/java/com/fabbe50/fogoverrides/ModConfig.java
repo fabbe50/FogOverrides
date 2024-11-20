@@ -4,11 +4,8 @@ import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.platform.Platform;
-import dev.architectury.registry.level.biome.BiomeModifications;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +19,7 @@ public class ModConfig {
     private static long serverSettingsLastUpdated = 0L;
 
     private static final List<ResourceLocation> biomeList = new ArrayList<>();
-    private static final Map<ResourceLocation, ModFogData> biomeStorage = new HashMap<>();
+    private static final Map<String, ModFogData> biomeStorage = new HashMap<>();
 
     public static final KeyMapping OPEN_CONFIG = new KeyMapping(
             "text.fogoverrides.keybinds.open_menu",
@@ -152,9 +149,9 @@ public class ModConfig {
         Utilities.writeData(fos, "fireOffset", String.valueOf(fireOverlayOffset));
         Utilities.writeData(fos, "firePotOffset", String.valueOf(firePotionOverlayOffset));
 
-        for (ResourceLocation location : biomeStorage.keySet()) {
+        for (String location : biomeStorage.keySet()) {
             ModFogData data = biomeStorage.get(location);
-            writeModFogDataToProperties(fos, location, data, "biome");
+            writeModFogDataToProperties(fos, ResourceLocation.parse(location), data, "biome");
         }
         fos.close();
     }
@@ -235,22 +232,22 @@ public class ModConfig {
     }
 
     private static void addBiomeToStorage(ResourceLocation location, ModFogData fogData) {
-        biomeStorage.put(location, fogData);
+        biomeStorage.put(location.toString(), fogData);
     }
 
     private static void replaceBiomeInStorage(ResourceLocation location, ModFogData fogData) {
-        biomeStorage.replace(location, fogData);
+        biomeStorage.replace(location.toString(), fogData);
     }
 
     public static void updateFogData(ResourceLocation location, ModFogData fogData) {
-        if (biomeStorage.containsKey(location)) {
+        if (biomeStorage.containsKey(location.toString())) {
             replaceBiomeInStorage(location, fogData);
         } else {
             addBiomeToStorage(location, fogData);
         }
     }
 
-    public static ModFogData getFogDataFromBiomeLocation(ResourceLocation biome) {
+    public static ModFogData getFogDataFromBiomeLocation(String biome) {
         return biomeStorage.getOrDefault(biome, Utilities.getDefaultFogData());
     }
 
@@ -265,7 +262,7 @@ public class ModConfig {
         return null;
     }
 
-    public static Map<ResourceLocation, ModFogData> getBiomeStorage() {
+    public static Map<String, ModFogData> getBiomeStorage() {
         return biomeStorage;
     }
 

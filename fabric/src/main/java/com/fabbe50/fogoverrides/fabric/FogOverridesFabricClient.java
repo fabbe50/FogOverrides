@@ -7,5 +7,6 @@ public class FogOverridesFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FogOverrides.clientInit();
+        FogOverrides.debugScreenInit();
     }
 }

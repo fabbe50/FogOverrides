@@ -1,20 +1,13 @@
 package com.fabbe50.fogoverrides.mixin;
 
-import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -50,22 +43,15 @@ public abstract class MixinLevelRenderer {
 
     @Shadow @Nullable private VertexBuffer cloudBuffer;
 
-    @Shadow protected abstract BufferBuilder.RenderedBuffer buildClouds(BufferBuilder arg, double d, double e, double g, Vec3 arg2);
-
-    @Shadow @Final private static ResourceLocation CLOUDS_LOCATION;
+    @Shadow protected abstract MeshData buildClouds(Tesselator tesselator, double d, double e, double f, Vec3 vec3);
 
     @Inject(at = @At(value = "HEAD"), method = "renderClouds", cancellable = true)
-    private void injectRenderClouds(PoseStack poseStack, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
+    private void injectRenderClouds(PoseStack poseStack, Matrix4f matrix4f, Matrix4f matrix4f2, float f, double d, double e, double g, CallbackInfo ci) {
         if (level != null && Float.isNaN(level.effects().getCloudHeight())) {
             ci.cancel();
             return;
         }
         float cloudHeight = CurrentDataStorage.INSTANCE.getCloudHeight();
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.depthMask(true);
         float blockDiameter = 12f;
         float blockHeight = 4f;
         double colorDifference = 2.0E-4;
@@ -96,40 +82,32 @@ public abstract class MixinLevelRenderer {
         }
         if (this.generateClouds) {
             this.generateClouds = false;
-            BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
             if (this.cloudBuffer != null) {
                 this.cloudBuffer.close();
             }
             this.cloudBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-            BufferBuilder.RenderedBuffer renderedBuffer = this.buildClouds(bufferBuilder, m, n, o, cloudColor);
             this.cloudBuffer.bind();
-            this.cloudBuffer.upload(renderedBuffer);
+            this.cloudBuffer.upload(this.buildClouds(Tesselator.getInstance(), m, n, o, cloudColor));
             VertexBuffer.unbind();
         }
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-        RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
         FogRenderer.levelFogColor();
         poseStack.pushPose();
+        poseStack.mulPose(matrix4f);
         poseStack.scale(blockDiameter, 1.0f, blockDiameter);
         poseStack.translate(-posX, posY, -posZ);
         if (this.cloudBuffer != null) {
             this.cloudBuffer.bind();
             int v = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
             for (int w = v; w < 2; w++) {
-                if (w == 0) {
-                    RenderSystem.colorMask(false, false, false, false);
-                } else {
-                    RenderSystem.colorMask(true, true, true, true);
-                }
+                RenderType renderType = w == 0 ? RenderType.cloudsDepthOnly() : RenderType.clouds();
+                renderType.setupRenderState();
                 ShaderInstance shaderInstance = RenderSystem.getShader();
-                this.cloudBuffer.drawWithShader(poseStack.last().pose(), matrix4f, shaderInstance);
+                this.cloudBuffer.drawWithShader(poseStack.last().pose(), matrix4f2, shaderInstance);
+                renderType.clearRenderState();
             }
             VertexBuffer.unbind();
         }
         poseStack.popPose();
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
         ci.cancel();
     }
 }

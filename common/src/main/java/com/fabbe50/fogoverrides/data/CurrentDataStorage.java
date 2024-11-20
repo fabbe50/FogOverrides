@@ -15,7 +15,7 @@ public class CurrentDataStorage {
     private boolean isOnFogOverridesEnabledServer = false;
     private boolean integratedServer = false;
     
-    private final Map<ResourceLocation, ModFogData> biomeStorage = new HashMap<>();
+    private final Map<String, ModFogData> biomeStorage = new HashMap<>();
 
     private ModFogData overworldFogData = Utilities.getDefaultFogData();
     private ModFogData netherFogData = Utilities.getDefaultFogData();
@@ -60,7 +60,7 @@ public class CurrentDataStorage {
     }
 
     public ModFogData getBiomeFogData(ResourceLocation location) {
-        return isOnFogOverridesEnabledServer ? (biomeStorage.get(location) == null ? ModConfig.getFogDataFromBiomeLocation(location) : biomeStorage.get(location)) : ModConfig.getFogDataFromBiomeLocation(location);
+        return isOnFogOverridesEnabledServer ? (biomeStorage.get(location.toString()) == null ? ModConfig.getFogDataFromBiomeLocation(location.toString()) : biomeStorage.get(location.toString())) : ModConfig.getFogDataFromBiomeLocation(location.toString());
     }
 
     public ModFogData getFogDataFromDimension(ResourceLocation dimension) {
@@ -154,7 +154,14 @@ public class CurrentDataStorage {
     }
 
     public void addToBiomeStorage(ResourceLocation location, ModFogData fogData) {
-        biomeStorage.put(location, fogData);
+        biomeStorage.put(location.toString(), fogData);
+    }
+
+    public void refreshBiomeStorage(Map<String, ModFogData> biomeStorage) {
+        if (isOnFogOverridesEnabledServer && !integratedServer) {
+            this.biomeStorage.clear();
+            this.biomeStorage.putAll(biomeStorage);
+        }
     }
 
     public void refreshWaterColor(ResourceLocation location, ModFogData fogData) {
@@ -164,7 +171,7 @@ public class CurrentDataStorage {
         }, (biomeContext, mutable) -> mutable.getEffectsProperties().setWaterColor(fogData.getWaterColor()));
     }
 
-    public Map<ResourceLocation, ModFogData> getBiomeStorage() {
+    public Map<String, ModFogData> getBiomeStorage() {
         return  isOnFogOverridesEnabledServer && !integratedServer ? biomeStorage : ModConfig.getBiomeStorage();
     }
 

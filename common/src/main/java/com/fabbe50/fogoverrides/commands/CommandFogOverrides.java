@@ -33,7 +33,7 @@ public class CommandFogOverrides {
                                                     Optional<ResourceKey<Biome>> biomeKey = level.getBiome(player.blockPosition()).unwrapKey();
                                                     if (biomeKey.isPresent()) {
                                                         ResourceLocation location = biomeKey.get().location();
-                                                        ModFogData fogData = ModConfig.getFogDataFromBiomeLocation(location);
+                                                        ModFogData fogData = ModConfig.getFogDataFromBiomeLocation(location.toString());
                                                         fogData.setNearDistance(nearDistance);
                                                         fogData.setFarDistance(farDistance);
                                                         ModConfig.updateFogData(location, fogData);

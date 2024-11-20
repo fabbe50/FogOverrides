@@ -1,18 +1,14 @@
 package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.data.ModFogData;
-import com.mojang.blaze3d.platform.InputConstants;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import me.shedaniel.clothconfig2.api.Requirement;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
 import me.shedaniel.clothconfig2.gui.entries.ColorEntry;
 import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
 import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
-import me.shedaniel.clothconfig2.impl.builders.BooleanToggleBuilder;
 import me.shedaniel.clothconfig2.impl.builders.SubCategoryBuilder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -182,10 +178,10 @@ public class ClothScreen {
         general.addEntry(overlays.build());
 
         var biomeSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.biomes"));
-        Map<ResourceLocation, ModFogData> biomes = ModConfig.getBiomeStorage();
-        for (ResourceLocation location : biomes.keySet()) {
+        Map<String, ModFogData> biomes = ModConfig.getBiomeStorage();
+        for (String location : biomes.keySet()) {
             ModFogData fogData = biomes.get(location);
-            SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, location, fogData, true);
+            SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), fogData, true);
             biomeSettings.addEntry(biomeSubCategory.build());
         }
 

@@ -2,21 +2,17 @@ package com.fabbe50.fogoverrides.neoforge;
 
 import com.fabbe50.fogoverrides.ClothScreen;
 import com.fabbe50.fogoverrides.FogOverrides;
-import net.neoforged.fml.IExtensionPoint;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.client.ConfigScreenHandler;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
+@Mod(value = FogOverrides.MOD_ID, dist = Dist.CLIENT)
 public class FogOverridesNeoForgeClient {
-    public static void initClient() {
-        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
-        if (FMLEnvironment.dist.isClient()) {
-            FogOverrides.clientInit();
-            registerConfigScreen();
-        }
-    }
-
-    public static void registerConfigScreen() {
-        ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((minecraft, screen) -> ClothScreen.getConfigScreen(screen)));
+    public FogOverridesNeoForgeClient(IEventBus bus, ModContainer container) {
+        FogOverrides.clientInit();
+        FogOverrides.debugScreenInit();
+        container.registerExtensionPoint(IConfigScreenFactory.class, (modContainer, screen) -> ClothScreen.getConfigScreen(screen));
     }
 }

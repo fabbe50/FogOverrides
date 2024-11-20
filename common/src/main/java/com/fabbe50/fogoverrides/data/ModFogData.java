@@ -35,6 +35,11 @@ public class ModFogData {
     }
 
     public ModFogData(boolean overrideGameFog, boolean isFogEnabled, float nearDistance, float farDistance, boolean overrideSkyColor, int skyColor, boolean overrideFogColor, int fogColor,
+                      boolean overrideWaterFog, float waterNearDistance, float waterFarDistance, boolean overrideWaterFogColor, int waterFogColor) {
+        this(overrideGameFog, isFogEnabled, nearDistance, farDistance, overrideSkyColor, skyColor, overrideFogColor, fogColor, overrideWaterFog, waterNearDistance, waterFarDistance, false, -1, overrideWaterFogColor, waterFogColor);
+    }
+
+    public ModFogData(boolean overrideGameFog, boolean isFogEnabled, float nearDistance, float farDistance, boolean overrideSkyColor, int skyColor, boolean overrideFogColor, int fogColor,
                       boolean overrideWaterFog, float waterNearDistance, float waterFarDistance, boolean overrideWaterColor, int waterColor, boolean overrideWaterFogColor, int waterFogColor) {
         this.overrideGameFog = overrideGameFog;
         this.isFogEnabled = isFogEnabled;

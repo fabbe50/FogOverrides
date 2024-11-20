@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[48,)"
+loaderVersion = "[51,)"
 #issueTrackerURL = ""
 license = "LGPLv3"
 
@@ -16,20 +16,20 @@ Mod to make fog do what you want.
 [[dependencies.fogoverrides]]
 modId = "forge"
 mandatory = true
-versionRange = "[48,)"
+versionRange = "[51,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fogoverrides]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.2,)"
+versionRange = "[1.21,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fogoverrides]]
 modId = "architectury"
 mandatory = true
-versionRange = "[10.1.17,)"
+versionRange = "[13.0.6,)"
 ordering = "AFTER"
 side = "BOTH"
