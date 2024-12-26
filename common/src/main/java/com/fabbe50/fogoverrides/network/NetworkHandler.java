@@ -1,5 +1,6 @@
 package com.fabbe50.fogoverrides.network;
 
+import com.fabbe50.fogoverrides.FogOverrides;
 import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
@@ -32,7 +33,11 @@ public class NetworkHandler {
     public static void registerClientHandshake() {
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(localPlayer -> {
             if (localPlayer.is(Utilities.getClientPlayer())) {
-                NetworkManager.sendToServer(new C2SHandshakePacket.PacketPayload(true));
+                try {
+                    NetworkManager.sendToServer(new C2SHandshakePacket.PacketPayload(true));
+                } catch (UnsupportedOperationException e) {
+                    System.out.println("Server does not have Fog Overrides installed.");
+                }
             }
         });
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
