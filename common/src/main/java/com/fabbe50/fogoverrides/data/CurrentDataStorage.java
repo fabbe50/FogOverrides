@@ -67,6 +67,7 @@ public class CurrentDataStorage {
         if (dimension == null) {
             return Utilities.getDefaultFogData();
         }
+//        System.out.println(dimension.getNamespace() + ":" + dimension.getPath());
         if (dimension.equals(Utilities.getOverworld())) {
             return isOnFogOverridesEnabledServer && !integratedServer ? overworldFogData : ModConfig.overworldFogData;
         } else if (dimension.equals(Utilities.getNether())) {

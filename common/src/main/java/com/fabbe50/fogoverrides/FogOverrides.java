@@ -12,6 +12,7 @@ public class FogOverrides {
     public static final String MOD_ID = "fogoverrides";
 
     private static FogRenderer.FogData currentFogData;
+    private static String fogTypeData = "";
 
     public static void init() {
         NetworkHandler.registerServerHandshake();
@@ -37,6 +38,7 @@ public class FogOverrides {
             strings.add("Fog Overrides: " +
                     (fogData.isOverrideGameFog() ? "Biome" : (dimensionData.isOverrideGameFog() ? "Dimension" : "Vanilla")) +
                     (dataStorage.isOnFogOverridesEnabledServer() ? " (" + (dataStorage.isIntegratedServer() ? "Integrated " : "") + "Server)" : " (Client)"));
+            strings.add("Fog Type: " + fogTypeData);
             strings.add("Location: {" + ("Dimension: " + Utilities.getCurrentDimensionLocation()) + "}, {Biome: " + Utilities.getCurrentBiomeLocation() + "}");
             strings.add("Fog Data: " +
                     "{Near: " + currentFogData.start + "}, " +
@@ -55,7 +57,8 @@ public class FogOverrides {
         });
     }
 
-    public static void setCurrentFogData(FogRenderer.FogData fogData) {
+    public static void setCurrentFogData(FogRenderer.FogData fogData, String fogType) {
         currentFogData = fogData;
+        fogTypeData = fogType;
     }
 }

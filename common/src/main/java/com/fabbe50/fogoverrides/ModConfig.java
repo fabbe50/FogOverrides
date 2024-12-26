@@ -252,11 +252,11 @@ public class ModConfig {
     }
 
     public static ModFogData getFogDataFromDimension(ResourceLocation dimension) {
-        if (dimension.equals(Utilities.getOverworld())) {
+        if (dimension.getPath().equals(Utilities.getOverworld().getPath())) {
             return ModConfig.overworldFogData;
-        } else if (dimension.equals(Utilities.getNether())) {
+        } else if (dimension.getPath().equals(Utilities.getNether().getPath())) {
             return ModConfig.netherFogData;
-        } else if (dimension.equals(Utilities.getTheEnd())) {
+        } else if (dimension.getPath().equals(Utilities.getTheEnd().getPath())) {
             return ModConfig.theEndFogData;
         }
         return null;

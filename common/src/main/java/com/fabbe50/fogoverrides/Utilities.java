@@ -2,8 +2,11 @@ package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
+import com.mojang.blaze3d.shaders.FogShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.FogParameters;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import java.io.FileOutputStream;
 import java.awt.*;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,6 +26,7 @@ public class Utilities {
     private static final ResourceLocation OVERWORLD = Level.OVERWORLD.location();
     private static final ResourceLocation THE_NETHER = Level.NETHER.location();
     private static final ResourceLocation THE_END = Level.END.location();
+    public static final FogParameters NO_FOG = new FogParameters(Float.MAX_VALUE, 0.0F, FogShape.CYLINDER, -1, -1, -1, -1);
 
     public static ResourceLocation getOverworld() {
         return Objects.requireNonNullElseGet(OVERWORLD, () -> ResourceLocation.withDefaultNamespace("overworld"));
@@ -125,7 +128,7 @@ public class Utilities {
                     return dimensionData.getSkyColor();
                 }
             }
-            return biome.getSpecialEffects().getSkyColor();
+//            return biome.getSpecialEffects().getSkyColor();
         }
         return -1;
     }
@@ -142,7 +145,7 @@ public class Utilities {
                     return dimensionData.getFogColor();
                 }
             }
-            return biome.getSpecialEffects().getFogColor();
+//            return biome.getSpecialEffects().getFogColor();
         }
         return -1;
     }
@@ -190,7 +193,7 @@ public class Utilities {
                     return dimensionData.getWaterFogColor();
                 }
             }
-            return biome.getSpecialEffects().getWaterFogColor();
+//            return biome.getSpecialEffects().getWaterFogColor();
         }
         return -1;
     }
