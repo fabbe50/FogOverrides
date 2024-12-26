@@ -32,7 +32,11 @@ public class NetworkHandler {
     public static void registerClientHandshake() {
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(localPlayer -> {
             if (localPlayer.is(Utilities.getClientPlayer())) {
-                NetworkManager.sendToServer(new C2SHandshakePacket.PacketPayload(true));
+                try {
+                    NetworkManager.sendToServer(new C2SHandshakePacket.PacketPayload(true));
+                } catch (UnsupportedOperationException e) {
+                    System.out.println("Server doesn't have Fog Overrides installed.");
+                }
             }
         });
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {

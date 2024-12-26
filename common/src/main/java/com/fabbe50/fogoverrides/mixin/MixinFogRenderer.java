@@ -148,6 +148,28 @@ public abstract class MixinFogRenderer {
         } else if (isSpecialFog) {
             fogData.start = renderDistance * 0.05f;
             fogData.end = Math.min(renderDistance, 192.0f) * 0.5f;
+            if (modFogData.isOverrideGameFog()) {
+                if (modFogData.isFogEnabled()) {
+                    if (modFogData.hasValidFogDistance()) {
+                        fogData.start = modFogData.getNearDistance();
+                        fogData.end = modFogData.getFarDistance();
+                    }
+                } else {
+                    fogData.start = Integer.MAX_VALUE - 1;
+                    fogData.end = Integer.MAX_VALUE;
+                }
+            } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
+                if (dimensionFogData.isFogEnabled()) {
+                    if (dimensionFogData.hasValidFogDistance()) {
+                        fogData.start = dimensionFogData.getNearDistance();
+                        fogData.end = dimensionFogData.getFarDistance();
+                    }
+                } else {
+                    fogData.start = Integer.MAX_VALUE - 1;
+                    fogData.end = Integer.MAX_VALUE;
+                }
+            }
+            fogData.shape = FogShape.CYLINDER;
         } else if (fogMode == FogRenderer.FogMode.FOG_SKY) {
             fogData.start = 0.0f;
             fogData.end = renderDistance;
