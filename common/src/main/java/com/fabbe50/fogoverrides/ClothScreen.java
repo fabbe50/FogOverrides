@@ -315,8 +315,8 @@ public class ClothScreen {
                 .setSaveConsumer(fogData::setWaterFogColor)
                 .build();
         SubCategoryBuilder lavaSettings = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.lava_settings"));
-        BooleanListEntry overrideLavaFog = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.override_lava_fog"), fogData.isOverrideWaterFog())
-                .setDefaultValue(defaultFog.isOverrideWaterFog())
+        BooleanListEntry overrideLavaFog = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.override_lava_fog"), fogData.isOverrideLavaFog())
+                .setDefaultValue(defaultFog.isOverrideLavaFog())
                 .setTooltip(Component.translatable("text.fogoverrides.option.override_lava_fog.tooltip"))
                 .setSaveConsumer(fogData::setOverrideLavaFog)
                 .build();
@@ -334,8 +334,8 @@ public class ClothScreen {
         lavaFogStartDistance.requestReferenceRebuilding();
         lavaFogEndDistance.setErrorSupplier(() -> lavaFogStartDistance.getValue() >= lavaFogEndDistance.getValue() ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
         lavaFogEndDistance.requestReferenceRebuilding();
-        BooleanListEntry lavaPotionEffect = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.lava_potion_effect"), fogData.isOverrideWaterFog())
-                .setDefaultValue(defaultFog.isOverrideWaterFog())
+        BooleanListEntry lavaPotionEffect = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.lava_potion_effect"), fogData.isLavaPotionEffect())
+                .setDefaultValue(defaultFog.isLavaPotionEffect())
                 .setTooltip(Component.translatable("text.fogoverrides.option.lava_potion_effect.tooltip"))
                 .setSaveConsumer(fogData::setLavaPotionEffect)
                 .build();
