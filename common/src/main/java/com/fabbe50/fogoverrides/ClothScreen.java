@@ -33,8 +33,10 @@ public class ClothScreen {
         var general = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.general"));
         KeyCodeEntry openMenuKeyBind = entryBuilder.startKeyCodeField(Component.translatable("text.fogoverrides.key.open_menu"), ModConfig.OPEN_CONFIG.key)
                 .setDefaultValue(ModConfig.OPEN_CONFIG.getDefaultKey())
+        KeyCodeEntry openMenuKeyBind = entryBuilder.startKeyCodeField(Component.translatable("text.fogoverrides.key.open_menu"), ModConfigClient.OPEN_CONFIG.key)
+                .setDefaultValue(ModConfigClient.OPEN_CONFIG.getDefaultKey())
                 .setTooltip(Component.translatable("text.fogoverrides.key.open_menu.tooltip"))
-                .setKeySaveConsumer(ModConfig.OPEN_CONFIG::setKey)
+                .setKeySaveConsumer(ModConfigClient.OPEN_CONFIG::setKey)
                 .build();
         general.addEntry(openMenuKeyBind);
         SubCategoryBuilder spectatorCategory = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.spectator"));

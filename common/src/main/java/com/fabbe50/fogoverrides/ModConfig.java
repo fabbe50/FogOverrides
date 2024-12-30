@@ -2,9 +2,7 @@ package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
-import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.platform.Platform;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
@@ -20,13 +18,6 @@ public class ModConfig {
 
     private static final List<ResourceLocation> biomeList = new ArrayList<>();
     private static final Map<String, ModFogData> biomeStorage = new HashMap<>();
-
-    public static final KeyMapping OPEN_CONFIG = new KeyMapping(
-            "text.fogoverrides.keybinds.open_menu",
-            InputConstants.Type.KEYSYM,
-            InputConstants.KEY_F8,
-            "text.fogoverrides.keybinds"
-    );
 
     public static List<String> presets = new ArrayList<>();
 
