@@ -54,28 +54,43 @@ public class NetworkHandler {
                 if (!modUsers.contains(context.getPlayer()))
                     modUsers.add(context.getPlayer());
                 NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new S2CHandshakePacket.PacketPayload(true));
-                NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new SpectatorSettingsPacket.PacketPayload(getSpectatorSettingsBuffer()));
-                NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new CreativeSettingsPacket.PacketPayload(getCreativeSettingsBuffer()));
-                ResourceLocation[] dimensionLocations = new ResourceLocation[] {Utilities.getOverworld(), Utilities.getNether(), Utilities.getTheEnd()};
-                for (ResourceLocation location : dimensionLocations) {
-                    ModFogData fogData = ModConfig.getFogDataFromDimension(location);
-                    if (fogData != null) {
-                        NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new DimensionSettingsPacket.PacketPayload(location, fogData));
-                    }
-                }
-                for (String location : ModConfig.getBiomeStorage().keySet()) {
-                    ModFogData fogData = ModConfig.getFogDataFromBiomeLocation(location);
-                    if (fogData != null) {
-                        NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new BiomeSettingsPacket.PacketPayload(ResourceLocation.parse(location), fogData));
-                    }
-                }
-                NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new CloudsPacket.PacketPayload(getCloudBuffer()));
-                NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new OverlaysPacket.PacketPayload(getOverlaysBuffer()));
+                sendSettingsToPlayer(context.getPlayer());
             }
         });
         PlayerEvent.PLAYER_QUIT.register(player -> {
             modUsers.remove(player);
         });
+    }
+
+    public static int sendSettingsToAllPlayers() {
+        int i = 0;
+        for (Player player : modUsers) {
+            if (player != null) {
+                sendSettingsToPlayer(player);
+                i++;
+            }
+        }
+        return i;
+    }
+
+    public static void sendSettingsToPlayer(Player player) {
+        NetworkManager.sendToPlayer((ServerPlayer) player, new SpectatorSettingsPacket.PacketPayload(getSpectatorSettingsBuffer()));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new CreativeSettingsPacket.PacketPayload(getCreativeSettingsBuffer()));
+        ResourceLocation[] dimensionLocations = new ResourceLocation[] {Utilities.getOverworld(), Utilities.getNether(), Utilities.getTheEnd()};
+        for (ResourceLocation location : dimensionLocations) {
+            ModFogData fogData = ModConfig.getFogDataFromDimension(location);
+            if (fogData != null) {
+                NetworkManager.sendToPlayer((ServerPlayer) player, new DimensionSettingsPacket.PacketPayload(location, fogData));
+            }
+        }
+        for (String location : ModConfig.getBiomeStorage().keySet()) {
+            ModFogData fogData = ModConfig.getFogDataFromBiomeLocation(location);
+            if (fogData != null) {
+                NetworkManager.sendToPlayer((ServerPlayer) player, new BiomeSettingsPacket.PacketPayload(ResourceLocation.parse(location), fogData));
+            }
+        }
+        NetworkManager.sendToPlayer((ServerPlayer) player, new CloudsPacket.PacketPayload(getCloudBuffer()));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new OverlaysPacket.PacketPayload(getOverlaysBuffer()));
     }
 
     public static FriendlyByteBuf getSpectatorSettingsBuffer() {
