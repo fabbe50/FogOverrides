@@ -3,6 +3,7 @@ package com.fabbe50.fogoverrides;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import dev.architectury.platform.Platform;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
@@ -12,6 +13,27 @@ import java.io.IOException;
 import java.util.*;
 
 public class ModConfig {
+    public static final int FOG_START_MAX = 1023;
+    public static final int FOG_END_MAX = 1024;
+    public static final int CHUNK_SIZE = 16;
+    public static final int PERCENTAGE_DIVIDER = 512;
+
+    public static final float UNDERWATER_NEAR_DEFAULT = -8;
+    public static final float UNDERWATER_FAR_DEFAULT = 96;
+    public static final float LAVA_NEAR_SPECTATOR_DEFAULT = -8;
+    public static final float LAVA_FAR_SPECTATOR_MULTIPLIER_DEFAULT = 0.5f;
+    public static final float LAVA_NEAR_DEFAULT = 0.25f;
+    public static final float LAVA_FAR_DEFAULT = 1;
+    public static final float LAVA_NEAR_POTION_DEFAULT = 0;
+    public static final float LAVA_FAR_POTION_DEFAULT = 3;
+    public static final float POWDER_SNOW_NEAR_DEFAULT = 0;
+    public static final float POWDER_SNOW_FAR_DEFAULT = 2;
+    public static final float POWDER_SNOW_NEAR_SPECTATOR_DEFAULT = -8;
+    public static final float POWDER_SNOW_FAR_SPECTATOR_MULTIPLIER_DEFAULT = 0.5f;
+    public static final float SPECIAL_FOG_NEAR_MULTIPLIER_DEFAULT = 0.05f;
+    public static final float SPECIAL_FOG_FAR_MAX_DISTANCE_DEFAULT = 192;
+    public static final float SPECIAL_FOG_FAR_MULTIPLIER_DEFAULT = 0.5f;
+
     private static File configFile;
 
     private static long serverSettingsLastUpdated = 0L;
@@ -22,6 +44,8 @@ public class ModConfig {
     public static List<String> presets = new ArrayList<>();
 
     // Config Values
+    public static CalculationSetting calculationSetting = CalculationSetting.BLOCKS;
+
     public static boolean spectatorHasModFog = false;
     public static float spectatorNearDistance = -1f;
     public static float spectatorFarDistance = -1f;
@@ -40,6 +64,9 @@ public class ModConfig {
     public static ModFogData overworldFogData = Utilities.getDefaultFogData();
     public static ModFogData netherFogData = Utilities.getDefaultFogData();
     public static ModFogData theEndFogData = Utilities.getDefaultFogData();
+
+    public static boolean waterFogEnabled = true;
+    public static boolean lavaFogEnabled = true;
 
     public static int cloudHeight = 192;
 
@@ -62,6 +89,8 @@ public class ModConfig {
 
             serverSettingsLastUpdated = Long.parseLong((String)properties.computeIfAbsent("serverSettingsLastUpdated", o -> String.valueOf(System.currentTimeMillis())));
 
+            calculationSetting = CalculationSetting.getSettingFromID((String) properties.computeIfAbsent("calculationSetting", o -> "blocks"));
+
             spectatorHasModFog = ((String) properties.computeIfAbsent("spectatorHasModFog", o -> "false")).equalsIgnoreCase("true");
             spectatorNearDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorNearDistance", o -> "-1"));
             spectatorFarDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorFarDistance", o -> "-1"));
@@ -80,6 +109,9 @@ public class ModConfig {
             overworldFogData = readModFogDataFromProperties(properties, Utilities.getOverworld(), "dimension");
             netherFogData = readModFogDataFromProperties(properties, Utilities.getNether(), "dimension");
             theEndFogData = readModFogDataFromProperties(properties, Utilities.getTheEnd(), "dimension");
+
+            waterFogEnabled = ((String) properties.computeIfAbsent("waterFogEnabled", o -> "true")).equalsIgnoreCase("true");
+            lavaFogEnabled = ((String) properties.computeIfAbsent("lavaFogEnabled", o -> "true")).equalsIgnoreCase("true");
 
             cloudHeight = Integer.parseInt((String) properties.computeIfAbsent("cloudHeight", o -> "192"));
 
@@ -114,6 +146,8 @@ public class ModConfig {
 
         Utilities.writeData(fos, "serverSettingsLastUpdated", String.valueOf(System.currentTimeMillis()));
 
+        Utilities.writeData(fos, "calculationSetting", calculationSetting.getId());
+
         Utilities.writeData(fos, "spectatorHasModFog", String.valueOf(spectatorHasModFog));
         Utilities.writeData(fos, "spectatorNearDistance", String.valueOf(spectatorNearDistance));
         Utilities.writeData(fos, "spectatorFarDistance", String.valueOf(spectatorFarDistance));
@@ -132,6 +166,9 @@ public class ModConfig {
         writeModFogDataToProperties(fos, Utilities.getOverworld(), overworldFogData, "dimension");
         writeModFogDataToProperties(fos, Utilities.getNether(), netherFogData, "dimension");
         writeModFogDataToProperties(fos, Utilities.getTheEnd(), theEndFogData, "dimension");
+
+        Utilities.writeData(fos, "waterFogEnabled", String.valueOf(waterFogEnabled));
+        Utilities.writeData(fos, "lavaFogEnabled", String.valueOf(lavaFogEnabled));
 
         Utilities.writeData(fos, "cloudHeight", String.valueOf(cloudHeight));
 
@@ -263,5 +300,35 @@ public class ModConfig {
 
     public static File getConfigFile() {
         return configFile;
+    }
+
+    public enum CalculationSetting {
+        BLOCKS("blocks", Component.translatable("text.fogoverrides.option.calculation-setting.blocks")),
+        PERCENT("percent", Component.translatable("text.fogoverrides.option.calculation-setting.percent")),
+        PERCENT_BLOCKS("percent_blocks", Component.translatable("text.fogoverrides.option.calculation-setting.percent-blocks"));
+
+        private final String id;
+        private final Component name;
+        CalculationSetting(String id, Component name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public Component getName() {
+            return name;
+        }
+
+        public static CalculationSetting getSettingFromID(String id) {
+            for (CalculationSetting setting : values()) {
+                if (id.equals(setting.id)) {
+                    return setting;
+                }
+            }
+            return BLOCKS;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.fabbe50.fogoverrides.data;
 
 import com.fabbe50.fogoverrides.ModConfig;
+import com.fabbe50.fogoverrides.ModConfig.CalculationSetting;
 import com.fabbe50.fogoverrides.Utilities;
 import dev.architectury.registry.level.biome.BiomeModifications;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +36,9 @@ public class CurrentDataStorage {
     private float creativeWaterFarDistance = -1f;
     private float creativeLavaNearDistance = -1f;
     private float creativeLavaFarDistance = -1f;
+
+    private boolean waterFogEnabled = true;
+    private boolean lavaFogEnabled = true;
 
     private int cloudHeight = 192;
 
@@ -76,6 +80,10 @@ public class CurrentDataStorage {
             return isOnFogOverridesEnabledServer && !integratedServer ? theEndFogData : ModConfig.theEndFogData;
         }
         return Utilities.getDefaultFogData();
+    }
+
+    public CalculationSetting getCalculationSetting() {
+        return ModConfig.calculationSetting;
     }
     
     public boolean getSpectatorHasModFog() {
@@ -132,6 +140,14 @@ public class CurrentDataStorage {
 
     public float getCreativeLavaFarDistance() {
         return isOnFogOverridesEnabledServer && !integratedServer ? creativeLavaFarDistance : ModConfig.creativeLavaFarDistance;
+    }
+
+    public boolean isWaterFogEnabled() {
+        return isOnFogOverridesEnabledServer && !integratedServer ? waterFogEnabled : ModConfig.waterFogEnabled;
+    }
+
+    public boolean isLavaFogEnabled() {
+        return isOnFogOverridesEnabledServer && !integratedServer ? lavaFogEnabled : ModConfig.lavaFogEnabled;
     }
 
     public int getCloudHeight() {
@@ -206,6 +222,11 @@ public class CurrentDataStorage {
 
     public void updateTheEndFogData(ModFogData theEndFogData) {
         this.theEndFogData = theEndFogData;
+    }
+
+    public void updateLiquids(boolean waterFogEnabled, boolean lavaFogEnabled) {
+        this.waterFogEnabled = waterFogEnabled;
+        this.lavaFogEnabled = lavaFogEnabled;
     }
 
     public void updateCloudHeight(int cloudHeight) {

@@ -24,6 +24,7 @@ public class NetworkHandler {
         S2CHandshakePacket.Client.register();
         SpectatorSettingsPacket.Client.register();
         CreativeSettingsPacket.Client.register();
+        LiquidsPacket.Client.register();
         CloudsPacket.Client.register();
         OverlaysPacket.Client.register();
         DimensionSettingsPacket.Client.register();
@@ -89,6 +90,7 @@ public class NetworkHandler {
                 NetworkManager.sendToPlayer((ServerPlayer) player, new BiomeSettingsPacket.PacketPayload(ResourceLocation.parse(location), fogData));
             }
         }
+        NetworkManager.sendToPlayer((ServerPlayer) player, new LiquidsPacket.PacketPayload(getLiquidBuffer()));
         NetworkManager.sendToPlayer((ServerPlayer) player, new CloudsPacket.PacketPayload(getCloudBuffer()));
         NetworkManager.sendToPlayer((ServerPlayer) player, new OverlaysPacket.PacketPayload(getOverlaysBuffer()));
     }
@@ -114,6 +116,13 @@ public class NetworkHandler {
         buf.writeFloat(ModConfig.creativeWaterFarDistance);
         buf.writeFloat(ModConfig.creativeLavaNearDistance);
         buf.writeFloat(ModConfig.creativeLavaFarDistance);
+        return buf;
+    }
+
+    public static FriendlyByteBuf getLiquidBuffer() {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeBoolean(ModConfig.waterFogEnabled);
+        buf.writeBoolean(ModConfig.lavaFogEnabled);
         return buf;
     }
 

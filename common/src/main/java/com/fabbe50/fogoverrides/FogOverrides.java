@@ -3,6 +3,7 @@ package com.fabbe50.fogoverrides;
 import com.fabbe50.fogoverrides.commands.CommandFogOverrides;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
+import com.fabbe50.fogoverrides.data.checker.Checkers;
 import com.fabbe50.fogoverrides.network.NetworkHandler;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
@@ -25,6 +26,7 @@ public class FogOverrides {
     }
 
     public static void clientInit() {
+        Checkers.init();
         NetworkHandler.registerHandlers();
         NetworkHandler.registerClientHandshake();
         KeyMappingRegistry.register(ModConfigClient.OPEN_CONFIG);
