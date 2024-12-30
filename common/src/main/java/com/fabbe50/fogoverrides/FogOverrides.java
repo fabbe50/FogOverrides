@@ -1,10 +1,12 @@
 package com.fabbe50.fogoverrides;
 
+import com.fabbe50.fogoverrides.commands.CommandFogOverrides;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import com.fabbe50.fogoverrides.network.NetworkHandler;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.minecraft.client.renderer.FogRenderer;
 
@@ -17,14 +19,17 @@ public class FogOverrides {
     public static void init() {
         NetworkHandler.registerServerHandshake();
         ModConfig.register();
+        CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> {
+            CommandFogOverrides.register(dispatcher);
+        });
     }
 
     public static void clientInit() {
         NetworkHandler.registerHandlers();
         NetworkHandler.registerClientHandshake();
-        KeyMappingRegistry.register(ModConfig.OPEN_CONFIG);
+        KeyMappingRegistry.register(ModConfigClient.OPEN_CONFIG);
         ClientTickEvent.CLIENT_POST.register(instance -> {
-            while (ModConfig.OPEN_CONFIG.consumeClick()) {
+            while (ModConfigClient.OPEN_CONFIG.consumeClick()) {
                 instance.setScreen(ClothScreen.getConfigScreen(null));
             }
         });
