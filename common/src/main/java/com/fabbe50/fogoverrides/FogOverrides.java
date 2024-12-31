@@ -55,6 +55,8 @@ public class FogOverrides {
             strings.add("Colors: " +
                     "{Fog: " + (fogData.isOverrideGameFog() && fogData.isOverrideFogColor() ? Utilities.getFormattedColor(fogData.getFogColor()) :
                     dimensionData.isOverrideGameFog() && dimensionData.isOverrideFogColor() ? Utilities.getFormattedColor(dimensionData.getFogColor()) : "Vanilla") + "}, " +
+                    "{Weather: " + (fogData.getRain().isEnabled() ? Utilities.getFormattedColor(fogData.getRain().getColor()) :
+                    dimensionData.getRain().isEnabled() ? Utilities.getFormattedColor(dimensionData.getRain().getColor()) : "Vanilla") + "}, " +
                     "{Sky: " + (fogData.isOverrideGameFog() && fogData.isOverrideSkyColor() ? Utilities.getFormattedColor(fogData.getSkyColor()) :
                     dimensionData.isOverrideGameFog() && dimensionData.isOverrideSkyColor() ? Utilities.getFormattedColor(dimensionData.getSkyColor()) : "Vanilla") + "}, " +
                     "{Water: " + (fogData.isOverrideGameFog() && fogData.isOverrideWaterColor() ? Utilities.getFormattedColor(fogData.getWaterColor()) :

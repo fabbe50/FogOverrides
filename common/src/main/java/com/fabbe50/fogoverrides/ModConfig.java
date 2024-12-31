@@ -158,6 +158,7 @@ public class ModConfig {
             boolean isEnabled = ((String) properties.computeIfAbsent("fogEnabled_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.isFogEnabled()))).equalsIgnoreCase("true");
             float nearDistance = Float.parseFloat((String) properties.computeIfAbsent("nearDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.getNearDistance())));
             float farDistance = Float.parseFloat((String) properties.computeIfAbsent("farDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.getFarDistance())));
+            FogSetting rain = Setting.readFogSettingWithColor(properties, prefix + "_" + location.getNamespace() + "_" + location.getPath() + "_rain", Utilities.getDefaultTerrainDisabled());
             boolean overrideSkyColor = ((String) properties.computeIfAbsent("overrideSkyColor_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.isOverrideSkyColor()))).equalsIgnoreCase("true");
             int skyColor = Integer.parseInt((String) properties.computeIfAbsent("skyColor_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.getSkyColor())));
             boolean overrideFogColor = ((String) properties.computeIfAbsent("overrideFogColor_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.isOverrideFogColor()))).equalsIgnoreCase("true");
@@ -180,6 +181,7 @@ public class ModConfig {
             float lavaPotionFarDistance = Float.parseFloat((String) properties.computeIfAbsent("lavaPotionFarDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), o -> String.valueOf(defaults.getLavaPotionFarDistance())));
 
             ModFogData fogData = new ModFogData(overrideFog, isEnabled, nearDistance, farDistance, overrideSkyColor, skyColor, overrideFogColor, fogColor, overrideWaterFog, waterNearDistance, waterFarDistance, overrideWaterColor, waterColor, overrideWaterFogColor, waterFogColor);
+            fogData.setRain(rain);
             fogData.setWaterPotionEffect(waterPotionEffect);
             fogData.setWaterPotionNearDistance(waterPotionNearDistance);
             fogData.setWaterPotionFarDistance(waterPotionFarDistance);
@@ -199,6 +201,7 @@ public class ModConfig {
         Utilities.writeData(fos, "fogEnabled_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.isFogEnabled()));
         Utilities.writeData(fos, "nearDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.getNearDistance()));
         Utilities.writeData(fos, "farDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.getFarDistance()));
+        writeFogSetting(fos, prefix + "_" + location.getNamespace() + "_" + location.getPath() + "_rain", data.getRain());
         Utilities.writeData(fos, "overrideSkyColor_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.isOverrideSkyColor()));
         Utilities.writeData(fos, "skyColor_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.getSkyColor()));
         Utilities.writeData(fos, "overrideFogColor_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.isOverrideFogColor()));

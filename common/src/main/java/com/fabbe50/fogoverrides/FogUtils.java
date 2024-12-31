@@ -1,30 +1,29 @@
-package com.fabbe50.fogoverrides.data;
+package com.fabbe50.fogoverrides;
 
-import com.fabbe50.fogoverrides.FogOverrides;
-import com.fabbe50.fogoverrides.ModConfig;
-import com.fabbe50.fogoverrides.Utilities;
+import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.FogSetting;
+import com.fabbe50.fogoverrides.data.GameModeSettings;
+import com.fabbe50.fogoverrides.data.ModFogData;
 import com.fabbe50.fogoverrides.data.checker.Checkers;
 import com.fabbe50.fogoverrides.data.checker.IChecker;
 import com.fabbe50.fogoverrides.data.checker.Mode;
 import com.fabbe50.fogoverrides.data.checker.Result;
 import com.mojang.blaze3d.shaders.FogShape;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.client.renderer.FogRenderer.FogData;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -53,6 +52,7 @@ public class FogUtils {
             case CREATIVE -> doCreativeFog(color, renderDistance, fogType, fogData, settings, cir);
             case LIQUID -> doLiquidFog(entity, color, renderDistance, fogType, fogData, settings, biomeFogData, dimensionFogData, cir);
             case EFFECT -> doMobEffectFog(entity, effect, color, renderDistance, fogData, partialTicks, cir);
+            case WEATHER -> doWeatherFog(entity, color, renderDistance, fogData, biomeFogData, dimensionFogData, cir);
             case THICK -> doThickTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, cir);
             case TERRAIN -> doNormalTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, cir);
         }
@@ -77,6 +77,26 @@ public class FogUtils {
         }
         FogOverrides.setCurrentFogData(fogData, fogTypeData);
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
+    }
+
+    public static void doWeatherFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
+        if (biomeFogData.isOverrideGameFog()) {
+            doRainFog(entity, color, renderDistance, fogData, biomeFogData.getTerrain(), biomeFogData.getRain(), cir);
+        } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
+            doRainFog(entity, color, renderDistance, fogData, dimensionFogData.getTerrain(), dimensionFogData.getRain(), cir);
+        }
+    }
+
+    public static void doRainFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, FogSetting terrain, FogSetting rain, CallbackInfoReturnable<FogParameters> cir) {
+        if (rain.isEnabled()) {
+            float gameTimePartialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+            float rainLevel = entity.level().getRainLevel(gameTimePartialTick);
+            float near = Utilities.getBetweenDistanceByRatio(terrain.getNearDistance(), rain.getNearDistance(), rainLevel);
+            float far = Utilities.getBetweenDistanceByRatio(terrain.getFarDistance(), rain.getFarDistance(), rainLevel);
+            if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                finalizeFog(color, fogData, "WEATHER", cir);
+            }
+        }
     }
 
     public static void doLiquidFog(Entity entity, Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {

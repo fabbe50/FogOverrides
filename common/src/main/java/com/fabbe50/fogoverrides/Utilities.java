@@ -1,6 +1,8 @@
 package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.FogSetting;
+import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import com.mojang.blaze3d.shaders.FogShape;
 import net.minecraft.client.Minecraft;
@@ -15,12 +17,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector4f;
 
 import java.io.FileOutputStream;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.fabbe50.fogoverrides.ModConfig.*;
 
 public class Utilities {
     private static final ResourceLocation OVERWORLD = Level.OVERWORLD.location();
@@ -46,6 +51,10 @@ public class Utilities {
 
     public static int getColorIntegerFromVec3(Vec3 vec3) {
         return getColorIntegerFromRGB(vec3.x, vec3.y, vec3.z);
+    }
+
+    public static int getColorIntegerFromVec4F(Vector4f color) {
+        return getColorIntegerFromRGB(color.x, color.y, color.z);
     }
 
     public static int getColorIntegerFromRGB(double r, double g, double b) {
@@ -114,6 +123,16 @@ public class Utilities {
             return newR << 16 | newG << 8 | newB;
         }
         return originalColor;
+    }
+
+    public static float getReversedBetweenDistanceByRatio(float fromValue, float toValue, float ratio) {
+        float reversedRatio = 1 - ratio;
+        return getBetweenDistanceByRatio(fromValue, toValue, reversedRatio);
+    }
+
+    public static float getBetweenDistanceByRatio(float fromValue, float toValue, float ratio) {
+        float minRatio = 1 - ratio;
+        return (fromValue * minRatio) + (toValue * ratio);
     }
 
     public static int getCurrentSkyColor() {

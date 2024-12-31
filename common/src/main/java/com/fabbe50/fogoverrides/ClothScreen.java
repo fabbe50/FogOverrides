@@ -366,9 +366,11 @@ public class ClothScreen {
         lavaPotionFogEndDistance.setErrorSupplier(() -> lavaPotionFogStartDistance.getValue() >= lavaPotionFogEndDistance.getValue() ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
         lavaPotionFogEndDistance.requestReferenceRebuilding();
 
+        SubCategoryBuilder rainSettingsCat = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.rain"));
+        List<AbstractConfigListEntry<?>> rainSettings = createTerrainFogSetting(entryBuilder, "Rain", fogData.getRain(), Utilities.getDefaultTerrainDisabled(), true);
+
         List<AbstractConfigListEntry<?>> waterSettingEntries;
         List<AbstractConfigListEntry<?>> lavaSettingEntries = List.of(overrideLavaFog, lavaFogStartDistance, lavaFogEndDistance, lavaPotionEffect, lavaPotionFogStartDistance, lavaPotionFogEndDistance);
-        List<AbstractConfigListEntry<?>> settingEntries = List.of(overrideFog, fogEnabled, fogStartDistance, fogEndDistance, overrideSkyColor, skyColor, overrideFogColor, fogColor, waterSettings.build(), lavaSettings.build());
 
         if (overrideWaterColor != null) {
             waterSettingEntries = List.of(overrideWaterFog, waterFogStartDistance, waterFogEndDistance, waterPotionEffect, waterPotionFogStartDistance, waterPotionFogEndDistance, overrideWaterColor, waterColor, overrideWaterFogColor, waterFogColor);
@@ -380,6 +382,8 @@ public class ClothScreen {
         configListEntries.addAll(waterSettingEntries);
         configListEntries.addAll(lavaSettingEntries);
         configListEntries.addAll(settingEntries);
+        rainSettingsCat.addAll(rainSettings);
+        List<AbstractConfigListEntry<?>> settingEntries = List.of(overrideFog, fogEnabled, fogStartDistance, fogEndDistance, overrideSkyColor, skyColor, overrideFogColor, fogColor, waterSettings.build(), lavaSettings.build(), rainSettingsCat.build());
 
         for (AbstractConfigListEntry<?> entry : configListEntries) {
             entry.appendSearchTags(List.of(name));

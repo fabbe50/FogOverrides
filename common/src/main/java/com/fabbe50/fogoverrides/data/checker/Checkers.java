@@ -2,12 +2,15 @@ package com.fabbe50.fogoverrides.data.checker;
 
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.fabbe50.fogoverrides.data.FogUtils;
+import com.fabbe50.fogoverrides.FogUtils;
+import com.fabbe50.fogoverrides.data.FogSetting;
+import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FogType;
 
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ public class Checkers {
         checkers.add(new CreativeChecker());
         checkers.add(new LiquidChecker());
         checkers.add(new EffectChecker());
+        checkers.add(new WeatherChecker());
         checkers.add(new ThickFogChecker());
         checkers.add(new SkyChecker());
         checkers.add(new TerrainChecker());
@@ -195,6 +199,24 @@ public class Checkers {
                 if (dimensionData != null && dimensionData.isOverrideGameFog() && dimensionData.hasValidFogDistance()) {
                     return Result.DO_RENDER;
                 }
+            }
+            return Result.ALLOW_NEXT;
+        }
+    }
+
+    public static class WeatherChecker implements IChecker {
+        @Override
+        public Mode getMode() {
+            return Mode.WEATHER;
+        }
+
+        @Override
+        public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
+            Level level = entity.level();
+            ModFogData biomeData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
+            ModFogData dimensionData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+            if (level.isRaining() && (biomeData.getRain().isEnabled() || dimensionData.getRain().isEnabled())) {
+                return Result.DO_RENDER;
             }
             return Result.ALLOW_NEXT;
         }

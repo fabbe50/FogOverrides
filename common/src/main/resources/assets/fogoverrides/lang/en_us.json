@@ -121,6 +121,7 @@
   "text.fogoverrides.option.lava_potion_fog_start_distance.tooltip": "The amount of blocks away from the camera that the fog should start rendering under lava when a fire resistance potion is active.",
   "text.fogoverrides.option.lava_potion_fog_end_distance": "Fire Resistance Potion Fog Far Distance",
   "text.fogoverrides.option.lava_potion_fog_end_distance.tooltip": "The amount of blocks away from the camera that the fog should become fully opaque under lava when a fire resistance potion is active.",
+  "text.fogoverrides.subcat.rain": "Rain Settings",
 
   "text.fogoverrides.commands.reload.success.single": "Updated fog for %s player.",
   "text.fogoverrides.commands.reload.success.multiple": "Update for for %s players.",

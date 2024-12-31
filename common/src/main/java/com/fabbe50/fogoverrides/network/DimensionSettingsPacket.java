@@ -3,6 +3,7 @@ package com.fabbe50.fogoverrides.network;
 import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.FogSetting;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import dev.architectury.networking.NetworkManager;
 import net.fabricmc.api.EnvType;
@@ -61,6 +62,10 @@ public class DimensionSettingsPacket {
                 boolean lavaPotionEffect = payload.lavaPotionEffect();
                 float lavaPotionNear = payload.lavaPotionNear();
                 float lavaPotionFar = payload.lavaPotionFar();
+                boolean rainEnabled = payload.rainEnabled();
+                float rainNear = payload.rainNear();
+                float rainFar = payload.rainFar();
+                int rainColor = payload.rainColor();
                 ModFogData fogData = new ModFogData(overrideBiomeFog, biomeFogEnabled, nearDistance, farDistance,
                         overrideSkyColor, skyColor, overrideFogColor, fogColor,
                         overrideWaterFog, waterNear, waterFar, overrideWaterFogColor, waterFogColor);
@@ -73,6 +78,7 @@ public class DimensionSettingsPacket {
                 fogData.setLavaPotionEffect(lavaPotionEffect);
                 fogData.setLavaPotionNearDistance(lavaPotionNear);
                 fogData.setLavaPotionFarDistance(lavaPotionFar);
+                fogData.setRain(new FogSetting(rainEnabled, rainNear, rainFar, rainColor));
                 if (location.getPath().equals(Utilities.getOverworld().getPath())) {
                     CurrentDataStorage.INSTANCE.updateOverworldFogData(fogData);
                 } else if (location.getPath().equals(Utilities.getNether().getPath())) {
@@ -88,13 +94,15 @@ public class DimensionSettingsPacket {
                                  boolean overrideSkyColor, int skyColor, boolean overrideFogColor, int fogColor,
                                  boolean overrideWaterFog, float waterNear, float waterFar, boolean waterPotionEffect, float waterPotionNear, float waterPotionFar,
                                  boolean overrideWaterFogColor, int waterFogColor,
-                                 boolean overrideLavaFog, float lavaNear, float lavaFar, boolean lavaPotionEffect, float lavaPotionNear, float lavaPotionFar) implements CustomPacketPayload {
+                                 boolean overrideLavaFog, float lavaNear, float lavaFar, boolean lavaPotionEffect, float lavaPotionNear, float lavaPotionFar,
+                                boolean rainEnabled, float rainNear, float rainFar, int rainColor) implements CustomPacketPayload {
         public PacketPayload(FriendlyByteBuf buf) {
             this(buf.readResourceLocation(), buf.readBoolean(), buf.readBoolean(), buf.readFloat(), buf.readFloat(),
                     buf.readBoolean(), buf.readInt(), buf.readBoolean(), buf.readInt(),
                     buf.readBoolean(), buf.readFloat(), buf.readFloat(), buf.readBoolean(), buf.readFloat(), buf.readFloat(),
                     buf.readBoolean(), buf.readInt(),
-                    buf.readBoolean(), buf.readFloat(), buf.readFloat(), buf.readBoolean(), buf.readFloat(), buf.readFloat());
+                    buf.readBoolean(), buf.readFloat(), buf.readFloat(), buf.readBoolean(), buf.readFloat(), buf.readFloat(),
+                    buf.readBoolean(), buf.readFloat(), buf.readFloat(), buf.readInt());
         }
 
         public PacketPayload(ResourceLocation location, ModFogData modFogData) {
@@ -102,7 +110,8 @@ public class DimensionSettingsPacket {
                     modFogData.isOverrideSkyColor(), modFogData.getSkyColor(), modFogData.isOverrideFogColor(), modFogData.getFogColor(),
                     modFogData.isOverrideWaterFog(), modFogData.getWaterNearDistance(), modFogData.getWaterFarDistance(), modFogData.isWaterPotionEffect(), modFogData.getWaterPotionNearDistance(), modFogData.getWaterPotionFarDistance(),
                     modFogData.isOverrideWaterFogColor(), modFogData.getWaterFogColor(),
-                    modFogData.isOverrideLavaFog(), modFogData.getLavaNearDistance(), modFogData.getLavaFarDistance(), modFogData.isLavaPotionEffect(), modFogData.getLavaPotionNearDistance(), modFogData.getLavaPotionFarDistance());
+                    modFogData.isOverrideLavaFog(), modFogData.getLavaNearDistance(), modFogData.getLavaFarDistance(), modFogData.isLavaPotionEffect(), modFogData.getLavaPotionNearDistance(), modFogData.getLavaPotionFarDistance(),
+                    modFogData.getRain().isEnabled(), modFogData.getRain().getNearDistance(), modFogData.getRain().getFarDistance(), modFogData.getRain().getColor());
         }
 
         public void write(FriendlyByteBuf buf) {
@@ -131,6 +140,10 @@ public class DimensionSettingsPacket {
                 buf.writeBoolean(fogData.isLavaPotionEffect());
                 buf.writeFloat(fogData.getLavaPotionNearDistance());
                 buf.writeFloat(fogData.getLavaPotionFarDistance());
+                buf.writeBoolean(fogData.getRain().isEnabled());
+                buf.writeFloat(fogData.getRain().getNearDistance());
+                buf.writeFloat(fogData.getRain().getFarDistance());
+                buf.writeInt(fogData.getRain().getColor());
             }
         }
 

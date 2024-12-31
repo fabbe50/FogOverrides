@@ -7,6 +7,7 @@ public enum Mode {
     EFFECT,
     THICK,
     TERRAIN,
+    WEATHER,
     SKY,
     VANILLA,
     UNSET
