@@ -2,29 +2,20 @@ package com.fabbe50.fogoverrides.data;
 
 public class ModFogData {
     private boolean overrideGameFog;
-    private boolean isFogEnabled;
-    private float nearDistance;
-    private float farDistance;
+
+    private boolean overrideFogColor;
+    private FogSetting terrain;
     private boolean overrideSkyColor;
     private int skyColor;
-    private boolean overrideFogColor;
-    private int fogColor;
-    private boolean overrideWaterFog;
-    private float waterNearDistance;
-    private float waterFarDistance;
-    private boolean waterPotionEffect;
-    private float waterPotionNearDistance;
-    private float waterPotionFarDistance;
+
+    private boolean overrideWaterFogColor;
+    private FogSetting water;
+    private FogSetting waterPotion;
     private boolean overrideWaterColor;
     private int waterColor;
-    private boolean overrideWaterFogColor;
-    private int waterFogColor;
-    private boolean overrideLavaFog;
-    private float lavaNearDistance;
-    private float lavaFarDistance;
-    private boolean lavaPotionEffect;
-    private float lavaPotionNearDistance;
-    private float lavaPotionFarDistance;
+
+    private FogSetting lava;
+    private FogSetting lavaPotion;
 
     public ModFogData(float nearDistance, float farDistance, int color, float waterNearDistance, float waterFarDistance, int waterFogColor) {
         this(nearDistance, farDistance, color, color, waterNearDistance, waterFarDistance, -1, waterFogColor);
@@ -42,29 +33,20 @@ public class ModFogData {
     public ModFogData(boolean overrideGameFog, boolean isFogEnabled, float nearDistance, float farDistance, boolean overrideSkyColor, int skyColor, boolean overrideFogColor, int fogColor,
                       boolean overrideWaterFog, float waterNearDistance, float waterFarDistance, boolean overrideWaterColor, int waterColor, boolean overrideWaterFogColor, int waterFogColor) {
         this.overrideGameFog = overrideGameFog;
-        this.isFogEnabled = isFogEnabled;
-        this.nearDistance = nearDistance;
-        this.farDistance = farDistance;
+
+        this.overrideFogColor = overrideFogColor;
+        terrain = new FogSetting(isFogEnabled, nearDistance, farDistance, fogColor);
         this.overrideSkyColor = overrideSkyColor;
         this.skyColor = skyColor;
-        this.overrideFogColor = overrideFogColor;
-        this.fogColor = fogColor;
-        this.overrideWaterFog = overrideWaterFog;
-        this.waterNearDistance = waterNearDistance;
-        this.waterFarDistance = waterFarDistance;
-        this.waterPotionEffect = false;
-        this.waterPotionNearDistance = waterNearDistance;
-        this.waterPotionFarDistance = waterFarDistance;
+
+        this.overrideWaterFogColor = overrideWaterFogColor;
+        water = new FogSetting(overrideWaterFog, waterNearDistance, waterFarDistance, waterFogColor);
+        waterPotion = new FogSetting(false, waterNearDistance, waterFarDistance);
         this.overrideWaterColor = overrideWaterColor;
         this.waterColor = waterColor;
-        this.overrideWaterFogColor = overrideWaterFogColor;
-        this.waterFogColor = waterFogColor;
-        this.overrideLavaFog = false;
-        this.lavaNearDistance = 0.25f;
-        this.lavaFarDistance = 1.0f;
-        this.lavaPotionEffect = false;
-        this.lavaPotionNearDistance = 0.0f;
-        this.lavaPotionFarDistance = 3.0f;
+
+        lava = new FogSetting(false, 0.25f, 1);
+        lavaPotion = new FogSetting(false, 0, 3);
     }
 
     public void setOverrideGameFog(boolean overrideGameFog) {
@@ -75,28 +57,68 @@ public class ModFogData {
         return overrideGameFog;
     }
 
+    public void setTerrain(FogSetting terrain) {
+        this.terrain = terrain;
+    }
+
+    public FogSetting getTerrain() {
+        return terrain;
+    }
+
+    public void setWater(FogSetting water) {
+        this.water = water;
+    }
+
+    public FogSetting getWater() {
+        return water;
+    }
+
+    public void setWaterPotion(FogSetting waterPotion) {
+        this.waterPotion = waterPotion;
+    }
+
+    public FogSetting getWaterPotion() {
+        return waterPotion;
+    }
+
+    public void setLava(FogSetting lava) {
+        this.lava = lava;
+    }
+
+    public FogSetting getLava() {
+        return lava;
+    }
+
+    public void setLavaPotion(FogSetting lavaPotion) {
+        this.lavaPotion = lavaPotion;
+    }
+
+    public FogSetting getLavaPotion() {
+        return lavaPotion;
+    }
+
     public void setFogEnabled(boolean fogEnabled) {
-        isFogEnabled = fogEnabled;
+        terrain.setEnabled(fogEnabled);
     }
 
     public boolean isFogEnabled() {
-        return isFogEnabled;
+        return terrain.isEnabled();
     }
 
     public void setNearDistance(float nearDistance) {
-        this.nearDistance = nearDistance;
+        terrain.setNearDistance(nearDistance);
     }
 
     public float getNearDistance() {
-        return nearDistance;
+        return terrain.getNearDistance();
     }
 
     public void setFarDistance(float farDistance) {
-        this.farDistance = farDistance;
+        terrain.setFarDistance(farDistance);
     }
 
     public float getFarDistance() {
-        return farDistance;
+        return terrain.getFarDistance();
     }
 
     public void setOverrideSkyColor(boolean overrideSkyColor) {
@@ -124,59 +146,59 @@ public class ModFogData {
     }
 
     public void setFogColor(int fogColor) {
-        this.fogColor = fogColor;
+        terrain.setColor(fogColor);
     }
 
     public int getFogColor() {
-        return fogColor;
+        return terrain.getColor();
     }
 
     public void setOverrideWaterFog(boolean overrideWaterFog) {
-        this.overrideWaterFog = overrideWaterFog;
+        water.setEnabled(overrideWaterFog);
     }
 
     public boolean isOverrideWaterFog() {
-        return overrideWaterFog;
+        return water.isEnabled();
     }
 
     public void setWaterNearDistance(float waterNearDistance) {
-        this.waterNearDistance = waterNearDistance;
+        water.setNearDistance(waterNearDistance);
     }
 
     public float getWaterNearDistance() {
-        return waterNearDistance;
+        return water.getNearDistance();
     }
 
     public void setWaterFarDistance(float waterFarDistance) {
-        this.waterFarDistance = waterFarDistance;
+        water.setFarDistance(waterFarDistance);
     }
 
     public float getWaterFarDistance() {
-        return waterFarDistance;
+        return water.getFarDistance();
     }
 
     public void setWaterPotionEffect(boolean waterPotionEffect) {
-        this.waterPotionEffect = waterPotionEffect;
+        waterPotion.setEnabled(waterPotionEffect);
     }
 
     public boolean isWaterPotionEffect() {
-        return waterPotionEffect;
+        return waterPotion.isEnabled();
     }
 
     public void setWaterPotionNearDistance(float waterPotionNearDistance) {
-        this.waterPotionNearDistance = waterPotionNearDistance;
+        waterPotion.setNearDistance(waterPotionNearDistance);
     }
 
     public float getWaterPotionNearDistance() {
-        return waterPotionNearDistance;
+        return waterPotion.getNearDistance();
     }
 
     public void setWaterPotionFarDistance(float waterPotionFarDistance) {
-        this.waterPotionFarDistance = waterPotionFarDistance;
+        waterPotion.setFarDistance(waterPotionFarDistance);
     }
 
     public float getWaterPotionFarDistance() {
-        return waterPotionFarDistance;
+        return waterPotion.getFarDistance();
     }
 
     public boolean isOverrideWaterColor() {
@@ -204,59 +226,59 @@ public class ModFogData {
     }
 
     public void setWaterFogColor(int waterFogColor) {
-        this.waterFogColor = waterFogColor;
+        water.setColor(waterFogColor);
     }
 
     public int getWaterFogColor() {
-        return waterFogColor;
+        return water.getColor();
     }
 
     public void setOverrideLavaFog(boolean overrideLavaFog) {
-        this.overrideLavaFog = overrideLavaFog;
+        lava.setEnabled(overrideLavaFog);
     }
 
     public boolean isOverrideLavaFog() {
-        return overrideLavaFog;
+        return lava.isEnabled();
     }
 
     public void setLavaNearDistance(float lavaNearDistance) {
-        this.lavaNearDistance = lavaNearDistance;
+        lava.setNearDistance(lavaNearDistance);
     }
 
     public float getLavaNearDistance() {
-        return lavaNearDistance;
+        return lava.getNearDistance();
     }
 
     public void setLavaFarDistance(float lavaFarDistance) {
-        this.lavaFarDistance = lavaFarDistance;
+        lava.setFarDistance(lavaFarDistance);
     }
 
     public float getLavaFarDistance() {
-        return lavaFarDistance;
+        return lava.getFarDistance();
     }
 
     public void setLavaPotionEffect(boolean lavaPotionEffect) {
-        this.lavaPotionEffect = lavaPotionEffect;
+        lavaPotion.setEnabled(lavaPotionEffect);
     }
 
     public boolean isLavaPotionEffect() {
-        return lavaPotionEffect;
+        return lavaPotion.isEnabled();
     }
 
     public void setLavaPotionNearDistance(float lavaPotionNearDistance) {
-        this.lavaPotionNearDistance = lavaPotionNearDistance;
+        lavaPotion.setNearDistance(lavaPotionNearDistance);
     }
 
     public float getLavaPotionNearDistance() {
-        return lavaPotionNearDistance;
+        return lavaPotion.getNearDistance();
     }
 
     public void setLavaPotionFarDistance(float lavaPotionFarDistance) {
-        this.lavaPotionFarDistance = lavaPotionFarDistance;
+        lavaPotion.setFarDistance(lavaPotionFarDistance);
     }
 
     public float getLavaPotionFarDistance() {
-        return lavaPotionFarDistance;
+        return lavaPotion.getFarDistance();
     }
 
     public boolean hasValidFogDistance() {
