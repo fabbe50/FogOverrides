@@ -1,9 +1,10 @@
 package com.fabbe50.fogoverrides.network;
 
-import com.fabbe50.fogoverrides.FogOverrides;
 import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.FogSetting;
+import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.common.PlayerEvent;
@@ -22,8 +23,7 @@ public class NetworkHandler {
 
     public static void registerHandlers() {
         S2CHandshakePacket.Client.register();
-        SpectatorSettingsPacket.Client.register();
-        CreativeSettingsPacket.Client.register();
+        GameModeSettingsPacket.Client.register();
         LiquidsPacket.Client.register();
         CloudsPacket.Client.register();
         OverlaysPacket.Client.register();
@@ -75,8 +75,8 @@ public class NetworkHandler {
     }
 
     public static void sendSettingsToPlayer(Player player) {
-        NetworkManager.sendToPlayer((ServerPlayer) player, new SpectatorSettingsPacket.PacketPayload(getSpectatorSettingsBuffer()));
-        NetworkManager.sendToPlayer((ServerPlayer) player, new CreativeSettingsPacket.PacketPayload(getCreativeSettingsBuffer()));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.PacketPayload(getGameModeSettingsBuffer("spectator", ModConfig.spectatorSettings)));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.PacketPayload(getGameModeSettingsBuffer("creative", ModConfig.creativeSettings)));
         ResourceLocation[] dimensionLocations = new ResourceLocation[] {Utilities.getOverworld(), Utilities.getNether(), Utilities.getTheEnd()};
         for (ResourceLocation location : dimensionLocations) {
             ModFogData fogData = ModConfig.getFogDataFromDimension(location);
@@ -95,27 +95,22 @@ public class NetworkHandler {
         NetworkManager.sendToPlayer((ServerPlayer) player, new OverlaysPacket.PacketPayload(getOverlaysBuffer()));
     }
 
-    public static FriendlyByteBuf getSpectatorSettingsBuffer() {
+    public static FriendlyByteBuf getGameModeSettingsBuffer(String gameMode, GameModeSettings settings) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBoolean(ModConfig.spectatorHasModFog);
-        buf.writeFloat(ModConfig.spectatorNearDistance);
-        buf.writeFloat(ModConfig.spectatorFarDistance);
-        buf.writeFloat(ModConfig.spectatorWaterNearDistance);
-        buf.writeFloat(ModConfig.spectatorWaterFarDistance);
-        buf.writeFloat(ModConfig.spectatorLavaNearDistance);
-        buf.writeFloat(ModConfig.spectatorLavaFarDistance);
-        return buf;
-    }
-
-    public static FriendlyByteBuf getCreativeSettingsBuffer() {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBoolean(ModConfig.creativeHasModFog);
-        buf.writeFloat(ModConfig.creativeNearDistance);
-        buf.writeFloat(ModConfig.creativeFarDistance);
-        buf.writeFloat(ModConfig.creativeWaterNearDistance);
-        buf.writeFloat(ModConfig.creativeWaterFarDistance);
-        buf.writeFloat(ModConfig.creativeLavaNearDistance);
-        buf.writeFloat(ModConfig.creativeLavaFarDistance);
+        buf.writeUtf(gameMode);
+        buf.writeUtf(settings.getFogMode().getId());
+        FogSetting terrain = settings.getTerrainFog();
+        buf.writeBoolean(terrain.isEnabled());
+        buf.writeFloat(terrain.getNearDistance());
+        buf.writeFloat(terrain.getFarDistance());
+        FogSetting water = settings.getWaterFog();
+        buf.writeBoolean(water.isEnabled());
+        buf.writeFloat(water.getNearDistance());
+        buf.writeFloat(water.getFarDistance());
+        FogSetting lava = settings.getLavaFog();
+        buf.writeBoolean(lava.isEnabled());
+        buf.writeFloat(lava.getNearDistance());
+        buf.writeFloat(lava.getFarDistance());
         return buf;
     }
 

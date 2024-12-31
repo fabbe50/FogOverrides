@@ -31,6 +31,37 @@ public class Checkers {
         return checkers;
     }
 
+    public static class GameModeChecker {
+        public static Result getResult(GameModeSettings settings, FogRenderer.FogMode fogMode, FogType fogType) {
+            GameModeSettings.FogMode gameModeFogMode = settings.getFogMode();
+            if (gameModeFogMode == GameModeSettings.FogMode.NO_FOG) {
+                return Result.DO_RENDER;
+            } else if (gameModeFogMode == GameModeSettings.FogMode.OVERRIDES) {
+                if (fogType == FogType.WATER) {
+                    FogSetting waterFog = settings.getWaterFog();
+                    if (FogUtils.validate(waterFog.getNearDistance(), waterFog.getFarDistance())) {
+                        return Result.DO_RENDER;
+                    }
+                }
+                if (fogType == FogType.LAVA) {
+                    FogSetting lavaFog = settings.getLavaFog();
+                    if (FogUtils.validate(lavaFog.getNearDistance(), lavaFog.getFarDistance())) {
+                        return Result.DO_RENDER;
+                    }
+                }
+                if (fogMode == FogRenderer.FogMode.FOG_TERRAIN) {
+                    FogSetting terrainFog = settings.getTerrainFog();
+                    if (FogUtils.validate(terrainFog.getNearDistance(), terrainFog.getFarDistance())) {
+                        return Result.DO_RENDER;
+                    }
+                }
+            } else if (gameModeFogMode == GameModeSettings.FogMode.VANILLA_FOG) {
+                return Result.SKIP_STACK;
+            }
+            return Result.ALLOW_NEXT;
+        }
+    }
+
     public static class SpectatorChecker implements IChecker {
         @Override
         public Mode getMode() {
@@ -40,21 +71,7 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             if (entity.isSpectator()) {
-                if (fogType == FogType.WATER) {
-                    if (FogUtils.validate(settings.getSpectatorWaterNearDistance(), settings.getSpectatorWaterFarDistance())) {
-                        return Result.DO_RENDER;
-                    }
-                }
-                if (fogType == FogType.LAVA) {
-                    if (FogUtils.validate(settings.getSpectatorLavaNearDistance(), settings.getSpectatorLavaFarDistance())) {
-                        return Result.DO_RENDER;
-                    }
-                }
-                if (fogMode == FogRenderer.FogMode.FOG_TERRAIN) {
-                    if (FogUtils.validate(settings.getSpectatorNearDistance(), settings.getSpectatorFarDistance())) {
-                        return Result.DO_RENDER;
-                    }
-                }
+                return GameModeChecker.getResult(settings.getSpectatorSettings(), fogMode, fogType);
             }
             return Result.ALLOW_NEXT;
         }
@@ -69,21 +86,7 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             if (entity instanceof Player player && player.isCreative()) {
-                if (fogType == FogType.WATER) {
-                    if (FogUtils.validate(settings.getCreativeWaterNearDistance(), settings.getCreativeWaterFarDistance())) {
-                        return Result.DO_RENDER;
-                    }
-                }
-                if (fogType == FogType.LAVA) {
-                    if (FogUtils.validate(settings.getCreativeLavaNearDistance(), settings.getCreativeLavaFarDistance())) {
-                        return Result.DO_RENDER;
-                    }
-                }
-                if (fogMode == FogRenderer.FogMode.FOG_TERRAIN) {
-                    if (FogUtils.validate(settings.getCreativeNearDistance(), settings.getCreativeFarDistance())) {
-                        return Result.DO_RENDER;
-                    }
-                }
+                return GameModeChecker.getResult(settings.getCreativeSettings(), fogMode, fogType);
             }
             return Result.ALLOW_NEXT;
         }

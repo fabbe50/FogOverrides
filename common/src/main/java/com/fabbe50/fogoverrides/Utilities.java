@@ -258,6 +258,26 @@ public class Utilities {
         return new ModFogData(-1, -1, 7907327, 12638463, -8.0f, 96.0f, 4159204, 329011);
     }
 
+    public static GameModeSettings getDefaultGameModeSettings() {
+        return new GameModeSettings();
+    }
+
+    public static FogSetting getDefaultTerrain() {
+        return new FogSetting(true, -1, 0, 0xFFFFFF);
+    }
+
+    public static FogSetting getDefaultTerrainDisabled() {
+        return new FogSetting(false, -1, 0, 0xFFFFFF);
+    }
+
+    public static FogSetting getDefaultWater() {
+        return new FogSetting(true, UNDERWATER_NEAR_DEFAULT, UNDERWATER_FAR_DEFAULT, 0xFFFFFF);
+    }
+
+    public static FogSetting getDefaultLava() {
+        return new FogSetting(true, LAVA_NEAR_DEFAULT, LAVA_FAR_DEFAULT, 0xFFFFFF);
+    }
+
     public static void writeData(FileOutputStream fos, String key, String value) throws IOException {
         fos.write((key + "=" + value).getBytes());
         fos.write("\n".getBytes());

@@ -1,6 +1,8 @@
 package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.ModConfig.CalculationSetting;
+import com.fabbe50.fogoverrides.data.FogSetting;
+import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -47,7 +49,7 @@ public class ClothScreen {
                 .build();
         general.addEntry(openMenuKeyBind);
 
-        EnumListEntry<CalculationSetting> respectRenderDistance = entryBuilder.startEnumSelector(Component.translatable("text.fogoverrides.option.calculation-setting"), CalculationSetting.class, ModConfig.calculationSetting)
+        EnumListEntry<CalculationSetting> calculationType = entryBuilder.startEnumSelector(Component.translatable("text.fogoverrides.option.calculation-setting"), CalculationSetting.class, ModConfig.calculationSetting)
                 .setDefaultValue(CalculationSetting.BLOCKS)
                 .setTooltip(
                         Component.translatable("text.fogoverrides.option.calculation-setting.tooltip[0]"),
@@ -62,97 +64,11 @@ public class ClothScreen {
                 })
                 .setSaveConsumer(anEnum -> ModConfig.calculationSetting = anEnum)
                 .build();
-        general.addEntry(respectRenderDistance);
+        general.addEntry(calculationType);
 
-        SubCategoryBuilder spectatorCategory = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.spectator"));
-        BooleanListEntry spectatorHasModFog = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.spectator_fog"), ModConfig.spectatorHasModFog)
-                .setDefaultValue(false)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_fog.tooltip"))
-                .setYesNoTextSupplier(aBoolean -> Component.translatable("text.fogoverrides.setting" + (aBoolean ? ".enabled" : ".disabled")).withStyle(aBoolean ? ChatFormatting.GREEN : ChatFormatting.RED))
-                .setSaveConsumer(aBoolean -> ModConfig.spectatorHasModFog = aBoolean)
-                .build();
-        IntegerSliderEntry spectatorFogStartDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.spectator_fog_start_distance"), (int)ModConfig.spectatorNearDistance, -1, FOG_START_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_fog_start_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.spectatorNearDistance = integer));
-        IntegerSliderEntry spectatorFogEndDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.spectator_fog_end_distance"), (int)ModConfig.spectatorFarDistance, -1, FOG_END_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_fog_end_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.spectatorFarDistance = integer));
-        spectatorFogStartDistance.setErrorSupplier(() -> spectatorFogStartDistance.getValue() >= spectatorFogEndDistance.getValue() && spectatorFogStartDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        spectatorFogStartDistance.requestReferenceRebuilding();
-        spectatorFogEndDistance.setErrorSupplier(() -> spectatorFogStartDistance.getValue() >= spectatorFogEndDistance.getValue() && spectatorFogEndDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        spectatorFogEndDistance.requestReferenceRebuilding();   
-        IntegerSliderEntry spectatorWaterFogStartDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.spectator_water_fog_start_distance"), (int)ModConfig.spectatorWaterNearDistance, -1, FOG_START_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_water_fog_start_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.spectatorWaterNearDistance = integer));
-        IntegerSliderEntry spectatorWaterFogEndDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.spectator_water_fog_end_distance"), (int)ModConfig.spectatorWaterFarDistance, -1, FOG_END_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_water_fog_end_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.spectatorWaterFarDistance = integer));
-        spectatorWaterFogStartDistance.setErrorSupplier(() -> spectatorWaterFogStartDistance.getValue() >= spectatorWaterFogEndDistance.getValue() && spectatorWaterFogStartDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        spectatorWaterFogStartDistance.requestReferenceRebuilding();
-        spectatorWaterFogEndDistance.setErrorSupplier(() -> spectatorWaterFogStartDistance.getValue() >= spectatorWaterFogEndDistance.getValue() && spectatorWaterFogEndDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        spectatorWaterFogEndDistance.requestReferenceRebuilding();
-        IntegerSliderEntry spectatorLavaFogStartDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.spectator_lava_fog_start_distance"), (int)ModConfig.spectatorLavaNearDistance, -1, FOG_START_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_lava_fog_start_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.spectatorLavaNearDistance = integer));
-        IntegerSliderEntry spectatorLavaFogEndDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.spectator_lava_fog_end_distance"), (int)ModConfig.spectatorLavaFarDistance, -1, FOG_END_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.spectator_lava_fog_end_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.spectatorLavaFarDistance = integer));
-        spectatorLavaFogStartDistance.setErrorSupplier(() -> spectatorLavaFogStartDistance.getValue() >= spectatorLavaFogEndDistance.getValue() && spectatorLavaFogStartDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        spectatorLavaFogStartDistance.requestReferenceRebuilding();
-        spectatorLavaFogEndDistance.setErrorSupplier(() -> spectatorLavaFogStartDistance.getValue() >= spectatorLavaFogEndDistance.getValue() && spectatorLavaFogEndDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        spectatorLavaFogEndDistance.requestReferenceRebuilding();
-        spectatorCategory.addAll(List.of(spectatorHasModFog, spectatorFogStartDistance, spectatorFogEndDistance, spectatorWaterFogStartDistance, spectatorWaterFogEndDistance, spectatorLavaFogStartDistance, spectatorLavaFogEndDistance));
+        SubCategoryBuilder spectatorCategory = createGameModeSettingsSubCat(entryBuilder, "spectator", spectatorSettings);
+        SubCategoryBuilder creativeCategory = createGameModeSettingsSubCat(entryBuilder, "creative", creativeSettings);
         general.addEntry(spectatorCategory.build());
-        SubCategoryBuilder creativeCategory = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.creative"));
-        BooleanListEntry creativeHasModFog = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.creative_fog"), ModConfig.creativeHasModFog)
-                .setDefaultValue(false)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_fog.tooltip"))
-                .setYesNoTextSupplier(aBoolean -> Component.translatable("text.fogoverrides.setting" + (aBoolean ? ".enabled" : ".disabled")).withStyle(aBoolean ? ChatFormatting.GREEN : ChatFormatting.RED))
-                .setSaveConsumer(aBoolean -> ModConfig.creativeHasModFog = aBoolean)
-                .build();
-        IntegerSliderEntry creativeFogStartDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.creative_fog_start_distance"), (int)ModConfig.creativeNearDistance, -1, FOG_START_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_fog_start_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.creativeNearDistance = integer));
-        IntegerSliderEntry creativeFogEndDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.creative_fog_end_distance"), (int)ModConfig.creativeFarDistance, -1, FOG_END_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_fog_end_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.creativeFarDistance = integer));
-        creativeFogStartDistance.setErrorSupplier(() -> creativeFogStartDistance.getValue() >= creativeFogEndDistance.getValue() && creativeFogStartDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        creativeFogStartDistance.requestReferenceRebuilding();
-        creativeFogEndDistance.setErrorSupplier(() -> creativeFogStartDistance.getValue() >= creativeFogEndDistance.getValue() && creativeFogEndDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        creativeFogEndDistance.requestReferenceRebuilding();   
-        IntegerSliderEntry creativeWaterFogStartDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.creative_water_fog_start_distance"), (int)ModConfig.creativeWaterNearDistance, -1, FOG_START_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_water_fog_start_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.creativeWaterNearDistance = integer));
-        IntegerSliderEntry creativeWaterFogEndDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.creative_water_fog_end_distance"), (int)ModConfig.creativeWaterFarDistance, -1, FOG_END_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_water_fog_end_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.creativeWaterFarDistance = integer));
-        creativeWaterFogStartDistance.setErrorSupplier(() -> creativeWaterFogStartDistance.getValue() >= creativeWaterFogEndDistance.getValue() && creativeWaterFogStartDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        creativeWaterFogStartDistance.requestReferenceRebuilding();
-        creativeWaterFogEndDistance.setErrorSupplier(() -> creativeWaterFogStartDistance.getValue() >= creativeWaterFogEndDistance.getValue() && creativeWaterFogEndDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        creativeWaterFogEndDistance.requestReferenceRebuilding();
-        IntegerSliderEntry creativeLavaFogStartDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.creative_lava_fog_start_distance"), (int)ModConfig.creativeLavaNearDistance, -1, FOG_START_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_lava_fog_start_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.creativeLavaNearDistance = integer));
-        IntegerSliderEntry creativeLavaFogEndDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.creative_lava_fog_end_distance"), (int)ModConfig.creativeLavaFarDistance, -1, FOG_END_MAX)
-                .setDefaultValue(-1)
-                .setTooltip(Component.translatable("text.fogoverrides.option.creative_lava_fog_end_distance.tooltip"))
-                .setSaveConsumer(integer -> ModConfig.creativeLavaFarDistance = integer));
-        creativeLavaFogStartDistance.setErrorSupplier(() -> creativeLavaFogStartDistance.getValue() >= creativeLavaFogEndDistance.getValue() && creativeLavaFogStartDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        creativeLavaFogStartDistance.requestReferenceRebuilding();
-        creativeLavaFogEndDistance.setErrorSupplier(() -> creativeLavaFogStartDistance.getValue() >= creativeLavaFogEndDistance.getValue() && creativeLavaFogEndDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
-        creativeLavaFogEndDistance.requestReferenceRebuilding();
-        creativeCategory.addAll(List.of(creativeHasModFog, creativeFogStartDistance, creativeFogEndDistance, creativeWaterFogStartDistance, creativeWaterFogEndDistance, creativeLavaFogStartDistance, creativeLavaFogEndDistance));
         general.addEntry(creativeCategory.build());
 
         SubCategoryBuilder overworldSubCat = createModFogDataSubCat(entryBuilder, Utilities.getOverworld(), ModConfig.overworldFogData, false);
@@ -225,6 +141,82 @@ public class ClothScreen {
             }
             ModConfig.load(ModConfig.getConfigFile());
         }).build();
+    }
+
+    private static List<AbstractConfigListEntry<?>> createTerrainFogSetting(ConfigEntryBuilder entryBuilder, String prefix, FogSetting fogSetting, FogSetting defaultSetting, boolean withColor) {
+        BooleanListEntry isEnabled = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option._fog_enabled", prefix), fogSetting.isEnabled())
+                .setDefaultValue(defaultSetting.isEnabled())
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_enabled.tooltip"))
+                .setYesNoTextSupplier(aBoolean -> Component.translatable("text.fogoverrides.setting" + (aBoolean ? ".enabled" : ".disabled")).withStyle(aBoolean ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .setSaveConsumer(fogSetting::setEnabled)
+                .build();
+        IntegerSliderEntry nearDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option._fog_start_distance", prefix), (int)fogSetting.getNearDistance(), -1, FOG_START_MAX)
+                .setDefaultValue((int) defaultSetting.getNearDistance())
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_start_distance.tooltip"))
+                .setSaveConsumer(fogSetting::setNearDistance));
+        IntegerSliderEntry farDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option._fog_end_distance", prefix), (int)fogSetting.getFarDistance(), 0, FOG_END_MAX)
+                .setDefaultValue((int) defaultSetting.getFarDistance())
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_end_distance.tooltip"))
+                .setSaveConsumer(fogSetting::setFarDistance));
+        nearDistance.setErrorSupplier(() -> nearDistance.getValue() >= farDistance.getValue() && nearDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
+        nearDistance.requestReferenceRebuilding();
+        farDistance.setErrorSupplier(() -> nearDistance.getValue() >= farDistance.getValue() && farDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
+        farDistance.requestReferenceRebuilding();
+        if (withColor) {
+            ColorEntry color = entryBuilder.startColorField(Component.translatable("text.fogoverrides.option.fog_color"), fogSetting.getColor())
+                    .setDefaultValue(defaultSetting.getColor())
+                    .setTooltip(Component.translatable("text.fogoverrides.option.fog_color.tooltip"))
+                    .setSaveConsumer(fogSetting::setColor)
+                    .build();
+            return List.of(isEnabled, nearDistance, farDistance, color);
+        }
+        return List.of(isEnabled, nearDistance, farDistance);
+    }
+
+    private static List<AbstractConfigListEntry<?>> createOtherFogSetting(ConfigEntryBuilder entryBuilder, String prefix, FogSetting fogSetting, FogSetting defaultSetting, boolean withColor) {
+        BooleanListEntry isEnabled = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option._fog_enabled", prefix), fogSetting.isEnabled())
+                .setDefaultValue(defaultSetting.isEnabled())
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_enabled.tooltip"))
+                .setYesNoTextSupplier(aBoolean -> Component.translatable("text.fogoverrides.setting" + (aBoolean ? ".enabled" : ".disabled")).withStyle(aBoolean ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .setSaveConsumer(fogSetting::setEnabled)
+                .build();
+        IntegerSliderEntry nearDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option._fog_start_distance", prefix), (int)fogSetting.getNearDistance(), -1, FOG_START_MAX)
+                .setDefaultValue((int) defaultSetting.getNearDistance())
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_start_distance.tooltip"))
+                .setSaveConsumer(fogSetting::setNearDistance));
+        IntegerSliderEntry farDistance = buildDistanceSlider2(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option._fog_end_distance", prefix), (int)fogSetting.getFarDistance(), 0, FOG_END_MAX)
+                .setDefaultValue((int) defaultSetting.getFarDistance())
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_end_distance.tooltip"))
+                .setSaveConsumer(fogSetting::setFarDistance));
+        nearDistance.setErrorSupplier(() -> nearDistance.getValue() >= farDistance.getValue() && nearDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
+        nearDistance.requestReferenceRebuilding();
+        farDistance.setErrorSupplier(() -> nearDistance.getValue() >= farDistance.getValue() && farDistance.getValue() != -1 ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
+        farDistance.requestReferenceRebuilding();
+        if (withColor) {
+            ColorEntry color = entryBuilder.startColorField(Component.translatable("text.fogoverrides.option.fog_color"), fogSetting.getColor())
+                    .setDefaultValue(defaultSetting.getColor())
+                    .setTooltip(Component.translatable("text.fogoverrides.option.fog_color.tooltip"))
+                    .setSaveConsumer(fogSetting::setColor)
+                    .build();
+            return List.of(isEnabled, nearDistance, farDistance, color);
+        }
+        return List.of(isEnabled, nearDistance, farDistance);
+    }
+
+    private static SubCategoryBuilder createGameModeSettingsSubCat(ConfigEntryBuilder entryBuilder, String gameMode, GameModeSettings settings) {
+        GameModeSettings defaultSettings = Utilities.getDefaultGameModeSettings();
+        SubCategoryBuilder gameModeSubCategory = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat._settings", Utilities.capitalizeFirstInEveryWord(gameMode)));
+        EnumListEntry<GameModeSettings.FogMode> fogMode = entryBuilder.startEnumSelector(Component.translatable("text.fogoverrides.option.fog_mode"), GameModeSettings.FogMode.class, settings.getFogMode())
+                .setDefaultValue(GameModeSettings.FogMode.MOD_FOG)
+                .setTooltip(Component.translatable("text.fogoverrides.option.fog_mode.tooltip", gameMode))
+                .setEnumNameProvider(anEnum -> ((GameModeSettings.FogMode)anEnum).getName())
+                .setSaveConsumer(settings::setFogMode)
+                .build();
+        gameModeSubCategory.add(fogMode);
+        gameModeSubCategory.addAll(createTerrainFogSetting(entryBuilder, "Terrain", settings.getTerrainFog(), defaultSettings.getTerrainFog(), false));
+        gameModeSubCategory.addAll(createOtherFogSetting(entryBuilder, "Water", settings.getWaterFog(), defaultSettings.getWaterFog(), false));
+        gameModeSubCategory.addAll(createOtherFogSetting(entryBuilder, "Lava", settings.getLavaFog(), defaultSettings.getLavaFog(), false));
+        return gameModeSubCategory;
     }
 
     private static SubCategoryBuilder createModFogDataSubCat(ConfigEntryBuilder entryBuilder, ResourceLocation location, ModFogData fogData, boolean hasWaterColorSettings) {

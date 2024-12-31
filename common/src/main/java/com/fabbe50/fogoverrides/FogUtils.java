@@ -166,24 +166,43 @@ public class FogUtils {
     }
 
     public static void doSpectatorFog(Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, CallbackInfoReturnable<FogParameters> cir) {
-        if (settings.getSpectatorHasModFog()) {
+        GameModeSettings gameModeSettings = settings.getSpectatorSettings();
+        if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.NO_FOG) {
+            if (disableFog(fogData)) {
+                finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+            }
+        } else if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.OVERRIDES) {
             switch (fogType) {
                 case WATER -> {
-                    float near = settings.getSpectatorWaterNearDistance();
-                    float far = settings.getSpectatorWaterFarDistance();
-                    if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                    FogSetting fog = gameModeSettings.getWaterFog();
+                    if (fog.isEnabled()) {
+                        float near = fog.getNearDistance();
+                        float far = fog.getFarDistance();
+                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        }
+                    } else {
+                        if (disableFog(fogData)) {
+                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        }
                     }
                 }
                 case LAVA -> {
-                    float near = settings.getSpectatorLavaNearDistance();
-                    float far = settings.getSpectatorLavaFarDistance();
-                    if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
-                    } else {
-                        near = LAVA_NEAR_SPECTATOR_DEFAULT;
-                        far = renderDistance * LAVA_FAR_SPECTATOR_MULTIPLIER_DEFAULT;
+                    FogSetting fog = gameModeSettings.getLavaFog();
+                    if (fog.isEnabled()) {
+                        float near = fog.getNearDistance();
+                        float far = fog.getFarDistance();
                         if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        } else {
+                            near = LAVA_NEAR_SPECTATOR_DEFAULT;
+                            far = renderDistance * LAVA_FAR_SPECTATOR_MULTIPLIER_DEFAULT;
+                            if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                                finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                            }
+                        }
+                    } else {
+                        if (disableFog(fogData)) {
                             finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
                         }
                     }
@@ -196,10 +215,17 @@ public class FogUtils {
                     }
                 }
                 case NONE -> {
-                    float near = settings.getSpectatorNearDistance();
-                    float far = settings.getSpectatorFarDistance();
-                    if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                    FogSetting fog = gameModeSettings.getTerrainFog();
+                    if (fog.isEnabled()) {
+                        float near = fog.getNearDistance();
+                        float far = fog.getFarDistance();
+                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        }
+                    } else {
+                        if (disableFog(fogData)) {
+                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        }
                     }
                 }
             }
@@ -207,27 +233,53 @@ public class FogUtils {
     }
 
     public static void doCreativeFog(Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, CallbackInfoReturnable<FogParameters> cir) {
-        if (settings.getCreativeHasModFog()) {
+        GameModeSettings gameModeSettings = settings.getCreativeSettings();
+        if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.NO_FOG) {
+            if (disableFog(fogData)) {
+                finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+            }
+        } else if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.OVERRIDES) {
             switch (fogType) {
                 case WATER -> {
-                    float near = settings.getCreativeWaterNearDistance();
-                    float far = settings.getCreativeWaterFarDistance();
-                    if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                    FogSetting fog = gameModeSettings.getWaterFog();
+                    if (fog.isEnabled()) {
+                        float near = fog.getNearDistance();
+                        float far = fog.getFarDistance();
+                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                        }
+                    } else {
+                        if (disableFog(fogData)) {
+                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                        }
                     }
                 }
                 case LAVA -> {
-                    float near = settings.getCreativeLavaNearDistance();
-                    float far = settings.getCreativeLavaFarDistance();
-                    if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                    FogSetting fog = gameModeSettings.getLavaFog();
+                    if (fog.isEnabled()) {
+                        float near = fog.getNearDistance();
+                        float far = fog.getFarDistance();
+                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                        }
+                    } else {
+                        if (disableFog(fogData)) {
+                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                        }
                     }
                 }
                 case NONE -> {
-                    float near = settings.getCreativeNearDistance();
-                    float far = settings.getCreativeFarDistance();
-                    if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                    FogSetting fog = gameModeSettings.getTerrainFog();
+                    if (fog.isEnabled()) {
+                        float near = fog.getNearDistance();
+                        float far = fog.getFarDistance();
+                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                        }
+                    } else {
+                        if (disableFog(fogData)) {
+                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
+                        }
                     }
                 }
             }
@@ -247,6 +299,15 @@ public class FogUtils {
             }
         } else {
             return setFogData(renderDistance, fogData, Float.MAX_VALUE, Float.MAX_VALUE, fogShape);
+        }
+        return false;
+    }
+
+    public static boolean setFogData(float renderDistance, FogData fogData, FogSetting fogSetting, FogShape fogShape) {
+        if (fogSetting.isEnabled()) {
+            float near = fogSetting.getNearDistance();
+            float far = fogSetting.getFarDistance();
+            return setFogData(renderDistance, fogData, near, far, fogShape);
         }
         return false;
     }
@@ -277,8 +338,8 @@ public class FogUtils {
         return false;
     }
 
-    public static void disableFog(FogData fogData) {
-        setFogData(fogData, Float.MAX_VALUE, Float.MAX_VALUE, FogShape.CYLINDER);
+    public static boolean disableFog(FogData fogData) {
+        return setFogData(fogData, Float.MAX_VALUE, Float.MAX_VALUE, FogShape.CYLINDER);
     }
 
     public static void setFogDistance(FogData fogData, float near, float far) {
@@ -308,7 +369,6 @@ public class FogUtils {
         FogOverrides.setCurrentFogData(fogData, fogType);
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w));
     }
-
 
     // Checkers
     public static Mode getMode(CurrentDataStorage settings, Entity entity, MobEffectFogFunction effect, FogMode fogMode, FogType fogType, boolean thickFog) {

@@ -1,6 +1,8 @@
 package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.FogSetting;
+import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import dev.architectury.platform.Platform;
 import net.minecraft.network.chat.Component;
@@ -46,20 +48,8 @@ public class ModConfig {
     // Config Values
     public static CalculationSetting calculationSetting = CalculationSetting.BLOCKS;
 
-    public static boolean spectatorHasModFog = false;
-    public static float spectatorNearDistance = -1f;
-    public static float spectatorFarDistance = -1f;
-    public static float spectatorWaterNearDistance = -1f;
-    public static float spectatorWaterFarDistance = -1f;
-    public static float spectatorLavaNearDistance = -1f;
-    public static float spectatorLavaFarDistance = -1f;
-    public static boolean creativeHasModFog = false;
-    public static float creativeNearDistance = -1f;
-    public static float creativeFarDistance = -1f;
-    public static float creativeWaterNearDistance = -1f;
-    public static float creativeWaterFarDistance = -1f;
-    public static float creativeLavaNearDistance = -1f;
-    public static float creativeLavaFarDistance = -1f;
+    public static GameModeSettings spectatorSettings = Utilities.getDefaultGameModeSettings();
+    public static GameModeSettings creativeSettings = Utilities.getDefaultGameModeSettings();
 
     public static ModFogData overworldFogData = Utilities.getDefaultFogData();
     public static ModFogData netherFogData = Utilities.getDefaultFogData();
@@ -91,20 +81,8 @@ public class ModConfig {
 
             calculationSetting = CalculationSetting.getSettingFromID((String) properties.computeIfAbsent("calculationSetting", o -> "blocks"));
 
-            spectatorHasModFog = ((String) properties.computeIfAbsent("spectatorHasModFog", o -> "false")).equalsIgnoreCase("true");
-            spectatorNearDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorNearDistance", o -> "-1"));
-            spectatorFarDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorFarDistance", o -> "-1"));
-            spectatorWaterNearDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorWaterNearDistance", o -> "-1"));
-            spectatorWaterFarDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorWaterFarDistance", o -> "-1"));
-            spectatorLavaNearDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorLavaNearDistance", o -> "-1"));
-            spectatorLavaFarDistance = Float.parseFloat((String) properties.computeIfAbsent("spectatorLavaFarDistance", o -> "-1"));
-            creativeHasModFog = ((String) properties.computeIfAbsent("creativeHasModFog", o -> "false")).equalsIgnoreCase("true");
-            creativeNearDistance = Float.parseFloat((String) properties.computeIfAbsent("creativeNearDistance", o -> "-1"));
-            creativeFarDistance = Float.parseFloat((String) properties.computeIfAbsent("creativeFarDistance", o -> "-1"));
-            creativeWaterNearDistance = Float.parseFloat((String) properties.computeIfAbsent("creativeWaterNearDistance", o -> "-1"));
-            creativeWaterFarDistance = Float.parseFloat((String) properties.computeIfAbsent("creativeWaterFarDistance", o -> "-1"));
-            creativeLavaNearDistance = Float.parseFloat((String) properties.computeIfAbsent("creativeLavaNearDistance", o -> "-1"));
-            creativeLavaFarDistance = Float.parseFloat((String) properties.computeIfAbsent("creativeLavaFarDistance", o -> "-1"));
+            spectatorSettings = readGameModeSettingsFromProperties(properties, "spectator");
+            creativeSettings = readGameModeSettingsFromProperties(properties, "creative");
 
             overworldFogData = readModFogDataFromProperties(properties, Utilities.getOverworld(), "dimension");
             netherFogData = readModFogDataFromProperties(properties, Utilities.getNether(), "dimension");
@@ -148,20 +126,8 @@ public class ModConfig {
 
         Utilities.writeData(fos, "calculationSetting", calculationSetting.getId());
 
-        Utilities.writeData(fos, "spectatorHasModFog", String.valueOf(spectatorHasModFog));
-        Utilities.writeData(fos, "spectatorNearDistance", String.valueOf(spectatorNearDistance));
-        Utilities.writeData(fos, "spectatorFarDistance", String.valueOf(spectatorFarDistance));
-        Utilities.writeData(fos, "spectatorWaterNearDistance", String.valueOf(spectatorWaterNearDistance));
-        Utilities.writeData(fos, "spectatorWaterFarDistance", String.valueOf(spectatorWaterFarDistance));
-        Utilities.writeData(fos, "spectatorLavaNearDistance", String.valueOf(spectatorLavaNearDistance));
-        Utilities.writeData(fos, "spectatorLavaFarDistance", String.valueOf(spectatorLavaFarDistance));
-        Utilities.writeData(fos, "creativeHasModFog", String.valueOf(creativeHasModFog));
-        Utilities.writeData(fos, "creativeNearDistance", String.valueOf(creativeNearDistance));
-        Utilities.writeData(fos, "creativeFarDistance", String.valueOf(creativeFarDistance));
-        Utilities.writeData(fos, "creativeWaterNearDistance", String.valueOf(creativeWaterNearDistance));
-        Utilities.writeData(fos, "creativeWaterFarDistance", String.valueOf(creativeWaterFarDistance));
-        Utilities.writeData(fos, "creativeLavaNearDistance", String.valueOf(creativeLavaNearDistance));
-        Utilities.writeData(fos, "creativeLavaFarDistance", String.valueOf(creativeLavaFarDistance));
+        writeGameModeSettingsToProperties(fos, "spectator", spectatorSettings);
+        writeGameModeSettingsToProperties(fos, "creative", creativeSettings);
 
         writeModFogDataToProperties(fos, Utilities.getOverworld(), overworldFogData, "dimension");
         writeModFogDataToProperties(fos, Utilities.getNether(), netherFogData, "dimension");
@@ -253,6 +219,28 @@ public class ModConfig {
         Utilities.writeData(fos, "lavaPotionEffect_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.isLavaPotionEffect()));
         Utilities.writeData(fos, "lavaPotionNearDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.getLavaPotionNearDistance()));
         Utilities.writeData(fos, "lavaPotionFarDistance_" + prefix + "_" + location.getNamespace() + "_" + location.getPath(), String.valueOf(data.getLavaPotionFarDistance()));
+    }
+
+    private static GameModeSettings readGameModeSettingsFromProperties(Properties properties, String prefix) {
+        GameModeSettings.FogMode fogMode = Setting.readFogMode(properties, prefix + "FogMode", GameModeSettings.FogMode.MOD_FOG);
+        FogSetting terrainFog = Setting.readSimpleFogSetting(properties, prefix + "Terrain", Utilities.getDefaultTerrain());
+        FogSetting waterFog = Setting.readSimpleFogSetting(properties, prefix + "Water", Utilities.getDefaultWater());
+        FogSetting lavaFog = Setting.readSimpleFogSetting(properties, prefix + "Lava", Utilities.getDefaultLava());
+        return new GameModeSettings(fogMode, terrainFog, waterFog, lavaFog);
+    }
+
+    private static void writeGameModeSettingsToProperties(FileOutputStream fos, String prefix, GameModeSettings gameModeSettings) throws IOException {
+        Utilities.writeData(fos, prefix + "FogMode", gameModeSettings.getFogMode().getId());
+        writeFogSetting(fos, prefix + "Terrain", gameModeSettings.getTerrainFog());
+        writeFogSetting(fos, prefix + "Water", gameModeSettings.getWaterFog());
+        writeFogSetting(fos, prefix + "Lava", gameModeSettings.getLavaFog());
+    }
+
+    private static void writeFogSetting(FileOutputStream fos, String prefix, FogSetting fogSetting) throws IOException {
+        Utilities.writeData(fos, prefix + "IsEnabled", String.valueOf(fogSetting.isEnabled()));
+        Utilities.writeData(fos, prefix + "NearDistance", String.valueOf(fogSetting.getNearDistance()));
+        Utilities.writeData(fos, prefix + "FarDistance", String.valueOf(fogSetting.getFarDistance()));
+        Utilities.writeData(fos, prefix + "FogColor", String.valueOf(fogSetting.getColor()));
     }
 
     public static void addBiomeToList(ResourceLocation location) {
