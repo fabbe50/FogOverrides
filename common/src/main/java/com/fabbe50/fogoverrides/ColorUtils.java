@@ -51,7 +51,6 @@ public class ColorUtils {
 
     private static int currentColor = 0;
     private static void process(int terrainColor, int rainColor, float rainLevel, CallbackInfoReturnable<Vector4f> cir) {
-        System.out.println(rainLevel);
         int blendColor = Utilities.getBlendedColor(terrainColor, rainColor, rainLevel);
         currentColor = blendColor;
         Vec3 blendedColor = Utilities.getVec3ColorFromInteger(blendColor);
