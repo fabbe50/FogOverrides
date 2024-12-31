@@ -140,6 +140,7 @@ public class ClothScreen {
                 throw new RuntimeException(e);
             }
             ModConfig.load(ModConfig.getConfigFile());
+            // TODO: Send update packet on save.
         }).build();
     }
 
@@ -366,11 +367,11 @@ public class ClothScreen {
         lavaPotionFogEndDistance.setErrorSupplier(() -> lavaPotionFogStartDistance.getValue() >= lavaPotionFogEndDistance.getValue() ? Optional.of(Component.translatable("text.fogoverrides.error.fog_distance")) : Optional.empty());
         lavaPotionFogEndDistance.requestReferenceRebuilding();
 
-        SubCategoryBuilder rainSettingsCat = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.rain"));
-        List<AbstractConfigListEntry<?>> rainSettings = createTerrainFogSetting(entryBuilder, "Rain", fogData.getRain(), Utilities.getDefaultTerrainDisabled(), true);
+        SubCategoryBuilder rainSettings = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.rain"));
 
         List<AbstractConfigListEntry<?>> waterSettingEntries;
         List<AbstractConfigListEntry<?>> lavaSettingEntries = List.of(overrideLavaFog, lavaFogStartDistance, lavaFogEndDistance, lavaPotionEffect, lavaPotionFogStartDistance, lavaPotionFogEndDistance);
+        List<AbstractConfigListEntry<?>> rainSettingEntries = createTerrainFogSetting(entryBuilder, "Rain", fogData.getRain(), Utilities.getDefaultTerrainDisabled(), true);
 
         if (overrideWaterColor != null) {
             waterSettingEntries = List.of(overrideWaterFog, waterFogStartDistance, waterFogEndDistance, waterPotionEffect, waterPotionFogStartDistance, waterPotionFogEndDistance, overrideWaterColor, waterColor, overrideWaterFogColor, waterFogColor);
@@ -378,19 +379,21 @@ public class ClothScreen {
             waterSettingEntries = List.of(overrideWaterFog, waterFogStartDistance, waterFogEndDistance, waterPotionEffect, waterPotionFogStartDistance, waterPotionFogEndDistance, overrideWaterFogColor, waterFogColor);
         }
 
+        waterSettings.addAll(waterSettingEntries);
+        lavaSettings.addAll(lavaSettingEntries);
+        rainSettings.addAll(rainSettingEntries);
+
+        List<AbstractConfigListEntry<?>> settingEntries = List.of(overrideFog, fogEnabled, fogStartDistance, fogEndDistance, overrideSkyColor, skyColor, overrideFogColor, fogColor, waterSettings.build(), lavaSettings.build(), rainSettings.build());
         List<AbstractConfigListEntry<?>> configListEntries = new ArrayList<>();
         configListEntries.addAll(waterSettingEntries);
         configListEntries.addAll(lavaSettingEntries);
+        configListEntries.addAll(rainSettingEntries);
         configListEntries.addAll(settingEntries);
-        rainSettingsCat.addAll(rainSettings);
-        List<AbstractConfigListEntry<?>> settingEntries = List.of(overrideFog, fogEnabled, fogStartDistance, fogEndDistance, overrideSkyColor, skyColor, overrideFogColor, fogColor, waterSettings.build(), lavaSettings.build(), rainSettingsCat.build());
 
         for (AbstractConfigListEntry<?> entry : configListEntries) {
             entry.appendSearchTags(List.of(name));
         }
 
-        waterSettings.addAll(waterSettingEntries);
-        lavaSettings.addAll(lavaSettingEntries);
         modFogSubcategory.addAll(settingEntries);
         return modFogSubcategory;
     }
