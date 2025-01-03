@@ -37,7 +37,7 @@ public class ModFogData {
 
         this.overrideFogColor = overrideFogColor;
         terrain = new FogSetting(isFogEnabled, nearDistance, farDistance, fogColor);
-        rain = new FogSetting(false, nearDistance, farDistance, -1);
+        rain = new FogSetting(false, nearDistance, farDistance, 0xFFFFFF);
         this.overrideSkyColor = overrideSkyColor;
         this.skyColor = skyColor;
 

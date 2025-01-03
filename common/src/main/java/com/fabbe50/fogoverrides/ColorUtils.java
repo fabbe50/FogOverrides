@@ -8,14 +8,19 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 public class ColorUtils {
     public static void processColor(CurrentDataStorage settings, float rainLevel, Camera camera, float gameTime, ClientLevel clientLevel, CallbackInfoReturnable<Vector4f> cir) {
-        ModFogData biomeData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
-        ModFogData dimensionData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+        FogType fogType = camera.getFluidInCamera();
+        if (!fogType.equals(FogType.NONE)) {
+            return;
+        }
+        ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
+        ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
         FogSetting biomeTerrain = biomeData.getTerrain();
         FogSetting biomeRain = biomeData.getRain();
         FogSetting dimensionTerrain = dimensionData.getTerrain();

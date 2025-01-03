@@ -7,7 +7,7 @@ public class FogSetting {
     private int color;
 
     public FogSetting(boolean isEnabled, float nearDistance, float farDistance) {
-        this(isEnabled, nearDistance, farDistance, -1);
+        this(isEnabled, nearDistance, farDistance, 0xFFFFFF);
     }
 
     public FogSetting(boolean isEnabled, float nearDistance, float farDistance, int color) {
