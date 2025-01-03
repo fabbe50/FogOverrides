@@ -398,6 +398,18 @@ public class FogUtils {
     }
 
     private static void finalizeFog(Vector4f color, FogData fogData, String fogType, CallbackInfoReturnable<FogParameters> cir) {
+        FogData current = F3Information.getCurrentFogData();
+        if (current != null && INSTANCE.transitionFog) {
+            FogData mod = new FogData(fogData.mode);
+            mod.start = Utilities.getBetweenDistanceByRatio(current.start, fogData.start, 0.01f);
+            if (!(fogData.start - mod.start < 0.1f && fogData.start - mod.start > -0.1f)) {
+                fogData.start = mod.start;
+            }
+            mod.end = Utilities.getBetweenDistanceByRatio(current.end, fogData.end, 0.01f);
+            if (!(fogData.end - mod.end < 0.1f && fogData.end - mod.end > -0.1f)) {
+                fogData.end = mod.end;
+            }
+        }
         F3Information.setCurrentFogData(fogData, fogType);
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w));
     }
