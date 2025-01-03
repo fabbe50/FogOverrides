@@ -1,11 +1,7 @@
 package com.fabbe50.fogoverrides.network;
 
-import com.fabbe50.fogoverrides.ModConfig;
-import com.fabbe50.fogoverrides.Utilities;
-import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.fabbe50.fogoverrides.data.FogSetting;
-import com.fabbe50.fogoverrides.data.GameModeSettings;
-import com.fabbe50.fogoverrides.data.ModFogData;
+import com.fabbe50.fogoverrides.*;
+import com.fabbe50.fogoverrides.data.*;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.networking.NetworkManager;
@@ -22,27 +18,49 @@ public class NetworkHandler {
     public static List<Player> modUsers = new ArrayList<>();
 
     public static void registerHandlers() {
-        S2CHandshakePacket.Client.register();
+        SettingsSavedUpdateAllClientsPacket.Server.register();
+        HandshakePacket.ServerPacket.Server.register();
+        GameModeSettingsPacket.Server.register();
+        LiquidsPacket.Server.register();
+        CloudsPacket.Server.register();
+        OverlaysPacket.Server.register();
+        FogSettingsPacket.Server.register();
+    }
+
+    public static void registerServerHandlers() {
+        SettingsSavedUpdateAllClientsPacket.Client.registerServer();
+        GameModeSettingsPacket.Client.registerServer();
+        LiquidsPacket.Client.registerServer();
+        CloudsPacket.Client.registerServer();
+        OverlaysPacket.Client.registerServer();
+        FogSettingsPacket.Client.registerServer();
+        HandshakePacket.ClientPacket.registerServer();
+        OpenFogSettingsPacket.register();
+    }
+
+    public static void registerClientHandlers() {
+        SettingsSavedUpdateAllClientsPacket.Client.register();
+        OpenFogSettingsPacket.Client.register();
+        HandshakePacket.ClientPacket.Client.register();
         GameModeSettingsPacket.Client.register();
         LiquidsPacket.Client.register();
         CloudsPacket.Client.register();
         OverlaysPacket.Client.register();
-        DimensionSettingsPacket.Client.register();
-        BiomeSettingsPacket.Client.register();
+        FogSettingsPacket.Client.register();
     }
 
     public static void registerClientHandshake() {
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(localPlayer -> {
-            if (localPlayer.is(Utilities.getClientPlayer())) {
+            if (localPlayer.is(ClientUtilities.getClientPlayer())) {
                 try {
-                    NetworkManager.sendToServer(new C2SHandshakePacket.PacketPayload(true));
+                    NetworkManager.sendToServer(new HandshakePacket.ServerPacket.PacketPayload(true));
                 } catch (UnsupportedOperationException e) {
                     System.out.println("Server does not have Fog Overrides installed.");
                 }
             }
         });
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
-            if (player == null || player.is(Utilities.getClientPlayer())) {
+            if (player == null || player.is(ClientUtilities.getClientPlayer())) {
                 CurrentDataStorage.INSTANCE.setOnFogOverridesEnabledServer(false);
                 CurrentDataStorage.INSTANCE.setIntegratedServer(false);
             }
@@ -50,17 +68,35 @@ public class NetworkHandler {
     }
 
     public static void registerServerHandshake() {
-        NetworkManager.registerReceiver(NetworkManager.Side.C2S, C2SHandshakePacket.getPacketType(), C2SHandshakePacket.getPacketCodec(), (value, context) -> {
-            if (value.modEnabledServer()) {
-                if (!modUsers.contains(context.getPlayer()))
-                    modUsers.add(context.getPlayer());
-                NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new S2CHandshakePacket.PacketPayload(true));
-                sendSettingsToPlayer(context.getPlayer());
-            }
-        });
         PlayerEvent.PLAYER_QUIT.register(player -> {
             modUsers.remove(player);
         });
+    }
+
+    public static void openConfigScreenOnClient(ServerPlayer player) {
+        sendSettingsToPlayer(player);
+        NetworkManager.sendToPlayer(player, new OpenFogSettingsPacket.PacketPayload());
+    }
+
+    public static void sendSettingsToServer(ModConfig config) {
+        NetworkManager.sendToServer(new GameModeSettingsPacket.Server.PacketPayload(getGameModeSettingsBuffer("spectator", config.spectatorSettings)));
+        NetworkManager.sendToServer(new GameModeSettingsPacket.Server.PacketPayload(getGameModeSettingsBuffer("creative", config.creativeSettings)));
+        for (ResourceLocation location : Registry.getDimensions()) {
+            ModFogData fogData = config.getFogDataFromDimension(location);
+            if (fogData != null) {
+                NetworkManager.sendToServer(new FogSettingsPacket.Server.PacketPayload(location, fogData));
+            }
+        }
+        for (ResourceLocation location : Registry.getBiomes()) {
+            ModFogData fogData = config.getFogDataFromBiomeLocation(location.toString());
+            if (fogData != null) {
+                NetworkManager.sendToServer(new FogSettingsPacket.Server.PacketPayload(location, fogData));
+            }
+        }
+        NetworkManager.sendToServer(new LiquidsPacket.Server.PacketPayload(getLiquidBuffer(config)));
+        NetworkManager.sendToServer(new CloudsPacket.Server.PacketPayload(getCloudBuffer(config)));
+        NetworkManager.sendToServer(new OverlaysPacket.Server.PacketPayload(getOverlaysBuffer(config)));
+        NetworkManager.sendToServer(new SettingsSavedUpdateAllClientsPacket.Server.PacketPayload(0));
     }
 
     public static int sendSettingsToAllPlayers() {
@@ -74,25 +110,30 @@ public class NetworkHandler {
         return i;
     }
 
+    public static void refreshConfigFileAndSendSettingsToPlayer(Player player) {
+        ModConfig.load(ModConfig.getConfigFile());
+        sendSettingsToPlayer(player);
+    }
+
     public static void sendSettingsToPlayer(Player player) {
-        NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.PacketPayload(getGameModeSettingsBuffer("spectator", ModConfig.spectatorSettings)));
-        NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.PacketPayload(getGameModeSettingsBuffer("creative", ModConfig.creativeSettings)));
-        ResourceLocation[] dimensionLocations = new ResourceLocation[] {Utilities.getOverworld(), Utilities.getNether(), Utilities.getTheEnd()};
-        for (ResourceLocation location : dimensionLocations) {
-            ModFogData fogData = ModConfig.getFogDataFromDimension(location);
+        Log.info("Sending settings to player: " + player.getName());
+        NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.Client.PacketPayload(getGameModeSettingsBuffer("spectator", ModConfig.INSTANCE.spectatorSettings)));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.Client.PacketPayload(getGameModeSettingsBuffer("creative", ModConfig.INSTANCE.creativeSettings)));
+        for (ResourceLocation location : Registry.getDimensions()) {
+            ModFogData fogData = ModConfig.INSTANCE.getFogDataFromDimension(location);
             if (fogData != null) {
-                NetworkManager.sendToPlayer((ServerPlayer) player, new DimensionSettingsPacket.PacketPayload(location, fogData));
+                NetworkManager.sendToPlayer((ServerPlayer) player, new FogSettingsPacket.Client.PacketPayload(location, fogData));
             }
         }
-        for (String location : ModConfig.getBiomeStorage().keySet()) {
-            ModFogData fogData = ModConfig.getFogDataFromBiomeLocation(location);
+        for (String location : ModConfig.INSTANCE.getBiomeStorage().keySet()) {
+            ModFogData fogData = ModConfig.INSTANCE.getFogDataFromBiomeLocation(location);
             if (fogData != null) {
-                NetworkManager.sendToPlayer((ServerPlayer) player, new BiomeSettingsPacket.PacketPayload(ResourceLocation.parse(location), fogData));
+                NetworkManager.sendToPlayer((ServerPlayer) player, new FogSettingsPacket.Client.PacketPayload(ResourceLocation.parse(location), fogData));
             }
         }
-        NetworkManager.sendToPlayer((ServerPlayer) player, new LiquidsPacket.PacketPayload(getLiquidBuffer()));
-        NetworkManager.sendToPlayer((ServerPlayer) player, new CloudsPacket.PacketPayload(getCloudBuffer()));
-        NetworkManager.sendToPlayer((ServerPlayer) player, new OverlaysPacket.PacketPayload(getOverlaysBuffer()));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new LiquidsPacket.Client.PacketPayload(getLiquidBuffer(ModConfig.INSTANCE)));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new CloudsPacket.Client.PacketPayload(getCloudBuffer(ModConfig.INSTANCE)));
+        NetworkManager.sendToPlayer((ServerPlayer) player, new OverlaysPacket.Client.PacketPayload(getOverlaysBuffer(ModConfig.INSTANCE)));
     }
 
     public static FriendlyByteBuf getGameModeSettingsBuffer(String gameMode, GameModeSettings settings) {
@@ -114,25 +155,25 @@ public class NetworkHandler {
         return buf;
     }
 
-    public static FriendlyByteBuf getLiquidBuffer() {
+    public static FriendlyByteBuf getLiquidBuffer(ModConfig config) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBoolean(ModConfig.waterFogEnabled);
-        buf.writeBoolean(ModConfig.lavaFogEnabled);
+        buf.writeBoolean(config.waterFogEnabled);
+        buf.writeBoolean(config.lavaFogEnabled);
         return buf;
     }
 
-    public static FriendlyByteBuf getCloudBuffer() {
+    public static FriendlyByteBuf getCloudBuffer(ModConfig config) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeInt(ModConfig.cloudHeight);
+        buf.writeInt(config.cloudHeight);
         return buf;
     }
 
-    public static FriendlyByteBuf getOverlaysBuffer() {
+    public static FriendlyByteBuf getOverlaysBuffer(ModConfig config) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBoolean(ModConfig.renderWaterOverlay);
-        buf.writeBoolean(ModConfig.renderFireOverlay);
-        buf.writeInt(ModConfig.fireOverlayOffset);
-        buf.writeInt(ModConfig.firePotionOverlayOffset);
+        buf.writeBoolean(config.renderWaterOverlay);
+        buf.writeBoolean(config.renderFireOverlay);
+        buf.writeInt(config.fireOverlayOffset);
+        buf.writeInt(config.firePotionOverlayOffset);
         return buf;
     }
 }

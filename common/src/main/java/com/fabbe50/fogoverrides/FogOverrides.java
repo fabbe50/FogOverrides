@@ -18,8 +18,10 @@ public class FogOverrides {
     private static String fogTypeData = "";
 
     public static void init() {
-        NetworkHandler.registerServerHandshake();
         ModConfig.register();
+        CurrentDataStorage.init();
+        NetworkHandler.registerHandlers();
+        NetworkHandler.registerServerHandshake();
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> {
             CommandFogOverrides.register(dispatcher);
         });
@@ -27,14 +29,17 @@ public class FogOverrides {
 
     public static void clientInit() {
         Checkers.init();
-        NetworkHandler.registerHandlers();
+        NetworkHandler.registerClientHandlers();
         NetworkHandler.registerClientHandshake();
-        KeyMappingRegistry.register(ModConfigClient.OPEN_CONFIG);
+        KeyMappingRegistry.register(ModConfigClient.INSTANCE.OPEN_CONFIG);
         ClientTickEvent.CLIENT_POST.register(instance -> {
-            while (ModConfigClient.OPEN_CONFIG.consumeClick()) {
                 instance.setScreen(ClothScreen.getConfigScreen(null));
             }
         });
+    }
+
+    public static void serverInit() {
+        NetworkHandler.registerServerHandlers();
     }
 
     public static void debugScreenInit() {

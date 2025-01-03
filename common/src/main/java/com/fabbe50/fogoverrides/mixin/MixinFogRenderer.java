@@ -1,11 +1,10 @@
 package com.fabbe50.fogoverrides.mixin;
 
 import com.fabbe50.fogoverrides.ColorUtils;
+import com.fabbe50.fogoverrides.FogOverrides;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.FogUtils;
-import com.fabbe50.fogoverrides.data.FogSetting;
-import com.fabbe50.fogoverrides.data.ModFogData;
 import com.fabbe50.fogoverrides.data.checker.Mode;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
 import net.minecraft.client.Camera;
@@ -16,13 +15,8 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.FogRenderer.FogData;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
-import net.minecraft.util.CubicSampler;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.material.FogType;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

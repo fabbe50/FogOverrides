@@ -1,9 +1,6 @@
 package com.fabbe50.fogoverrides;
 
-import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.fabbe50.fogoverrides.data.FogSetting;
-import com.fabbe50.fogoverrides.data.GameModeSettings;
-import com.fabbe50.fogoverrides.data.ModFogData;
+import com.fabbe50.fogoverrides.data.*;
 import com.fabbe50.fogoverrides.data.checker.Checkers;
 import com.fabbe50.fogoverrides.data.checker.IChecker;
 import com.fabbe50.fogoverrides.data.checker.Mode;
@@ -17,12 +14,10 @@ import net.minecraft.client.renderer.FogRenderer.FogMode;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BiomeTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Vector4f;
@@ -45,8 +40,8 @@ public class FogUtils {
 
     public static void processFog(Mode mode, Entity entity, MobEffectFogFunction effect, Vector4f color, float renderDistance, float partialTicks, FogType fogType, FogData fogData, CallbackInfoReturnable<FogParameters> cir) {
         CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
-        ModFogData biomeFogData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
-        ModFogData dimensionFogData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+        ModFogData biomeFogData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
+        ModFogData dimensionFogData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
         switch (mode) {
             case SPECTATOR -> doSpectatorFog(color, renderDistance, fogType, fogData, settings, cir);
             case CREATIVE -> doCreativeFog(color, renderDistance, fogType, fogData, settings, cir);
@@ -80,22 +75,39 @@ public class FogUtils {
     }
 
     public static void doWeatherFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
-        if (biomeFogData.isOverrideGameFog()) {
-            doRainFog(entity, color, renderDistance, fogData, biomeFogData.getTerrain(), biomeFogData.getRain(), cir);
-        } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
-            doRainFog(entity, color, renderDistance, fogData, dimensionFogData.getTerrain(), dimensionFogData.getRain(), cir);
+        String fogLocation = "BIOME";
+        FogSetting terrain = biomeFogData.getTerrain();
+        FogSetting rain = biomeFogData.getRain();
+        if (terrain.isEnabled() && rain.isEnabled()) {
+            doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+        } else if (terrain.isEnabled()) {
+            rain = dimensionFogData.getRain();
+            if (rain.isEnabled()) {
+                fogLocation = "DIMENSION";
+                doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+            }
+        } else if (rain.isEnabled()) {
+            terrain = dimensionFogData.getTerrain();
+            if (terrain.isEnabled()) {
+                doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+            }
+        } else {
+            terrain = dimensionFogData.getTerrain();
+            rain = dimensionFogData.getRain();
+            if (terrain.isEnabled() && rain.isEnabled()) {
+                fogLocation = "DIMENSION";
+                doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+            }
         }
     }
 
-    public static void doRainFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, FogSetting terrain, FogSetting rain, CallbackInfoReturnable<FogParameters> cir) {
-        if (rain.isEnabled()) {
-            float gameTimePartialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
-            float rainLevel = entity.level().getRainLevel(gameTimePartialTick);
-            float near = Utilities.getBetweenDistanceByRatio(terrain.getNearDistance(), rain.getNearDistance(), rainLevel);
-            float far = Utilities.getBetweenDistanceByRatio(terrain.getFarDistance(), rain.getFarDistance(), rainLevel);
-            if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                finalizeFog(color, fogData, "WEATHER", cir);
-            }
+    public static void doRainFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, FogSetting terrain, FogSetting rain, String fogLocation, CallbackInfoReturnable<FogParameters> cir) {
+        float gameTimePartialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        float rainLevel = entity.level().getRainLevel(gameTimePartialTick);
+        float near = Utilities.getBetweenDistanceByRatio(terrain.getNearDistance(), rain.getNearDistance(), rainLevel);
+        float far = Utilities.getBetweenDistanceByRatio(terrain.getFarDistance(), rain.getFarDistance(), rainLevel);
+        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
+            finalizeFog(color, fogData, "WEATHER - " + fogLocation, cir);
         }
     }
 

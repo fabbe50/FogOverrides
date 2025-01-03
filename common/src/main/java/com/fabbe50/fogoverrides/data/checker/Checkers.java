@@ -1,6 +1,6 @@
 package com.fabbe50.fogoverrides.data.checker;
 
-import com.fabbe50.fogoverrides.Utilities;
+import com.fabbe50.fogoverrides.ClientUtilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.FogUtils;
 import com.fabbe50.fogoverrides.data.FogSetting;
@@ -105,8 +105,8 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             if (entity.isInLiquid()) {
-                ModFogData biomeData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
-                ModFogData dimensionData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+                ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
+                ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
                 switch (fogType) {
                     case WATER -> {
                         if (biomeData.isOverrideWaterFog()) {
@@ -191,11 +191,11 @@ public class Checkers {
 
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
-            ModFogData biomeData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
+            ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
             if (biomeData.isOverrideGameFog() && biomeData.hasValidFogDistance()) {
                 return Result.DO_RENDER;
             } else {
-                ModFogData dimensionData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+                ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
                 if (dimensionData != null && dimensionData.isOverrideGameFog() && dimensionData.hasValidFogDistance()) {
                     return Result.DO_RENDER;
                 }
@@ -213,8 +213,8 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             Level level = entity.level();
-            ModFogData biomeData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
-            ModFogData dimensionData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+            ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
+            ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
             if (level.isRaining() && (biomeData.getRain().isEnabled() || dimensionData.getRain().isEnabled())) {
                 return Result.DO_RENDER;
             }

@@ -1,7 +1,7 @@
 package com.fabbe50.fogoverrides.mixin;
 
+import com.fabbe50.fogoverrides.ClientUtilities;
 import com.fabbe50.fogoverrides.ColorUtils;
-import com.fabbe50.fogoverrides.FogUtils;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.ModFogData;
@@ -13,7 +13,6 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
@@ -40,8 +39,8 @@ public abstract class MixinClientLevel extends Level {
         float rainLevel = getRainLevel(f);
         if (rainLevel > 0) {
             CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
-            ModFogData biomeData = settings.getBiomeFogData(Utilities.getCurrentBiomeLocation());
-            ModFogData dimensionData = settings.getFogDataFromDimension(Utilities.getCurrentDimensionLocation());
+            ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
+            ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
             if ((biomeData.isOverrideGameFog() && biomeData.getRain().isEnabled()) || (dimensionData.isOverrideGameFog() && dimensionData.getRain().isEnabled())) {
                 if (ColorUtils.getCurrentColor() != 0) {
                     int rainSkyColor = Utilities.getBlendedColor(i, ColorUtils.getCurrentColor(), rainLevel);

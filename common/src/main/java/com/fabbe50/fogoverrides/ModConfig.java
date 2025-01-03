@@ -1,9 +1,6 @@
 package com.fabbe50.fogoverrides;
 
-import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.fabbe50.fogoverrides.data.FogSetting;
-import com.fabbe50.fogoverrides.data.GameModeSettings;
-import com.fabbe50.fogoverrides.data.ModFogData;
+import com.fabbe50.fogoverrides.data.*;
 import dev.architectury.platform.Platform;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +12,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class ModConfig {
+    public static ModConfig INSTANCE = new ModConfig();
+
     public static final int FOG_START_MAX = 1023;
     public static final int FOG_END_MAX = 1024;
     public static final int CHUNK_SIZE = 16;
@@ -38,32 +37,34 @@ public class ModConfig {
 
     private static File configFile;
 
-    private static long serverSettingsLastUpdated = 0L;
+    private long serverSettingsLastUpdated = 0L;
 
-    private static final List<ResourceLocation> biomeList = new ArrayList<>();
-    private static final Map<String, ModFogData> biomeStorage = new HashMap<>();
+    public final Map<String, ModFogData> biomeStorage = new HashMap<>();
 
-    public static List<String> presets = new ArrayList<>();
+    public List<String> presets = new ArrayList<>();
 
     // Config Values
-    public static CalculationSetting calculationSetting = CalculationSetting.BLOCKS;
+    public CalculationSetting calculationSetting = CalculationSetting.BLOCKS;
 
-    public static GameModeSettings spectatorSettings = Utilities.getDefaultGameModeSettings();
-    public static GameModeSettings creativeSettings = Utilities.getDefaultGameModeSettings();
+    public boolean transitionFog = true;
+    public boolean advancedF3Info = false;
 
-    public static ModFogData overworldFogData = Utilities.getDefaultFogData();
-    public static ModFogData netherFogData = Utilities.getDefaultFogData();
-    public static ModFogData theEndFogData = Utilities.getDefaultFogData();
+    public GameModeSettings spectatorSettings = Utilities.getDefaultGameModeSettings();
+    public GameModeSettings creativeSettings = Utilities.getDefaultGameModeSettings();
 
-    public static boolean waterFogEnabled = true;
-    public static boolean lavaFogEnabled = true;
+    public ModFogData overworldFogData = Utilities.getDefaultFogData();
+    public ModFogData netherFogData = Utilities.getDefaultFogData();
+    public ModFogData theEndFogData = Utilities.getDefaultFogData();
 
-    public static int cloudHeight = 192;
+    public boolean waterFogEnabled = true;
+    public boolean lavaFogEnabled = true;
 
-    public static boolean renderWaterOverlay = true;
-    public static boolean renderFireOverlay = true;
-    public static int fireOverlayOffset = 0;
-    public static int firePotionOverlayOffset = -25;
+    public int cloudHeight = 192;
+
+    public boolean renderWaterOverlay = true;
+    public boolean renderFireOverlay = true;
+    public int fireOverlayOffset = 0;
+    public int firePotionOverlayOffset = -25;
 
     public static void register() {
         configFile = new File(Platform.getConfigFolder().toFile(), "fogoverrides.properties");
@@ -77,37 +78,40 @@ public class ModConfig {
             properties.load(fis);
             fis.close();
 
-            serverSettingsLastUpdated = Long.parseLong((String)properties.computeIfAbsent("serverSettingsLastUpdated", o -> String.valueOf(System.currentTimeMillis())));
+            INSTANCE.serverSettingsLastUpdated = Long.parseLong((String)properties.computeIfAbsent("serverSettingsLastUpdated", o -> String.valueOf(System.currentTimeMillis())));
 
-            calculationSetting = CalculationSetting.getSettingFromID((String) properties.computeIfAbsent("calculationSetting", o -> "blocks"));
+            INSTANCE.calculationSetting = CalculationSetting.getSettingFromID((String) properties.computeIfAbsent("calculationSetting", o -> "blocks"));
 
-            spectatorSettings = readGameModeSettingsFromProperties(properties, "spectator");
-            creativeSettings = readGameModeSettingsFromProperties(properties, "creative");
+            INSTANCE.transitionFog = Setting.readBoolean(properties, "transitionFog", true);
+            INSTANCE.advancedF3Info = Setting.readBoolean(properties, "advancedF3Info", false);
 
-            overworldFogData = readModFogDataFromProperties(properties, Utilities.getOverworld(), "dimension");
-            netherFogData = readModFogDataFromProperties(properties, Utilities.getNether(), "dimension");
-            theEndFogData = readModFogDataFromProperties(properties, Utilities.getTheEnd(), "dimension");
+            INSTANCE.spectatorSettings = readGameModeSettingsFromProperties(properties, "spectator");
+            INSTANCE.creativeSettings = readGameModeSettingsFromProperties(properties, "creative");
 
-            waterFogEnabled = ((String) properties.computeIfAbsent("waterFogEnabled", o -> "true")).equalsIgnoreCase("true");
-            lavaFogEnabled = ((String) properties.computeIfAbsent("lavaFogEnabled", o -> "true")).equalsIgnoreCase("true");
+            INSTANCE.overworldFogData = readModFogDataFromProperties(properties, Utilities.getOverworld(), "dimension");
+            INSTANCE.netherFogData = readModFogDataFromProperties(properties, Utilities.getNether(), "dimension");
+            INSTANCE.theEndFogData = readModFogDataFromProperties(properties, Utilities.getTheEnd(), "dimension");
 
-            cloudHeight = Integer.parseInt((String) properties.computeIfAbsent("cloudHeight", o -> "192"));
+            INSTANCE.waterFogEnabled = ((String) properties.computeIfAbsent("waterFogEnabled", o -> "true")).equalsIgnoreCase("true");
+            INSTANCE.lavaFogEnabled = ((String) properties.computeIfAbsent("lavaFogEnabled", o -> "true")).equalsIgnoreCase("true");
 
-            renderWaterOverlay = ((String) properties.computeIfAbsent("waterOverlay", o -> "true")).equalsIgnoreCase("true");
-            renderFireOverlay = ((String) properties.computeIfAbsent("fireOverlay", o -> "true")).equalsIgnoreCase("true");
-            fireOverlayOffset = Integer.parseInt((String) properties.computeIfAbsent("fireOffset", o -> "0"));
-            firePotionOverlayOffset = Integer.parseInt((String) properties.computeIfAbsent("firePotOffset", o -> "-25"));
+            INSTANCE.cloudHeight = Integer.parseInt((String) properties.computeIfAbsent("cloudHeight", o -> "192"));
 
-            for (ResourceLocation location : biomeList) {
+            INSTANCE.renderWaterOverlay = ((String) properties.computeIfAbsent("waterOverlay", o -> "true")).equalsIgnoreCase("true");
+            INSTANCE.renderFireOverlay = ((String) properties.computeIfAbsent("fireOverlay", o -> "true")).equalsIgnoreCase("true");
+            INSTANCE.fireOverlayOffset = Integer.parseInt((String) properties.computeIfAbsent("fireOffset", o -> "0"));
+            INSTANCE.firePotionOverlayOffset = Integer.parseInt((String) properties.computeIfAbsent("firePotOffset", o -> "-25"));
+
+            for (ResourceLocation location : Registry.getBiomes()) {
                 ModFogData fogData = readModFogDataFromProperties(properties, location, "biome");
-                updateFogData(location, fogData);
-                if (!CurrentDataStorage.INSTANCE.isOnFogOverridesEnabledServer()) {
+                INSTANCE.updateFogData(location, fogData);
+//                if (!CurrentDataStorage.INSTANCE.isOnFogOverridesEnabledServer()) {
                     CurrentDataStorage.INSTANCE.refreshWaterColor(location, fogData);
-                }
+//                }
             }
         } catch (IOException e) {
-            for (ResourceLocation location : biomeList) {
-                updateFogData(location, Utilities.getDefaultFogData());
+            for (ResourceLocation location : Registry.getBiomes()) {
+                INSTANCE.updateFogData(location, Utilities.getDefaultFogData());
             }
             try {
                 save(file);
@@ -124,27 +128,30 @@ public class ModConfig {
 
         Utilities.writeData(fos, "serverSettingsLastUpdated", String.valueOf(System.currentTimeMillis()));
 
-        Utilities.writeData(fos, "calculationSetting", calculationSetting.getId());
+        Utilities.writeData(fos, "calculationSetting", INSTANCE.calculationSetting.getId());
 
-        writeGameModeSettingsToProperties(fos, "spectator", spectatorSettings);
-        writeGameModeSettingsToProperties(fos, "creative", creativeSettings);
+        Utilities.writeData(fos, "transitionFog", String.valueOf(INSTANCE.transitionFog));
+        Utilities.writeData(fos, "advancedF3Info", String.valueOf(INSTANCE.advancedF3Info));
 
-        writeModFogDataToProperties(fos, Utilities.getOverworld(), overworldFogData, "dimension");
-        writeModFogDataToProperties(fos, Utilities.getNether(), netherFogData, "dimension");
-        writeModFogDataToProperties(fos, Utilities.getTheEnd(), theEndFogData, "dimension");
+        writeGameModeSettingsToProperties(fos, "spectator", INSTANCE.spectatorSettings);
+        writeGameModeSettingsToProperties(fos, "creative", INSTANCE.creativeSettings);
 
-        Utilities.writeData(fos, "waterFogEnabled", String.valueOf(waterFogEnabled));
-        Utilities.writeData(fos, "lavaFogEnabled", String.valueOf(lavaFogEnabled));
+        writeModFogDataToProperties(fos, Utilities.getOverworld(), INSTANCE.overworldFogData, "dimension");
+        writeModFogDataToProperties(fos, Utilities.getNether(), INSTANCE.netherFogData, "dimension");
+        writeModFogDataToProperties(fos, Utilities.getTheEnd(), INSTANCE.theEndFogData, "dimension");
 
-        Utilities.writeData(fos, "cloudHeight", String.valueOf(cloudHeight));
+        Utilities.writeData(fos, "waterFogEnabled", String.valueOf(INSTANCE.waterFogEnabled));
+        Utilities.writeData(fos, "lavaFogEnabled", String.valueOf(INSTANCE.lavaFogEnabled));
 
-        Utilities.writeData(fos, "waterOverlay", String.valueOf(renderWaterOverlay));
-        Utilities.writeData(fos, "fireOverlay", String.valueOf(renderFireOverlay));
-        Utilities.writeData(fos, "fireOffset", String.valueOf(fireOverlayOffset));
-        Utilities.writeData(fos, "firePotOffset", String.valueOf(firePotionOverlayOffset));
+        Utilities.writeData(fos, "cloudHeight", String.valueOf(INSTANCE.cloudHeight));
 
-        for (String location : biomeStorage.keySet()) {
-            ModFogData data = biomeStorage.get(location);
+        Utilities.writeData(fos, "waterOverlay", String.valueOf(INSTANCE.renderWaterOverlay));
+        Utilities.writeData(fos, "fireOverlay", String.valueOf(INSTANCE.renderFireOverlay));
+        Utilities.writeData(fos, "fireOffset", String.valueOf(INSTANCE.fireOverlayOffset));
+        Utilities.writeData(fos, "firePotOffset", String.valueOf(INSTANCE.firePotionOverlayOffset));
+
+        for (String location : INSTANCE.biomeStorage.keySet()) {
+            ModFogData data = INSTANCE.biomeStorage.get(location);
             writeModFogDataToProperties(fos, ResourceLocation.parse(location), data, "biome");
         }
         fos.close();
@@ -246,47 +253,47 @@ public class ModConfig {
         Utilities.writeData(fos, prefix + "FogColor", String.valueOf(fogSetting.getColor()));
     }
 
-    public static void addBiomeToList(ResourceLocation location) {
-        biomeList.add(location);
+    private void addBiomeToStorage(ResourceLocation location, ModFogData fogData) {
+        this.biomeStorage.put(location.toString(), fogData);
     }
 
-    private static void addBiomeToStorage(ResourceLocation location, ModFogData fogData) {
-        biomeStorage.put(location.toString(), fogData);
+    private void replaceBiomeInStorage(ResourceLocation location, ModFogData fogData) {
+        this.biomeStorage.replace(location.toString(), fogData);
     }
 
-    private static void replaceBiomeInStorage(ResourceLocation location, ModFogData fogData) {
-        biomeStorage.replace(location.toString(), fogData);
+    private void addDimensionToStorage(ResourceLocation location, ModFogData fogData) {
+
     }
 
-    public static void updateFogData(ResourceLocation location, ModFogData fogData) {
-        if (biomeStorage.containsKey(location.toString())) {
+    public void updateFogData(ResourceLocation location, ModFogData fogData) {
+        if (this.biomeStorage.containsKey(location.toString())) {
             replaceBiomeInStorage(location, fogData);
         } else {
             addBiomeToStorage(location, fogData);
         }
     }
 
-    public static ModFogData getFogDataFromBiomeLocation(String biome) {
-        return biomeStorage.getOrDefault(biome, Utilities.getDefaultFogData());
+    public ModFogData getFogDataFromBiomeLocation(String biome) {
+        return this.biomeStorage.getOrDefault(biome, Utilities.getDefaultFogData());
     }
 
-    public static ModFogData getFogDataFromDimension(ResourceLocation dimension) {
+    public ModFogData getFogDataFromDimension(ResourceLocation dimension) {
         if (dimension.getPath().equals(Utilities.getOverworld().getPath())) {
-            return ModConfig.overworldFogData;
+            return this.overworldFogData;
         } else if (dimension.getPath().equals(Utilities.getNether().getPath())) {
-            return ModConfig.netherFogData;
+            return this.netherFogData;
         } else if (dimension.getPath().equals(Utilities.getTheEnd().getPath())) {
-            return ModConfig.theEndFogData;
+            return this.theEndFogData;
         }
         return null;
     }
 
-    public static Map<String, ModFogData> getBiomeStorage() {
-        return biomeStorage;
+    public Map<String, ModFogData> getBiomeStorage() {
+        return this.biomeStorage;
     }
 
-    public static long getServerSettingsLastUpdated() {
-        return serverSettingsLastUpdated;
+    public long getServerSettingsLastUpdated() {
+        return this.serverSettingsLastUpdated;
     }
 
     public static File getConfigFile() {

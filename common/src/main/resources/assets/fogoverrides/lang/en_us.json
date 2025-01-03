@@ -1,5 +1,6 @@
 {
   "text.fogoverrides.title": "Fog Overrides",
+  "text.fogoverrides.title-server": "Fog Overrides - Server",
   "text.fogoverrides.category.general": "General",
   "text.fogoverrides.option.calculation-setting": "Calculation Type",
   "text.fogoverrides.option.calculation-setting.blocks": "Blocks",
@@ -9,6 +10,10 @@
   "text.fogoverrides.option.calculation-setting.tooltip[1]": "Blocks = Hard sets the fog distance to the set amount of blocks from the player.",
   "text.fogoverrides.option.calculation-setting.tooltip[2]": "Percent = Sets the fog distance to a percentage of the render distance.",
   "text.fogoverrides.option.calculation-setting.tooltip[3]": "Percent/Blocks = Sets the fog distance to the set amount of blocks from the player, using a percentage of the current render distance.",
+  "text.fogoverrides.option.transition-fog": "Transition Fog",
+  "text.fogoverrides.option.transition-fog.tooltip": "If the fog should smoothly transition between states.",
+  "text.fogoverrides.option.advanced-f3": "Advanced F3 Information",
+  "text.fogoverrides.option.advanced-f3.tooltip": "If the mod should display detailed information about it's data.",
   "text.fogoverrides.subcat._settings": "%s Settings",
   "text.fogoverrides.option.fog_mode": "Fog Mode",
   "text.fogoverrides.option.fog_mode.tooltip": "This setting determines the behaviour of the %s mode fog renderer.",
@@ -125,6 +130,7 @@
 
   "text.fogoverrides.commands.reload.success.single": "Updated fog for %s player.",
   "text.fogoverrides.commands.reload.success.multiple": "Update for for %s players.",
+  "text.fogoverrides.commands.config.failure": "Server config command is not available on integrated server, use config menu instead.",
   "text.fogoverrides.setting.enabled": "Enabled",
   "text.fogoverrides.setting.disabled": "Disabled",
   "text.fogoverrides.setting.blocks": "%s blocks",
@@ -134,5 +140,8 @@
   "text.fogoverrides.key.open_menu.tooltip": "Choose a keybinding to open the Fog Overrides config screen while in game.",
   "text.fogoverrides.keybinds": "Fog Overrides Keybinds",
   "text.fogoverrides.keybinds.open_menu": "Open Fog Overrides Config Menu",
-  "text.fogoverrides.feature.experimental": "[EXPERIMENTAL]"
+  "text.fogoverrides.feature.experimental": "[EXPERIMENTAL]",
+  "text.fogoverrides.information.determined-by-server": "Server may override this setting!",
+  "text.fogoverrides.information.updated-players.single": "Successfully updated fog settings for %s player.",
+  "text.fogoverrides.information.updated-players.multi": "Successfully updated fog settings for %s player."
 }

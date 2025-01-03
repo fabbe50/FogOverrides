@@ -1,10 +1,12 @@
 package com.fabbe50.fogoverrides.network;
 
-import com.fabbe50.fogoverrides.Utilities;
+import com.fabbe50.fogoverrides.ClothScreen;
+import com.fabbe50.fogoverrides.Log;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import dev.architectury.networking.NetworkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
@@ -13,14 +15,13 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-
-public class S2CHandshakePacket {
-    private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_handshake");
+public class OpenFogSettingsPacket {
+    private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "fogsettings");
     private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
     private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
-    public static Packet<ClientGamePacketListener> create(boolean modEnabledServer) {
-        return (Packet<ClientGamePacketListener>) NetworkManager.toPacket(NetworkManager.s2c(), new PacketPayload(modEnabledServer), null);
+    public static Packet<ClientGamePacketListener> create() {
+        return (Packet<ClientGamePacketListener>) NetworkManager.toPacket(NetworkManager.s2c(), new PacketPayload(), null);
     }
 
     public static void register() {
@@ -37,34 +38,24 @@ public class S2CHandshakePacket {
         @Environment(EnvType.CLIENT)
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
-                if (Utilities.isIntegratedServer()) {
-                    CurrentDataStorage.INSTANCE.setIntegratedServer(true);
-                }
-                CurrentDataStorage.INSTANCE.setOnFogOverridesEnabledServer(payload.modEnabledServer());
+                Log.info("Received open settings packet from server!");
+                Minecraft.getInstance().setScreen(ClothScreen.getConfigScreen(null, CurrentDataStorage.INSTANCE.getServerSettings(), null));
             });
         }
     }
 
-    public record PacketPayload(boolean modEnabledServer) implements CustomPacketPayload {
+    public record PacketPayload() implements CustomPacketPayload {
         public PacketPayload(FriendlyByteBuf buf) {
-            this(buf.readBoolean());
+            this();
         }
 
         public void write(FriendlyByteBuf buf) {
-            buf.writeBoolean(modEnabledServer);
+
         }
 
         @Override
         public @NotNull Type<? extends CustomPacketPayload> type() {
             return PACKET_TYPE;
         }
-    }
-
-    public static CustomPacketPayload.Type<PacketPayload> getPacketType() {
-        return PACKET_TYPE;
-    }
-
-    public static StreamCodec<FriendlyByteBuf, PacketPayload> getPacketCodec() {
-        return PACKET_CODEC;
     }
 }

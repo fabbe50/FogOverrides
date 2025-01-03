@@ -7,16 +7,20 @@ import dev.architectury.networking.NetworkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
-public class LiquidsPacket {
+import java.io.IOException;
+
+public class SettingsSavedUpdateAllClientsPacket {
     public static class Client {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_liquids");
+        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_update_settings");
         private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
         private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
@@ -32,21 +36,23 @@ public class LiquidsPacket {
         @Environment(EnvType.CLIENT)
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
-                Log.info("Received liquid settings from server: " + payload);
-                boolean waterFog = payload.waterFog();
-                boolean lavaFog = payload.lavaFog();
-                CurrentDataStorage.INSTANCE.updateLiquids(waterFog, lavaFog);
+                Log.info("Received save ping confirmation from server.");
+                int i = payload.i();
+                if (i == 1) {
+                    context.getPlayer().displayClientMessage(Component.translatable("text.fogoverrides.information.updated-players.single", payload.i()), false);
+                } else {
+                    context.getPlayer().displayClientMessage(Component.translatable("text.fogoverrides.information.updated-players.multi", payload.i()), false);
+                }
             });
         }
 
-        public record PacketPayload(boolean waterFog, boolean lavaFog) implements CustomPacketPayload {
+        public record PacketPayload(int i) implements CustomPacketPayload {
             public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean());
+                this(buf.readInt());
             }
 
             public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterFog);
-                buf.writeBoolean(lavaFog);
+                buf.writeInt(i);
             }
 
             @Override
@@ -57,7 +63,7 @@ public class LiquidsPacket {
     }
 
     public static class Server {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_liquids");
+        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_update_settings");
         private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
         private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
@@ -68,21 +74,29 @@ public class LiquidsPacket {
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
                 if (context.getPlayer().getPermissionLevel() == 4) {
-                    Log.info("Received liquid settings from admin client: " + payload);
-                    ModConfig.INSTANCE.waterFogEnabled = payload.waterFog();
-                    ModConfig.INSTANCE.lavaFogEnabled = payload.lavaFog();
+                    Log.info("Received save ping from admin client.");
+                    try {
+                        ModConfig.save(ModConfig.getConfigFile());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    ModConfig.load(ModConfig.getConfigFile());
+
+                    int updatedPlayers = NetworkHandler.sendSettingsToAllPlayers();
+                    if (updatedPlayers > 0) {
+                        NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new SettingsSavedUpdateAllClientsPacket.Client.PacketPayload(updatedPlayers));
+                    }
                 }
             });
         }
 
-        public record PacketPayload(boolean waterFog, boolean lavaFog) implements CustomPacketPayload {
+        public record PacketPayload(int i) implements CustomPacketPayload {
             public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean());
+                this(buf.readInt());
             }
 
             public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterFog);
-                buf.writeBoolean(lavaFog);
+                buf.writeInt(i);
             }
 
             @Override
