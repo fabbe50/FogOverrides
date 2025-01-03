@@ -70,7 +70,7 @@ public class FogUtils {
         } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
             setFogData(renderDistance, fogData, dimensionFogData, FogShape.CYLINDER);
         }
-        FogOverrides.setCurrentFogData(fogData, fogTypeData);
+        F3Information.setCurrentFogData(fogData, fogTypeData);
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
     }
 
@@ -153,7 +153,7 @@ public class FogUtils {
             }
             doUnderwaterFogCalculation(fogData, entity, maxDistance);
         }
-        FogOverrides.setCurrentFogData(fogData, "UNDER_WATER");
+        F3Information.setCurrentFogData(fogData, "UNDER_WATER");
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
     }
 
@@ -175,7 +175,7 @@ public class FogUtils {
                 setFogData(renderDistance, fogData, dimensionFogData.getLavaNearDistance(), dimensionFogData.getLavaFarDistance(), FogShape.SPHERE);
             }
         }
-        FogOverrides.setCurrentFogData(fogData, "IN_LAVA");
+        F3Information.setCurrentFogData(fogData, "IN_LAVA");
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
     }
 
@@ -193,7 +193,7 @@ public class FogUtils {
         if (mobEffectInstance != null) {
             mobEffectFogFunction.setupFog(fogData, livingEntity, mobEffectInstance, renderDistance, smoothingVar);
         }
-        FogOverrides.setCurrentFogData(fogData, "MOB_EFFECT");
+        F3Information.setCurrentFogData(fogData, "MOB_EFFECT");
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w));
     }
 
@@ -398,7 +398,7 @@ public class FogUtils {
     }
 
     private static void finalizeFog(Vector4f color, FogData fogData, String fogType, CallbackInfoReturnable<FogParameters> cir) {
-        FogOverrides.setCurrentFogData(fogData, fogType);
+        F3Information.setCurrentFogData(fogData, fogType);
         cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w));
     }
 

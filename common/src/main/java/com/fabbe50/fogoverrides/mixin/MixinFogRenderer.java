@@ -5,6 +5,7 @@ import com.fabbe50.fogoverrides.FogOverrides;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.FogUtils;
+import com.fabbe50.fogoverrides.data.F3Information;
 import com.fabbe50.fogoverrides.data.checker.Mode;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
 import net.minecraft.client.Camera;
@@ -51,6 +52,8 @@ public abstract class MixinFogRenderer {
 
         if (mode != Mode.VANILLA) {
             FogUtils.processFog(mode, entity, effect, color, renderDistance, partialTicks, fogType, fogData, cir);
+        } else {
+            F3Information.setCurrentFogData(fogData, "VANILLA");
         }
     }
 
@@ -61,5 +64,6 @@ public abstract class MixinFogRenderer {
             CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
             ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel, cir);
         }
+        F3Information.setCurrentColor(Utilities.getColorIntegerFromVec4F(cir.getReturnValue()));
     }
 }
