@@ -1,7 +1,6 @@
 package com.fabbe50.fogoverrides.mixin;
 
-import com.fabbe50.fogoverrides.ModConfig;
-import net.minecraft.core.Registry;
+import com.fabbe50.fogoverrides.data.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -12,10 +11,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ResourceKey.class)
 public class MixinResourceKey {
-    @Inject(at = @At("HEAD"), method = "create(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/resources/ResourceKey;")
-    private static <T> void injectCreate(ResourceKey<? extends Registry<T>> resourceKey, ResourceLocation resourceLocation, CallbackInfoReturnable<ResourceKey<T>> cir) {
-        if (resourceKey.equals(Registries.BIOME)) {
-            ModConfig.addBiomeToList(resourceLocation);
+    @Inject(at = @At("HEAD"), method = "create(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/resources/ResourceKey;")
+    private static <T> void injectCreate(ResourceLocation resourceLocation, ResourceLocation resourceLocation2, CallbackInfoReturnable<ResourceKey<T>> cir) {
+        if (Registries.BIOME != null) {
+            if (resourceLocation.equals(Registries.BIOME.location())) {
+                Registry.addBiomeToList(resourceLocation2);
+            }
+        }
+        if (Registries.DIMENSION != null) {
+            if (resourceLocation.equals(Registries.DIMENSION.location())) {
+                Registry.addDimensionToList(resourceLocation2);
+            }
         }
     }
 }
