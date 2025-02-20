@@ -1,8 +1,6 @@
 package com.fabbe50.fogoverrides.mixin;
 
-import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -11,9 +9,7 @@ import net.minecraft.client.renderer.ScreenEffectRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +24,6 @@ public abstract class MixinScreenEffectRenderer {
     private static BlockState getViewBlockingState(Player arg) {
         return null;
     }
-
 
     @Shadow
     private static void renderTex(TextureAtlasSprite textureAtlasSprite, PoseStack poseStack, MultiBufferSource multiBufferSource) {

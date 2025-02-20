@@ -14,10 +14,10 @@ import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 public class ColorUtils {
-    public static void processColor(CurrentDataStorage settings, float rainLevel, Camera camera, float gameTime, ClientLevel clientLevel, CallbackInfoReturnable<Vector4f> cir) {
+    public static Vector4f processColor(CurrentDataStorage settings, float rainLevel, Camera camera, float gameTime, ClientLevel clientLevel) {
         FogType fogType = camera.getFluidInCamera();
         if (!fogType.equals(FogType.NONE)) {
-            return;
+            return null;
         }
         ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
         ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
@@ -38,12 +38,13 @@ public class ColorUtils {
             terrainColor = Utilities.getColorIntegerFromRGB(terrainColorVec3.x(), terrainColorVec3.y(), terrainColorVec3.z());
         }
         if (shouldProcess(biomeData)) {
-            process(terrainColor, biomeRain.getColor(), rainLevel, cir);
+            return process(terrainColor, biomeRain.getColor(), rainLevel);
         } else if (shouldProcess(dimensionData)) {
-            process(terrainColor, dimensionRain.getColor(), rainLevel, cir);
+            return process(terrainColor, dimensionRain.getColor(), rainLevel);
         } else {
             currentColor = 0;
         }
+        return null;
     }
 
     private static boolean shouldProcess(ModFogData data) {
@@ -55,11 +56,11 @@ public class ColorUtils {
     }
 
     private static int currentColor = 0;
-    private static void process(int terrainColor, int rainColor, float rainLevel, CallbackInfoReturnable<Vector4f> cir) {
+    private static Vector4f process(int terrainColor, int rainColor, float rainLevel) {
         int blendColor = Utilities.getBlendedColor(terrainColor, rainColor, rainLevel);
         currentColor = blendColor;
         Vec3 blendedColor = Utilities.getVec3ColorFromInteger(blendColor);
-        cir.setReturnValue(new Vector4f((float) blendedColor.x(), (float) blendedColor.y(), (float) blendedColor.z(), 1.0f));
+        return new Vector4f((float) blendedColor.x(), (float) blendedColor.y(), (float) blendedColor.z(), 1.0f);
     }
 
     public static int getCurrentColor() {

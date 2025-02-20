@@ -21,7 +21,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Vector4f;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.fabbe50.fogoverrides.ModConfig.*;
 import static com.fabbe50.fogoverrides.ModConfig.LAVA_FAR_DEFAULT;
@@ -38,84 +37,88 @@ public class FogUtils {
         FogUtils.calculationSetting = calculationSetting;
     }
 
-    public static void processFog(Mode mode, Entity entity, MobEffectFogFunction effect, Vector4f color, float renderDistance, float partialTicks, FogType fogType, FogData fogData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters processFog(Mode mode, Entity entity, MobEffectFogFunction effect, Vector4f color, float renderDistance, float partialTicks, FogType fogType, FogData fogData) {
         CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
         ModFogData biomeFogData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
         ModFogData dimensionFogData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
-        switch (mode) {
-            case SPECTATOR -> doSpectatorFog(color, renderDistance, fogType, fogData, settings, cir);
-            case CREATIVE -> doCreativeFog(color, renderDistance, fogType, fogData, settings, cir);
-            case LIQUID -> doLiquidFog(entity, color, renderDistance, fogType, fogData, settings, biomeFogData, dimensionFogData, cir);
-            case EFFECT -> doMobEffectFog(entity, effect, color, renderDistance, fogData, partialTicks, cir);
-            case WEATHER -> doWeatherFog(entity, color, renderDistance, fogData, biomeFogData, dimensionFogData, cir);
-            case THICK -> doThickTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, cir);
-            case TERRAIN -> doNormalTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, cir);
-        }
+        return switch (mode) {
+            case SPECTATOR -> doSpectatorFog(color, renderDistance, fogType, fogData, settings);
+            case CREATIVE -> doCreativeFog(color, renderDistance, fogType, fogData, settings);
+            case LIQUID -> doLiquidFog(entity, color, renderDistance, fogType, fogData, settings, biomeFogData, dimensionFogData);
+            case EFFECT -> doMobEffectFog(entity, effect, color, renderDistance, fogData, partialTicks);
+            case WEATHER -> doWeatherFog(entity, color, renderDistance, fogData, biomeFogData, dimensionFogData);
+            case THICK -> doThickTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData);
+            case TERRAIN -> doNormalTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData);
+            case NO_FOG -> doNoFog(color, fogData);
+            default -> null;
+        };
     }
 
     // Group Setters
-    public static void doNormalTerrainFog(Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doNormalTerrainFog(Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData) {
         setFogData(fogData, renderDistance, renderDistance, FogShape.CYLINDER);
-        doTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, "TERRAIN_FOG", cir);
+        return doTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, "TERRAIN_FOG");
     }
 
-    public static void doThickTerrainFog(Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doThickTerrainFog(Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData) {
         setFogData(fogData, renderDistance * SPECIAL_FOG_NEAR_MULTIPLIER_DEFAULT, Math.min(renderDistance, SPECIAL_FOG_FAR_MAX_DISTANCE_DEFAULT) * SPECIAL_FOG_FAR_MULTIPLIER_DEFAULT, FogShape.SPHERE);
-        doTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, "SPECIAL_FOG", cir);
+        return doTerrainFog(color, renderDistance, fogData, biomeFogData, dimensionFogData, "SPECIAL_FOG");
     }
 
-    public static void doTerrainFog(Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, String fogTypeData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doTerrainFog(Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, String fogTypeData) {
         if (biomeFogData.isOverrideGameFog()) {
             setFogData(renderDistance, fogData, biomeFogData, FogShape.CYLINDER);
         } else if (dimensionFogData != null && dimensionFogData.isOverrideGameFog()) {
             setFogData(renderDistance, fogData, dimensionFogData, FogShape.CYLINDER);
         }
         F3Information.setCurrentFogData(fogData, fogTypeData);
-        cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
+        return new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w());
     }
 
-    public static void doWeatherFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doWeatherFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData) {
         String fogLocation = "BIOME";
         FogSetting terrain = biomeFogData.getTerrain();
         FogSetting rain = biomeFogData.getRain();
         if (terrain.isEnabled() && rain.isEnabled()) {
-            doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+            return doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation);
         } else if (terrain.isEnabled()) {
             rain = dimensionFogData.getRain();
             if (rain.isEnabled()) {
                 fogLocation = "DIMENSION";
-                doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+                return doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation);
             }
         } else if (rain.isEnabled()) {
             terrain = dimensionFogData.getTerrain();
             if (terrain.isEnabled()) {
-                doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+                return doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation);
             }
         } else {
             terrain = dimensionFogData.getTerrain();
             rain = dimensionFogData.getRain();
             if (terrain.isEnabled() && rain.isEnabled()) {
                 fogLocation = "DIMENSION";
-                doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation, cir);
+                return doRainFog(entity, color, renderDistance, fogData, terrain, rain, fogLocation);
             }
         }
+        return null;
     }
 
-    public static void doRainFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, FogSetting terrain, FogSetting rain, String fogLocation, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doRainFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, FogSetting terrain, FogSetting rain, String fogLocation) {
         float gameTimePartialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         float rainLevel = entity.level().getRainLevel(gameTimePartialTick);
         float near = Utilities.getBetweenDistanceByRatio(terrain.getNearDistance(), rain.getNearDistance(), rainLevel);
         float far = Utilities.getBetweenDistanceByRatio(terrain.getFarDistance(), rain.getFarDistance(), rainLevel);
         if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-            finalizeFog(color, fogData, "WEATHER - " + fogLocation, cir);
+            return finalizeFog(color, fogData, "WEATHER - " + fogLocation);
         }
+        return null;
     }
 
-    public static void doLiquidFog(Entity entity, Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
-        switch (fogType) {
-            case WATER -> doWaterFog(entity, settings, renderDistance, color, fogData, biomeFogData, dimensionFogData, cir);
-            case LAVA -> doLavaFog(entity, settings, renderDistance, color, fogData, biomeFogData, dimensionFogData, cir);
-            case POWDER_SNOW -> doPowderSnowFog(color, fogData, cir);
+    public static FogParameters doLiquidFog(Entity entity, Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, ModFogData biomeFogData, ModFogData dimensionFogData) {
+        return switch (fogType) {
+            case WATER -> doWaterFog(entity, settings, renderDistance, color, fogData, biomeFogData, dimensionFogData);
+            case LAVA -> doLavaFog(entity, settings, renderDistance, color, fogData, biomeFogData, dimensionFogData);
+            case POWDER_SNOW -> doPowderSnowFog(color, fogData);
             /*case null, default -> {
                 if (entity.isInLiquid()) {
                     Level level = entity.level();
@@ -129,11 +132,12 @@ public class FogUtils {
                     }
                 }
             }*/
-        }
+            case NONE -> null;
+        };
     }
 
-    public static void doWaterFog(Entity entity, CurrentDataStorage settings, float renderDistance, Vector4f color, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
-        setFogData(fogData, ModConfig.UNDERWATER_NEAR_DEFAULT, ModConfig.UNDERWATER_FAR_DEFAULT, FogShape.SPHERE);
+    public static FogParameters doWaterFog(Entity entity, CurrentDataStorage settings, float renderDistance, Vector4f color, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData) {
+        setFogData(fogData, UNDERWATER_NEAR_DEFAULT, UNDERWATER_FAR_DEFAULT, FogShape.SPHERE);
         float maxDistance = renderDistance;
         if (!settings.isWaterFogEnabled()) {
             disableFog(fogData);
@@ -154,10 +158,10 @@ public class FogUtils {
             doUnderwaterFogCalculation(fogData, entity, maxDistance);
         }
         F3Information.setCurrentFogData(fogData, "UNDER_WATER");
-        cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
+        return new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w());
     }
 
-    public static void doLavaFog(Entity entity, CurrentDataStorage settings, float renderDistance, Vector4f color, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doLavaFog(Entity entity, CurrentDataStorage settings, float renderDistance, Vector4f color, FogData fogData, ModFogData biomeFogData, ModFogData dimensionFogData) {
         if (!settings.isLavaFogEnabled()) {
             disableFog(fogData);
         } else if (entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(MobEffects.FIRE_RESISTANCE)) {
@@ -176,17 +180,18 @@ public class FogUtils {
             }
         }
         F3Information.setCurrentFogData(fogData, "IN_LAVA");
-        cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w()));
+        return new FogParameters(fogData.start, fogData.end, fogData.shape, color.x(), color.y(), color.z(), color.w());
     }
 
-    public static void doPowderSnowFog(Vector4f color, FogData fogData, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doPowderSnowFog(Vector4f color, FogData fogData) {
         // TODO: Powder Snow Options
         if (setFogData(fogData, POWDER_SNOW_NEAR_DEFAULT, POWDER_SNOW_FAR_DEFAULT)) {
-            finalizeFog(color, fogData, "IN_POWDERED_SNOW", cir);
+            return finalizeFog(color, fogData, "IN_POWDERED_SNOW");
         }
+        return null;
     }
 
-    public static void doMobEffectFog(Entity entity, MobEffectFogFunction mobEffectFogFunction, Vector4f color, float renderDistance, FogData fogData, float smoothingVar, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doMobEffectFog(Entity entity, MobEffectFogFunction mobEffectFogFunction, Vector4f color, float renderDistance, FogData fogData, float smoothingVar) {
         // TODO: Mob effect overrides
         LivingEntity livingEntity = (LivingEntity) entity;
         MobEffectInstance mobEffectInstance = livingEntity.getEffect(mobEffectFogFunction.getMobEffect());
@@ -194,48 +199,52 @@ public class FogUtils {
             mobEffectFogFunction.setupFog(fogData, livingEntity, mobEffectInstance, renderDistance, smoothingVar);
         }
         F3Information.setCurrentFogData(fogData, "MOB_EFFECT");
-        cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w));
+        return new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w);
     }
 
-    public static void doSpectatorFog(Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doSpectatorFog(Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings) {
         GameModeSettings gameModeSettings = settings.getSpectatorSettings();
         if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.NO_FOG) {
             if (disableFog(fogData)) {
-                finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                return finalizeFog(color, fogData, "SPECTATOR_MODE");
             }
         } else if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.OVERRIDES) {
-            switch (fogType) {
+            return switch (fogType) {
                 case WATER -> {
                     FogSetting fog = gameModeSettings.getWaterFog();
                     if (fog.isEnabled()) {
-                        float near = fog.getNearDistance();
-                        float far = fog.getFarDistance();
-                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        if (setFogData(renderDistance, fogData, fog, FogShape.CYLINDER)) {
+                            yield finalizeFog(color, fogData, "SPECTATOR_MODE");
+                        } else {
+                            yield null;
                         }
                     } else {
                         if (disableFog(fogData)) {
-                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                            yield finalizeFog(color, fogData, "SPECTATOR_MODE");
+                        } else {
+                            yield null;
                         }
                     }
                 }
                 case LAVA -> {
                     FogSetting fog = gameModeSettings.getLavaFog();
                     if (fog.isEnabled()) {
-                        float near = fog.getNearDistance();
-                        float far = fog.getFarDistance();
-                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        if (setFogData(renderDistance, fogData, fog, FogShape.CYLINDER)) {
+                            yield finalizeFog(color, fogData, "SPECTATOR_MODE");
                         } else {
-                            near = LAVA_NEAR_SPECTATOR_DEFAULT;
-                            far = renderDistance * LAVA_FAR_SPECTATOR_MULTIPLIER_DEFAULT;
+                            float near = LAVA_NEAR_SPECTATOR_DEFAULT;
+                            float far = renderDistance * LAVA_FAR_SPECTATOR_MULTIPLIER_DEFAULT;
                             if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                                finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                                yield finalizeFog(color, fogData, "SPECTATOR_MODE");
+                            } else {
+                                yield null;
                             }
                         }
                     } else {
                         if (disableFog(fogData)) {
-                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                            yield finalizeFog(color, fogData, "SPECTATOR_MODE");
+                        } else {
+                            yield null;
                         }
                     }
                 }
@@ -243,79 +252,68 @@ public class FogUtils {
                     float near = POWDER_SNOW_NEAR_SPECTATOR_DEFAULT;
                     float far = renderDistance * POWDER_SNOW_FAR_SPECTATOR_MULTIPLIER_DEFAULT;
                     if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                        finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                        yield finalizeFog(color, fogData, "SPECTATOR_MODE");
+                    } else {
+                        yield null;
                     }
                 }
                 case NONE -> {
                     FogSetting fog = gameModeSettings.getTerrainFog();
-                    if (fog.isEnabled()) {
-                        float near = fog.getNearDistance();
-                        float far = fog.getFarDistance();
-                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
-                        }
+                    if (setFogData(renderDistance, fogData, fog, FogShape.CYLINDER)) {
+                        yield finalizeFog(color, fogData, "SPECTATOR_MODE");
                     } else {
-                        if (disableFog(fogData)) {
-                            finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
-                        }
+                        yield null;
                     }
                 }
-            }
+                case null, default -> null;
+            };
         }
+        return null;
     }
 
-    public static void doCreativeFog(Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings, CallbackInfoReturnable<FogParameters> cir) {
+    public static FogParameters doCreativeFog(Vector4f color, float renderDistance, FogType fogType, FogData fogData, CurrentDataStorage settings) {
         GameModeSettings gameModeSettings = settings.getCreativeSettings();
         if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.NO_FOG) {
             if (disableFog(fogData)) {
-                finalizeFog(color, fogData, "SPECTATOR_MODE", cir);
+                return finalizeFog(color, fogData, "SPECTATOR_MODE");
             }
         } else if (gameModeSettings.getFogMode() == GameModeSettings.FogMode.OVERRIDES) {
-            switch (fogType) {
+            return switch (fogType) {
                 case WATER -> {
                     FogSetting fog = gameModeSettings.getWaterFog();
-                    if (fog.isEnabled()) {
-                        float near = fog.getNearDistance();
-                        float far = fog.getFarDistance();
-                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
-                        }
+                    if (setFogData(renderDistance, fogData, fog, FogShape.CYLINDER)) {
+                        yield finalizeFog(color, fogData, "CREATIVE_MODE");
                     } else {
-                        if (disableFog(fogData)) {
-                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
-                        }
+                        yield null;
                     }
                 }
                 case LAVA -> {
                     FogSetting fog = gameModeSettings.getLavaFog();
-                    if (fog.isEnabled()) {
-                        float near = fog.getNearDistance();
-                        float far = fog.getFarDistance();
-                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
-                        }
+                    if (setFogData(renderDistance, fogData, fog, FogShape.CYLINDER)) {
+                        yield finalizeFog(color, fogData, "CREATIVE_MODE");
                     } else {
-                        if (disableFog(fogData)) {
-                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
-                        }
+                        yield null;
                     }
                 }
                 case NONE -> {
                     FogSetting fog = gameModeSettings.getTerrainFog();
-                    if (fog.isEnabled()) {
-                        float near = fog.getNearDistance();
-                        float far = fog.getFarDistance();
-                        if (setFogData(renderDistance, fogData, near, far, FogShape.CYLINDER)) {
-                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
-                        }
+                    if (setFogData(renderDistance, fogData, fog, FogShape.CYLINDER)) {
+                        yield finalizeFog(color, fogData, "CREATIVE_MODE");
                     } else {
-                        if (disableFog(fogData)) {
-                            finalizeFog(color, fogData, "CREATIVE_MODE", cir);
-                        }
+                        yield null;
                     }
                 }
-            }
+                default -> null;
+            };
         }
+        return null;
+    }
+
+    public static FogParameters doNoFog(Vector4f color, FogData fogData) {
+        if (disableFog(fogData)) {
+            return finalizeFog(color, fogData, "NO_FOG");
+        }
+        return null;
     }
 
 
@@ -330,7 +328,7 @@ public class FogUtils {
                 return setFogData(renderDistance, fogData, modFogData.getNearDistance(), modFogData.getFarDistance(), fogShape);
             }
         } else {
-            return setFogData(renderDistance, fogData, Float.MAX_VALUE, Float.MAX_VALUE, fogShape);
+            return disableFog(fogData);
         }
         return false;
     }
@@ -340,8 +338,9 @@ public class FogUtils {
             float near = fogSetting.getNearDistance();
             float far = fogSetting.getFarDistance();
             return setFogData(renderDistance, fogData, near, far, fogShape);
+        } else {
+            return disableFog(fogData);
         }
-        return false;
     }
 
     public static boolean setFogData(float renderDistance, FogData fogData, float near, float far, FogShape fogShape) {
@@ -371,7 +370,9 @@ public class FogUtils {
     }
 
     public static boolean disableFog(FogData fogData) {
-        return setFogData(fogData, Float.MAX_VALUE, Float.MAX_VALUE, FogShape.CYLINDER);
+        setFogDistance(fogData, Float.MAX_VALUE, Float.MAX_VALUE);
+        setFogShape(fogData, FogShape.CYLINDER);
+        return true;
     }
 
     public static void setFogDistance(FogData fogData, float near, float far) {
@@ -397,7 +398,7 @@ public class FogUtils {
         }
     }
 
-    private static void finalizeFog(Vector4f color, FogData fogData, String fogType, CallbackInfoReturnable<FogParameters> cir) {
+    private static FogParameters finalizeFog(Vector4f color, FogData fogData, String fogType) {
         FogData current = F3Information.getCurrentFogData();
         if (current != null && INSTANCE.transitionFog) {
             FogData mod = new FogData(fogData.mode);
@@ -411,7 +412,7 @@ public class FogUtils {
             }
         }
         F3Information.setCurrentFogData(fogData, fogType);
-        cir.setReturnValue(new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w));
+        return new FogParameters(fogData.start, fogData.end, fogData.shape, color.x, color.y, color.z, color.w);
     }
 
     // Checkers
@@ -474,6 +475,6 @@ public class FogUtils {
 
     // Utility
     public static boolean validate(float near, float far) {
-        return (near != -1 && far != -1 && near < far) || (near == Float.MAX_VALUE && far == Float.MAX_VALUE);
+        return (near != -1 && far != -1 && near < far);
     }
 }

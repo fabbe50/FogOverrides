@@ -29,6 +29,7 @@
       "com.fabbe50.fogoverrides.fabric.ModMenuIntegration"
     ]
   },
+  "accessWidener": "fogoverrides.accesswidener",
   "custom": {
     "modmenu:clientsideOnly": true,
     "links": {

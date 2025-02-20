@@ -51,7 +51,10 @@ public abstract class MixinFogRenderer {
         Mode mode = FogUtils.getMode(settings, entity, effect, fogMode, fogType, thickFog);
 
         if (mode != Mode.VANILLA) {
-            FogUtils.processFog(mode, entity, effect, color, renderDistance, partialTicks, fogType, fogData, cir);
+            FogParameters fogParameters = FogUtils.processFog(mode, entity, effect, color, renderDistance, partialTicks, fogType, fogData);
+            if (fogParameters != null) {
+                cir.setReturnValue(fogParameters);
+            }
         } else {
             F3Information.setCurrentFogData(fogData, "VANILLA");
         }
@@ -62,7 +65,11 @@ public abstract class MixinFogRenderer {
         float rainLevel = clientLevel.getRainLevel(gameTime);
         if (rainLevel > 0) {
             CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
-            ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel, cir);
+            Vector4f color = ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel);
+            if (color == null) {
+                color = cir.getReturnValue();
+            }
+            cir.setReturnValue(color);
         }
         F3Information.setCurrentColor(Utilities.getColorIntegerFromVec4F(cir.getReturnValue()));
     }

@@ -39,7 +39,7 @@ public class Checkers {
         public static Result getResult(GameModeSettings settings, FogRenderer.FogMode fogMode, FogType fogType) {
             GameModeSettings.FogMode gameModeFogMode = settings.getFogMode();
             if (gameModeFogMode == GameModeSettings.FogMode.NO_FOG) {
-                return Result.DO_RENDER;
+                return Result.DISABLE_FOG;
             } else if (gameModeFogMode == GameModeSettings.FogMode.OVERRIDES) {
                 if (fogType == FogType.WATER) {
                     FogSetting waterFog = settings.getWaterFog();
