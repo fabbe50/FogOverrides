@@ -12,9 +12,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class OverlaysPacket {
+public class LiquidsPacket {
     public static class Client {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_overlays");
+        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_liquids");
         private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
         private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
@@ -30,25 +30,21 @@ public class OverlaysPacket {
         @Environment(EnvType.CLIENT)
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
-                Log.info("Received overlay settings from server: " + payload);
-                boolean waterOverlay = payload.waterOverlay();
-                boolean fireOverlay = payload.fireOverlay();
-                int fireOffset = payload.fireOffset();
-                int firePotOffset = payload.firePotionOffset();
-                CurrentDataStorage.INSTANCE.updateOverlays(waterOverlay, fireOverlay, fireOffset, firePotOffset);
+                Log.info("Received liquid settings from server: " + payload);
+                boolean waterFog = payload.waterFog();
+                boolean lavaFog = payload.lavaFog();
+                CurrentDataStorage.INSTANCE.updateLiquids(waterFog, lavaFog);
             });
         }
 
-        public record PacketPayload(boolean waterOverlay, boolean fireOverlay, int fireOffset, int firePotionOffset) implements CustomPacketPayload {
+        public record PacketPayload(boolean waterFog, boolean lavaFog) implements CustomPacketPayload {
             public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean(), buf.readInt(), buf.readInt());
+                this(buf.readBoolean(), buf.readBoolean());
             }
 
             public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterOverlay);
-                buf.writeBoolean(fireOverlay);
-                buf.writeInt(fireOffset);
-                buf.writeInt(firePotionOffset);
+                buf.writeBoolean(waterFog);
+                buf.writeBoolean(lavaFog);
             }
 
             @Override
@@ -59,7 +55,7 @@ public class OverlaysPacket {
     }
 
     public static class Server {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_overlays");
+        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_liquids");
         private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
         private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
@@ -70,25 +66,21 @@ public class OverlaysPacket {
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
                 if (context.getPlayer().hasPermissions(4)) {
-                    Log.info("Received overlay settings from admin client: " + payload);
-                    ModConfig.INSTANCE.renderWaterOverlay = payload.waterOverlay();
-                    ModConfig.INSTANCE.renderFireOverlay = payload.fireOverlay();
-                    ModConfig.INSTANCE.fireOverlayOffset = payload.fireOffset();
-                    ModConfig.INSTANCE.firePotionOverlayOffset = payload.firePotionOffset();
+                    Log.info("Received liquid settings from admin client: " + payload);
+                    ModConfig.INSTANCE.waterFogEnabled = payload.waterFog();
+                    ModConfig.INSTANCE.lavaFogEnabled = payload.lavaFog();
                 }
             });
         }
 
-        public record PacketPayload(boolean waterOverlay, boolean fireOverlay, int fireOffset, int firePotionOffset) implements CustomPacketPayload {
+        public record PacketPayload(boolean waterFog, boolean lavaFog) implements CustomPacketPayload {
             public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean(), buf.readInt(), buf.readInt());
+                this(buf.readBoolean(), buf.readBoolean());
             }
 
             public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterOverlay);
-                buf.writeBoolean(fireOverlay);
-                buf.writeInt(fireOffset);
-                buf.writeInt(firePotionOffset);
+                buf.writeBoolean(waterFog);
+                buf.writeBoolean(lavaFog);
             }
 
             @Override

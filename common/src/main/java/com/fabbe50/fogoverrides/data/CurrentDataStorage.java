@@ -5,43 +5,18 @@ import com.fabbe50.fogoverrides.Utilities;
 import dev.architectury.registry.level.biome.BiomeModifications;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class CurrentDataStorage {
     public static CurrentDataStorage INSTANCE = new CurrentDataStorage();
+    private static ModConfig SERVER_SETTINGS = new ModConfig();
 
     private boolean isOnFogOverridesEnabledServer = false;
     private boolean integratedServer = false;
-    
-    private final Map<String, ModFogData> biomeStorage = new HashMap<>();
 
-    private ModFogData overworldFogData = Utilities.getDefaultFogData();
-    private ModFogData netherFogData = Utilities.getDefaultFogData();
-    private ModFogData theEndFogData = Utilities.getDefaultFogData();
-
-    private boolean spectatorHasModFog = false;
-    private float spectatorNearDistance = -1f;
-    private float spectatorFarDistance = -1f;
-    private float spectatorWaterNearDistance = -1f;
-    private float spectatorWaterFarDistance = -1f;
-    private float spectatorLavaNearDistance = -1f;
-    private float spectatorLavaFarDistance = -1f;
-    private boolean creativeHasModFog = false;
-    private float creativeNearDistance = -1f;
-    private float creativeFarDistance = -1f;
-    private float creativeWaterNearDistance = -1f;
-    private float creativeWaterFarDistance = -1f;
-    private float creativeLavaNearDistance = -1f;
-    private float creativeLavaFarDistance = -1f;
-
-    private int cloudHeight = 192;
-
-    private boolean renderWaterOverlay = true;
-    private boolean renderFireOverlay = true;
-    private int fireOverlayOffset = 0;
-    private int firePotionOverlayOffset = -25;
+    public static void init() {
+    }
 
     public void setOnFogOverridesEnabledServer(boolean onFogOverridesEnabledServer) {
         isOnFogOverridesEnabledServer = onFogOverridesEnabledServer;
@@ -60,107 +35,72 @@ public class CurrentDataStorage {
     }
 
     public ModFogData getBiomeFogData(ResourceLocation location) {
-        return isOnFogOverridesEnabledServer ? (biomeStorage.get(location.toString()) == null ? ModConfig.getFogDataFromBiomeLocation(location.toString()) : biomeStorage.get(location.toString())) : ModConfig.getFogDataFromBiomeLocation(location.toString());
+        return isOnFogOverridesEnabledServer && !integratedServer ? (SERVER_SETTINGS.biomeStorage.get(location.toString()) == null ? ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString()) : SERVER_SETTINGS.biomeStorage.get(location.toString())) : ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString());
     }
 
-    public ModFogData getFogDataFromDimension(ResourceLocation dimension) {
+    public ModFogData getDimensionFogData(ResourceLocation dimension) {
         if (dimension == null) {
             return Utilities.getDefaultFogData();
         }
+//        System.out.println(dimension.getNamespace() + ":" + dimension.getPath());
         if (dimension.equals(Utilities.getOverworld())) {
-            return isOnFogOverridesEnabledServer && !integratedServer ? overworldFogData : ModConfig.overworldFogData;
+            return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.overworldFogData : ModConfig.INSTANCE.overworldFogData;
         } else if (dimension.equals(Utilities.getNether())) {
-            return isOnFogOverridesEnabledServer && !integratedServer ? netherFogData : ModConfig.netherFogData;
+            return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.netherFogData : ModConfig.INSTANCE.netherFogData;
         } else if (dimension.equals(Utilities.getTheEnd())) {
-            return isOnFogOverridesEnabledServer && !integratedServer ? theEndFogData : ModConfig.theEndFogData;
+            return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.theEndFogData : ModConfig.INSTANCE.theEndFogData;
         }
         return Utilities.getDefaultFogData();
     }
-    
-    public boolean getSpectatorHasModFog() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorHasModFog : ModConfig.spectatorHasModFog;
-    }
-    
-    public float getSpectatorNearDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorNearDistance : ModConfig.spectatorNearDistance;
+
+    public ModConfig.CalculationSetting getCalculationSetting() {
+        return ModConfig.INSTANCE.calculationSetting;
     }
     
-    public float getSpectatorFarDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorFarDistance : ModConfig.spectatorFarDistance;
-    }
-    
-    public float getSpectatorWaterNearDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorWaterNearDistance : ModConfig.spectatorWaterNearDistance;
-    }
-    
-    public float getSpectatorWaterFarDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorWaterFarDistance : ModConfig.spectatorWaterFarDistance;
-    }
-    
-    public float getSpectatorLavaNearDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorLavaNearDistance : ModConfig.spectatorLavaNearDistance;
-    }
-    
-    public float getSpectatorLavaFarDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? spectatorLavaFarDistance : ModConfig.spectatorLavaFarDistance;
+    public GameModeSettings getSpectatorSettings() {
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.spectatorSettings : ModConfig.INSTANCE.spectatorSettings;
     }
 
-    public boolean getCreativeHasModFog() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeHasModFog : ModConfig.creativeHasModFog;
+    public GameModeSettings getCreativeSettings() {
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.creativeSettings : ModConfig.INSTANCE.creativeSettings;
     }
 
-    public float getCreativeNearDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeNearDistance : ModConfig.creativeNearDistance;
+    public boolean isWaterFogEnabled() {
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.waterFogEnabled : ModConfig.INSTANCE.waterFogEnabled;
     }
 
-    public float getCreativeFarDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeFarDistance : ModConfig.creativeFarDistance;
-    }
-
-    public float getCreativeWaterNearDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeWaterNearDistance : ModConfig.creativeWaterNearDistance;
-    }
-
-    public float getCreativeWaterFarDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeWaterFarDistance : ModConfig.creativeWaterFarDistance;
-    }
-
-    public float getCreativeLavaNearDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeLavaNearDistance : ModConfig.creativeLavaNearDistance;
-    }
-
-    public float getCreativeLavaFarDistance() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? creativeLavaFarDistance : ModConfig.creativeLavaFarDistance;
+    public boolean isLavaFogEnabled() {
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.lavaFogEnabled : ModConfig.INSTANCE.lavaFogEnabled;
     }
 
     public int getCloudHeight() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? cloudHeight : ModConfig.cloudHeight;
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.cloudHeight : ModConfig.INSTANCE.cloudHeight;
     }
 
     public boolean isRenderWaterOverlay() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? renderWaterOverlay : ModConfig.renderWaterOverlay;
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.renderWaterOverlay : ModConfig.INSTANCE.renderWaterOverlay;
     }
 
     public boolean isRenderFireOverlay() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? renderFireOverlay : ModConfig.renderFireOverlay;
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.renderFireOverlay : ModConfig.INSTANCE.renderFireOverlay;
     }
 
     public int getFireOverlayOffset() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? fireOverlayOffset : ModConfig.fireOverlayOffset;
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.fireOverlayOffset : ModConfig.INSTANCE.fireOverlayOffset;
     }
 
     public int getFirePotionOverlayOffset() {
-        return isOnFogOverridesEnabledServer && !integratedServer ? firePotionOverlayOffset : ModConfig.firePotionOverlayOffset;
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.firePotionOverlayOffset : ModConfig.INSTANCE.firePotionOverlayOffset;
     }
 
     public void addToBiomeStorage(ResourceLocation location, ModFogData fogData) {
-        biomeStorage.put(location.toString(), fogData);
+        SERVER_SETTINGS.biomeStorage.put(location.toString(), fogData);
     }
 
     public void refreshBiomeStorage(Map<String, ModFogData> biomeStorage) {
         if (isOnFogOverridesEnabledServer && !integratedServer) {
-            this.biomeStorage.clear();
-            this.biomeStorage.putAll(biomeStorage);
+            SERVER_SETTINGS.biomeStorage.clear();
+            SERVER_SETTINGS.biomeStorage.putAll(biomeStorage);
         }
     }
 
@@ -172,49 +112,57 @@ public class CurrentDataStorage {
     }
 
     public Map<String, ModFogData> getBiomeStorage() {
-        return  isOnFogOverridesEnabledServer && !integratedServer ? biomeStorage : ModConfig.getBiomeStorage();
+        return  isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.biomeStorage : INSTANCE.getBiomeStorage();
     }
 
-    public void updateSpectatorSettings(boolean spectatorHasModFog, float spectatorNearDistance, float spectatorFarDistance, float spectatorWaterNearDistance, float spectatorWaterFarDistance, float spectatorLavaNearDistance, float spectatorLavaFarDistance) {
-        this.spectatorHasModFog = spectatorHasModFog;
-        this.spectatorNearDistance = spectatorNearDistance;
-        this.spectatorFarDistance = spectatorFarDistance;
-        this.spectatorWaterNearDistance = spectatorWaterNearDistance;
-        this.spectatorWaterFarDistance = spectatorWaterFarDistance;
-        this.spectatorLavaNearDistance = spectatorLavaNearDistance;
-        this.spectatorLavaFarDistance = spectatorLavaFarDistance;
+    public ModConfig getServerSettings() {
+        return SERVER_SETTINGS;
+    }
+
+    public void updateSettings(ModConfig config) {
+        SERVER_SETTINGS = config;
+    }
+
+    public void updateGameModeSettings(String gameMode, GameModeSettings settings) {
+        switch (gameMode) {
+            case "spectator" -> updateSpectatorSettings(settings);
+            case "creative" -> updateCreativeSettings(settings);
+        }
+    }
+
+    public void updateSpectatorSettings(GameModeSettings spectatorSettings) {
+        SERVER_SETTINGS.spectatorSettings = spectatorSettings;
     }
     
-    public void updateCreativeSettings(boolean creativeHasModFog, float creativeNearDistance, float creativeFarDistance, float creativeWaterNearDistance, float creativeWaterFarDistance, float creativeLavaNearDistance, float creativeLavaFarDistance) {
-        this.creativeHasModFog = creativeHasModFog;
-        this.creativeNearDistance = creativeNearDistance;
-        this.creativeFarDistance = creativeFarDistance;
-        this.creativeWaterNearDistance = creativeWaterNearDistance;
-        this.creativeWaterFarDistance = creativeWaterFarDistance;
-        this.creativeLavaNearDistance = creativeLavaNearDistance;
-        this.creativeLavaFarDistance = creativeLavaFarDistance;
+    public void updateCreativeSettings(GameModeSettings creativeSettings) {
+        SERVER_SETTINGS.creativeSettings = creativeSettings;
     }
 
     public void updateOverworldFogData(ModFogData overworldFogData) {
-        this.overworldFogData = overworldFogData;
+        SERVER_SETTINGS.overworldFogData = overworldFogData;
     }
 
     public void updateNetherFogData(ModFogData netherFogData) {
-        this.netherFogData = netherFogData;
+        SERVER_SETTINGS.netherFogData = netherFogData;
     }
 
     public void updateTheEndFogData(ModFogData theEndFogData) {
-        this.theEndFogData = theEndFogData;
+        SERVER_SETTINGS.theEndFogData = theEndFogData;
+    }
+
+    public void updateLiquids(boolean waterFogEnabled, boolean lavaFogEnabled) {
+        SERVER_SETTINGS.waterFogEnabled = waterFogEnabled;
+        SERVER_SETTINGS.lavaFogEnabled = lavaFogEnabled;
     }
 
     public void updateCloudHeight(int cloudHeight) {
-        this.cloudHeight = cloudHeight;
+        SERVER_SETTINGS.cloudHeight = cloudHeight;
     }
 
     public void updateOverlays(boolean renderWaterOverlay, boolean renderFireOverlay, int fireOverlayOffset, int firePotionOverlayOffset) {
-        this.renderWaterOverlay = renderWaterOverlay;
-        this.renderFireOverlay = renderFireOverlay;
-        this.fireOverlayOffset = fireOverlayOffset;
-        this.firePotionOverlayOffset = firePotionOverlayOffset;
+        SERVER_SETTINGS.renderWaterOverlay = renderWaterOverlay;
+        SERVER_SETTINGS.renderFireOverlay = renderFireOverlay;
+        SERVER_SETTINGS.fireOverlayOffset = fireOverlayOffset;
+        SERVER_SETTINGS.firePotionOverlayOffset = firePotionOverlayOffset;
     }
 }

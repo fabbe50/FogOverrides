@@ -2,19 +2,22 @@ package com.fabbe50.fogoverrides.network;
 
 import com.fabbe50.fogoverrides.Log;
 import com.fabbe50.fogoverrides.ModConfig;
-import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import dev.architectury.networking.NetworkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
-public class OverlaysPacket {
+import java.io.IOException;
+
+public class SettingsSavedUpdateAllClientsPacket {
     public static class Client {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_overlays");
+        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_update_settings");
         private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
         private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
@@ -30,25 +33,23 @@ public class OverlaysPacket {
         @Environment(EnvType.CLIENT)
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
-                Log.info("Received overlay settings from server: " + payload);
-                boolean waterOverlay = payload.waterOverlay();
-                boolean fireOverlay = payload.fireOverlay();
-                int fireOffset = payload.fireOffset();
-                int firePotOffset = payload.firePotionOffset();
-                CurrentDataStorage.INSTANCE.updateOverlays(waterOverlay, fireOverlay, fireOffset, firePotOffset);
+                Log.info("Received save ping confirmation from server.");
+                int i = payload.i();
+                if (i == 1) {
+                    context.getPlayer().displayClientMessage(Component.translatable("text.fogoverrides.information.updated-players.single", payload.i()), false);
+                } else {
+                    context.getPlayer().displayClientMessage(Component.translatable("text.fogoverrides.information.updated-players.multi", payload.i()), false);
+                }
             });
         }
 
-        public record PacketPayload(boolean waterOverlay, boolean fireOverlay, int fireOffset, int firePotionOffset) implements CustomPacketPayload {
+        public record PacketPayload(int i) implements CustomPacketPayload {
             public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean(), buf.readInt(), buf.readInt());
+                this(buf.readInt());
             }
 
             public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterOverlay);
-                buf.writeBoolean(fireOverlay);
-                buf.writeInt(fireOffset);
-                buf.writeInt(firePotionOffset);
+                buf.writeInt(i);
             }
 
             @Override
@@ -59,7 +60,7 @@ public class OverlaysPacket {
     }
 
     public static class Server {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_overlays");
+        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_update_settings");
         private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
         private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
 
@@ -70,25 +71,29 @@ public class OverlaysPacket {
         private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
             context.queue(() -> {
                 if (context.getPlayer().hasPermissions(4)) {
-                    Log.info("Received overlay settings from admin client: " + payload);
-                    ModConfig.INSTANCE.renderWaterOverlay = payload.waterOverlay();
-                    ModConfig.INSTANCE.renderFireOverlay = payload.fireOverlay();
-                    ModConfig.INSTANCE.fireOverlayOffset = payload.fireOffset();
-                    ModConfig.INSTANCE.firePotionOverlayOffset = payload.firePotionOffset();
+                    Log.info("Received save ping from admin client.");
+                    try {
+                        ModConfig.save(ModConfig.getConfigFile());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    ModConfig.load(ModConfig.getConfigFile());
+
+                    int updatedPlayers = NetworkHandler.sendSettingsToAllPlayers();
+                    if (updatedPlayers > 0) {
+                        NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new Client.PacketPayload(updatedPlayers));
+                    }
                 }
             });
         }
 
-        public record PacketPayload(boolean waterOverlay, boolean fireOverlay, int fireOffset, int firePotionOffset) implements CustomPacketPayload {
+        public record PacketPayload(int i) implements CustomPacketPayload {
             public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean(), buf.readInt(), buf.readInt());
+                this(buf.readInt());
             }
 
             public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterOverlay);
-                buf.writeBoolean(fireOverlay);
-                buf.writeInt(fireOffset);
-                buf.writeInt(firePotionOffset);
+                buf.writeInt(i);
             }
 
             @Override

@@ -11,7 +11,7 @@ authors = "fabbe50"
 description = '''
 Mod to make fog do what you want.
 '''
-#logoFile = ""
+logoFile = "assets/fogoverrides/icon.png"
 
 [[mixins]]
 config = "fogoverrides.mixins.json"
@@ -21,14 +21,14 @@ config = "fogoverrides-common.mixins.json"
 [[dependencies.fogoverrides]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,)"
+versionRange = "[1.21.1]"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fogoverrides]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21,)"
+versionRange = "[21.1,]"
 ordering = "NONE"
 side = "BOTH"
 
