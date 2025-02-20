@@ -18,6 +18,9 @@ config = "fogoverrides.mixins.json"
 [[mixins]]
 config = "fogoverrides-common.mixins.json"
 
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"
+
 [[dependencies.fogoverrides]]
 modId = "minecraft"
 type = "required"
