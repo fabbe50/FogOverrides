@@ -39,9 +39,16 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
+    var replaceProperties = [
+            version : project.version,
+            minecraft_version_range: rootProject.fabric_minecraft_version_range,
+            architectury_major_version: rootProject.architectury_major_version,
+            cloth_major_version: rootProject.cloth_major_version
+    ]
+    inputs.properties replaceProperties
+
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand replaceProperties
     }
 }
 

@@ -1,17 +1,17 @@
 package com.fabbe50.fogoverrides.mixin;
 
 import com.fabbe50.fogoverrides.ColorUtils;
-import com.fabbe50.fogoverrides.FogOverrides;
 import com.fabbe50.fogoverrides.Utilities;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.FogUtils;
 import com.fabbe50.fogoverrides.data.F3Information;
+import com.fabbe50.fogoverrides.data.FogParameters;
 import com.fabbe50.fogoverrides.data.checker.Mode;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.FogRenderer.FogData;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = FogRenderer.class, priority = 1100)
 public abstract class MixinFogRenderer {
@@ -33,12 +33,15 @@ public abstract class MixinFogRenderer {
         return null;
     }
 
+    @Shadow private static float fogRed;
+
+    @Shadow private static float fogGreen;
+
+    @Shadow private static float fogBlue;
+
     @Inject(at = @At(value = "RETURN"), method = "setupFog", cancellable = true)
-    private static void injectSetupFog(Camera camera, FogMode fogMode, Vector4f color, float renderDistance, boolean thickFog, float partialTicks, CallbackInfoReturnable<FogParameters> cir) {
-        FogParameters parameters = cir.getReturnValue();
-        if (parameters == FogParameters.NO_FOG) {
-            return;
-        }
+    private static void injectSetupFog(Camera camera, FogMode fogMode, float renderDistance, boolean thickFog, float partialTicks, CallbackInfo ci) {
+        Vector4f color = new Vector4f(RenderSystem.getShaderFogColor());
         CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
         FogUtils.setRenderDistance(Minecraft.getInstance().options.renderDistance().get());
         FogUtils.setCalculationSetting(settings.getCalculationSetting());
@@ -53,24 +56,29 @@ public abstract class MixinFogRenderer {
         if (mode != Mode.VANILLA) {
             FogParameters fogParameters = FogUtils.processFog(mode, entity, effect, color, renderDistance, partialTicks, fogType, fogData);
             if (fogParameters != null) {
-                cir.setReturnValue(fogParameters);
+                RenderSystem.setShaderFogStart(fogParameters.start());
+                RenderSystem.setShaderFogEnd(fogParameters.end());
+                RenderSystem.setShaderFogShape(fogParameters.shape());
+                RenderSystem.setShaderFogColor(fogParameters.red(), fogParameters.green(), fogParameters.blue(), fogParameters.alpha());
             }
         } else {
             F3Information.setCurrentFogData(fogData, "VANILLA");
         }
     }
 
-    @Inject(at = @At(value = "RETURN"), method = "computeFogColor", cancellable = true)
-    private static void injectComputeFogColor(Camera camera, float gameTime, ClientLevel clientLevel, int i, float partialTicks, CallbackInfoReturnable<Vector4f> cir) {
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V"), method = "setupColor", cancellable = true)
+    private static void injectSetupColor(Camera camera, float gameTime, ClientLevel clientLevel, int i, float partialTicks, CallbackInfo ci) {
         float rainLevel = clientLevel.getRainLevel(gameTime);
+        Vector4f color = new Vector4f(fogRed, fogGreen, fogBlue, 0);
         if (rainLevel > 0) {
             CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
-            Vector4f color = ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel);
+            color = ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel);
             if (color == null) {
-                color = cir.getReturnValue();
+                color = new Vector4f(fogRed, fogGreen, fogBlue, 0);
             }
-            cir.setReturnValue(color);
         }
-        F3Information.setCurrentColor(Utilities.getColorIntegerFromVec4F(cir.getReturnValue()));
+        F3Information.setCurrentColor(Utilities.getColorIntegerFromVec4F(color));
+        RenderSystem.clearColor(color.x, color.y, color.z, 0);
+        ci.cancel();
     }
 }

@@ -22,11 +22,16 @@ allprojects {
             jarLocation = "build/libs/${archives_base_name}-fabric-${minecraft_version}-${mod_version}.jar"
         }
 
-        neoforge {
+        /*neoforge {
             projectName = "neoforge"
             jarLocation = "build/libs/${archives_base_name}-neoforge-${minecraft_version}-${mod_version}.jar"
             mixin "fogoverrides.mixins.json"
             mixin "fogoverrides-common.mixins.json"
+        }*/
+
+        forge {
+            projectName = "forge"
+            jarLocation = "build/libs/${archives_base_name}-forge-${minecraft_version}-${mod_version}.jar"
         }
     }
 }
@@ -52,12 +57,12 @@ subprojects {
 
     java {
         withSourcesJar()
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = "UTF-8"
-        it.options.release = 21
+        it.options.release = 17
     }
 }

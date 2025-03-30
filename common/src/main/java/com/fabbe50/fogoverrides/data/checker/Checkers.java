@@ -8,6 +8,7 @@ import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -104,7 +105,7 @@ public class Checkers {
 
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
-            if (entity.isInLiquid()) {
+            if (entity.isUnderWater() || entity.isInLava()) {
                 ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
                 ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
                 switch (fogType) {
@@ -138,7 +139,7 @@ public class Checkers {
                     case NONE -> {
                         return Result.ALLOW_NEXT;
                     }
-                    case null, default -> {
+                    default -> {
                         return Result.SKIP_STACK;
                     }
                 }

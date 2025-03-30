@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[51,)"
+loaderVersion = "${loader_version_range}"
 #issueTrackerURL = ""
 license = "LGPLv3"
 
@@ -11,25 +11,42 @@ authors = "fabbe50"
 description = '''
 Mod to make fog do what you want.
 '''
-#logoFile = ""
+logoFile = "assets/fogoverrides/icon.png"
+
+[[mixins]]
+config = "fogoverrides.mixins.json"
+[[mixins]]
+config = "fogoverrides-common.mixins.json"
+
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"
+
+displayTest="IGNORE_ALL_VERSION"
 
 [[dependencies.fogoverrides]]
 modId = "forge"
 mandatory = true
-versionRange = "[51,)"
+versionRange = "${forge_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fogoverrides]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.21,)"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fogoverrides]]
 modId = "architectury"
 mandatory = true
-versionRange = "[13.0.6,)"
+versionRange = "[${architectury_major_version},)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.fogoverrides]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "[${cloth_major_version},)"
 ordering = "AFTER"
 side = "BOTH"

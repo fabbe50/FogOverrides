@@ -8,7 +8,6 @@ import com.fabbe50.fogoverrides.data.checker.Result;
 import com.mojang.blaze3d.shaders.FogShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.client.renderer.FogRenderer.FogData;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
@@ -104,7 +103,7 @@ public class FogUtils {
     }
 
     public static FogParameters doRainFog(Entity entity, Vector4f color, float renderDistance, FogData fogData, FogSetting terrain, FogSetting rain, String fogLocation) {
-        float gameTimePartialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        float gameTimePartialTick = Minecraft.getInstance().getDeltaFrameTime();
         float rainLevel = entity.level().getRainLevel(gameTimePartialTick);
         float near = Utilities.getBetweenDistanceByRatio(terrain.getNearDistance(), rain.getNearDistance(), rainLevel);
         float far = Utilities.getBetweenDistanceByRatio(terrain.getFarDistance(), rain.getFarDistance(), rainLevel);
@@ -265,7 +264,6 @@ public class FogUtils {
                         yield null;
                     }
                 }
-                case null, default -> null;
             };
         }
         return null;

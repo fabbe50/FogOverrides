@@ -1,5 +1,7 @@
 package com.fabbe50.fogoverrides.data;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 public class ModFogData {
     private boolean overrideGameFog;
 
@@ -291,6 +293,32 @@ public class ModFogData {
         return lavaPotion.getFarDistance();
     }
 
+    public FriendlyByteBuf writeBuffer(FriendlyByteBuf buf) {
+        buf.writeBoolean(isOverrideGameFog());
+        writeFogSettings(buf, getTerrain());
+        buf.writeBoolean(isOverrideSkyColor());
+        buf.writeInt(getSkyColor());
+        buf.writeBoolean(isOverrideFogColor());
+        buf.writeInt(getFogColor());
+        writeFogSettings(buf, getWater());
+        writeFogSettings(buf, getWaterPotion());
+        buf.writeBoolean(isOverrideWaterColor());
+        buf.writeInt(getWaterColor());
+        buf.writeBoolean(isOverrideWaterFogColor());
+        buf.writeInt(getWaterFogColor());
+        writeFogSettings(buf, getLava());
+        writeFogSettings(buf, getLavaPotion());
+        writeFogSettings(buf, getRain());
+        buf.writeInt(getRain().getColor());
+        return buf;
+    }
+
+    private void writeFogSettings(FriendlyByteBuf buf, FogSetting fogSetting) {
+        buf.writeBoolean(fogSetting.isEnabled());
+        buf.writeFloat(fogSetting.getNearDistance());
+        buf.writeFloat(fogSetting.getFarDistance());
+    }
+
     public boolean hasValidFogDistance() {
         return getNearDistance() < getFarDistance() && getNearDistance() != -1 && getFarDistance() != -1;
     }
@@ -310,5 +338,4 @@ public class ModFogData {
     public boolean hasValidLavaPotionFogDistance() {
         return getLavaPotionNearDistance() < getLavaPotionFarDistance() && getLavaPotionNearDistance() != -1 && getLavaPotionFarDistance() != -1;
     }
-
 }

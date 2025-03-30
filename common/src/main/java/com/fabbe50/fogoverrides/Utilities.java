@@ -29,15 +29,15 @@ public class Utilities {
 
 
     public static ResourceLocation getOverworld() {
-        return Objects.requireNonNullElseGet(OVERWORLD, () -> ResourceLocation.withDefaultNamespace("overworld"));
+        return Objects.requireNonNullElseGet(OVERWORLD, () -> new ResourceLocation("overworld"));
     }
 
     public static ResourceLocation getNether() {
-        return Objects.requireNonNullElseGet(THE_NETHER, () -> ResourceLocation.withDefaultNamespace("the_nether"));
+        return Objects.requireNonNullElseGet(THE_NETHER, () -> new ResourceLocation("the_nether"));
     }
 
     public static ResourceLocation getTheEnd() {
-        return Objects.requireNonNullElseGet(THE_END, () -> ResourceLocation.withDefaultNamespace("the_end"));
+        return Objects.requireNonNullElseGet(THE_END, () -> new ResourceLocation("the_end"));
     }
 
     public static int getColorIntegerFromRGB(int[] rgb) {

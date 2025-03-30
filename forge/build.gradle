@@ -2,6 +2,11 @@ plugins {
     id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
@@ -11,20 +16,19 @@ loom {
     }
 }
 
-architectury {
-    platformSetupLoomIde()
-    forge()
-}
-
-configurations.configureEach {
-    resolutionStrategy.force("net.sf.jopt-simple:jopt-simple:5.0.4")
-}
-
 configurations {
-    common
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
+
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
 }
 
 dependencies {
@@ -36,12 +40,30 @@ dependencies {
     modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    common(project(path: ":forge", configuration: "namedElements")) { transitive false }
+    shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 }
 
 processResources {
+    var replaceProperties = [
+            version : project.version,
+            loader_version_range: rootProject.forge_loader_version_range,
+            forge_version_range: rootProject.forge_version_range,
+            minecraft_version_range: rootProject.forge_minecraft_version_range,
+            architectury_major_version: rootProject.architectury_major_version,
+            cloth_major_version: rootProject.cloth_major_version
+    ]
+    inputs.properties replaceProperties
+
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
+        expand replaceProperties
     }
-    inputs.property "META-INF/mods.toml", project.version
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
 }

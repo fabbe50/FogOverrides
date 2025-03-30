@@ -6,7 +6,7 @@ import net.fabricmc.api.ClientModInitializer;
 public class FogOverridesFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        FogOverrides.clientInit();
+//        FogOverrides.clientInit();
         FogOverrides.debugScreenInit();
     }
 }

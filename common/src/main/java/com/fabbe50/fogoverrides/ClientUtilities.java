@@ -1,11 +1,11 @@
 package com.fabbe50.fogoverrides;
 
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.FogParameters;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import com.mojang.blaze3d.shaders.FogShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

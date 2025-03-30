@@ -3,92 +3,63 @@ package com.fabbe50.fogoverrides.network;
 import com.fabbe50.fogoverrides.Log;
 import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.network.interfaces.IDataPayload;
+import com.fabbe50.fogoverrides.network.interfaces.IDataPacket;
 import dev.architectury.networking.NetworkManager;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
-public class LiquidsPacket {
-    public static class Client {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "client_liquids");
-        private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
-        private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
-
-        public static void registerServer() {
-            NetworkManager.registerS2CPayloadType(PACKET_TYPE, PACKET_CODEC);
-        }
-
-        @Environment(EnvType.CLIENT)
-        public static void register() {
-            NetworkManager.registerReceiver(NetworkManager.s2c(), PACKET_TYPE, PACKET_CODEC, Client::receive);
-        }
-
-        @Environment(EnvType.CLIENT)
-        private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
-            context.queue(() -> {
-                Log.info("Received liquid settings from server: " + payload);
-                boolean waterFog = payload.waterFog();
-                boolean lavaFog = payload.lavaFog();
-                CurrentDataStorage.INSTANCE.updateLiquids(waterFog, lavaFog);
-            });
-        }
-
-        public record PacketPayload(boolean waterFog, boolean lavaFog) implements CustomPacketPayload {
-            public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean());
-            }
-
-            public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterFog);
-                buf.writeBoolean(lavaFog);
-            }
-
-            @Override
-            public @NotNull Type<? extends CustomPacketPayload> type() {
-                return PACKET_TYPE;
-            }
-        }
+public class LiquidsPacket implements IDataPacket<ModConfig, LiquidsPacket.LiquidPayload> {
+    @Override
+    public String getPacketID() {
+        return "liquids";
     }
 
-    public static class Server {
-        private static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("fogoverrides", "server_liquids");
-        private static final CustomPacketPayload.Type<PacketPayload> PACKET_TYPE = new CustomPacketPayload.Type<>(PACKET_ID);
-        private static final StreamCodec<FriendlyByteBuf, PacketPayload> PACKET_CODEC = CustomPacketPayload.codec(PacketPayload::write, PacketPayload::new);
+    @Override
+    public void receiveClient(LiquidPayload payload, NetworkManager.PacketContext context) {
+        context.queue(() -> {
+            Log.info("Received liquid settings from server: " + payload);
+            boolean waterFog = payload.waterFog();
+            boolean lavaFog = payload.lavaFog();
+            CurrentDataStorage.INSTANCE.updateLiquids(waterFog, lavaFog);
+        });
+    }
 
-        public static void register() {
-            NetworkManager.registerReceiver(NetworkManager.c2s(), PACKET_TYPE, PACKET_CODEC, Server::receive);
+    @Override
+    public void receiveServer(LiquidPayload payload, NetworkManager.PacketContext context) {
+        context.queue(() -> {
+            if (context.getPlayer().hasPermissions(4)) {
+                Log.info("Received liquid settings from admin client: " + payload);
+                ModConfig.INSTANCE.waterFogEnabled = payload.waterFog();
+                ModConfig.INSTANCE.lavaFogEnabled = payload.lavaFog();
+            }
+        });
+    }
+
+    @Override
+    public LiquidPayload getPayload(FriendlyByteBuf buf) {
+        return new LiquidPayload(buf);
+    }
+
+    @Override
+    public LiquidPayload getDefaultPayload() {
+        return new LiquidPayload(true, true);
+    }
+
+    public record LiquidPayload(boolean waterFog, boolean lavaFog) implements IDataPayload<ModConfig, LiquidPayload> {
+        public LiquidPayload(FriendlyByteBuf buf) {
+            this(buf.readBoolean(), buf.readBoolean());
         }
 
-        private static void receive(PacketPayload payload, NetworkManager.PacketContext context) {
-            context.queue(() -> {
-                if (context.getPlayer().getPermissionLevel() == 4) {
-                    Log.info("Received liquid settings from admin client: " + payload);
-                    ModConfig.INSTANCE.waterFogEnabled = payload.waterFog();
-                    ModConfig.INSTANCE.lavaFogEnabled = payload.lavaFog();
-                }
-            });
+        @Override
+        public LiquidPayload read(FriendlyByteBuf buf) {
+            return new LiquidPayload(buf);
         }
 
-        public record PacketPayload(boolean waterFog, boolean lavaFog) implements CustomPacketPayload {
-            public PacketPayload(FriendlyByteBuf buf) {
-                this(buf.readBoolean(), buf.readBoolean());
-            }
-
-            public void write(FriendlyByteBuf buf) {
-                buf.writeBoolean(waterFog);
-                buf.writeBoolean(lavaFog);
-            }
-
-            @Override
-            public @NotNull Type<? extends CustomPacketPayload> type() {
-                return PACKET_TYPE;
-            }
+        @Override
+        public FriendlyByteBuf write(FriendlyByteBuf buf, ModConfig data) {
+            buf.writeBoolean(data.waterFogEnabled);
+            buf.writeBoolean(data.lavaFogEnabled);
+            return buf;
         }
     }
 }
