@@ -1,6 +1,7 @@
 package com.fabbe50.fogoverrides.data;
 
 import com.fabbe50.fogoverrides.Utilities;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +53,22 @@ public class GameModeSettings {
 
     public void setFogMode(FogMode fogMode) {
         this.fogMode = fogMode;
+    }
+
+    public void writeBuffer(FriendlyByteBuf buf) {
+        buf.writeUtf(getFogMode().getId());
+        FogSetting terrain = getTerrainFog();
+        buf.writeBoolean(terrain.isEnabled());
+        buf.writeFloat(terrain.getNearDistance());
+        buf.writeFloat(terrain.getFarDistance());
+        FogSetting water = getWaterFog();
+        buf.writeBoolean(water.isEnabled());
+        buf.writeFloat(water.getNearDistance());
+        buf.writeFloat(water.getFarDistance());
+        FogSetting lava = getLavaFog();
+        buf.writeBoolean(lava.isEnabled());
+        buf.writeFloat(lava.getNearDistance());
+        buf.writeFloat(lava.getFarDistance());
     }
 
     public enum FogMode {

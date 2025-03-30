@@ -138,40 +138,32 @@ public class NetworkHandler {
         NetworkManager.sendToPlayer((ServerPlayer) player, new OverlaysPacket.Client.PacketPayload(getOverlaysBuffer(ModConfig.INSTANCE)));
     }
 
+    public static FriendlyByteBuf createNewBuffer() {
+        return new FriendlyByteBuf(Unpooled.buffer());
+    }
+
     public static FriendlyByteBuf getGameModeSettingsBuffer(String gameMode, GameModeSettings settings) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = createNewBuffer();
         buf.writeUtf(gameMode);
-        buf.writeUtf(settings.getFogMode().getId());
-        FogSetting terrain = settings.getTerrainFog();
-        buf.writeBoolean(terrain.isEnabled());
-        buf.writeFloat(terrain.getNearDistance());
-        buf.writeFloat(terrain.getFarDistance());
-        FogSetting water = settings.getWaterFog();
-        buf.writeBoolean(water.isEnabled());
-        buf.writeFloat(water.getNearDistance());
-        buf.writeFloat(water.getFarDistance());
-        FogSetting lava = settings.getLavaFog();
-        buf.writeBoolean(lava.isEnabled());
-        buf.writeFloat(lava.getNearDistance());
-        buf.writeFloat(lava.getFarDistance());
+        settings.writeBuffer(buf);
         return buf;
     }
 
     public static FriendlyByteBuf getLiquidBuffer(ModConfig config) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = createNewBuffer();
         buf.writeBoolean(config.waterFogEnabled);
         buf.writeBoolean(config.lavaFogEnabled);
         return buf;
     }
 
     public static FriendlyByteBuf getCloudBuffer(ModConfig config) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = createNewBuffer();
         buf.writeInt(config.cloudHeight);
         return buf;
     }
 
     public static FriendlyByteBuf getOverlaysBuffer(ModConfig config) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = createNewBuffer();
         buf.writeBoolean(config.renderWaterOverlay);
         buf.writeBoolean(config.renderFireOverlay);
         buf.writeInt(config.fireOverlayOffset);

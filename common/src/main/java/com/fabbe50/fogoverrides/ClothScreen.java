@@ -100,13 +100,6 @@ public class ClothScreen {
         general.addEntry(spectatorCategory.build());
         general.addEntry(creativeCategory.build());
 
-        SubCategoryBuilder overworldSubCat = createModFogDataSubCat(entryBuilder, Utilities.getOverworld(), modConfig.overworldFogData, false);
-        general.addEntry(overworldSubCat.build());
-        SubCategoryBuilder netherSubCat = createModFogDataSubCat(entryBuilder, Utilities.getNether(), modConfig.netherFogData, false);
-        general.addEntry(netherSubCat.build());
-        SubCategoryBuilder theEndSubCat = createModFogDataSubCat(entryBuilder, Utilities.getTheEnd(), modConfig.theEndFogData, false);
-        general.addEntry(theEndSubCat.build());
-
         SubCategoryBuilder liquidSubCat = entryBuilder.startSubCategory(Component.translatable("text.fogoverrides.subcat.liquids"));
         BooleanListEntry waterFogEnabled = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.water_fog_enabled"), modConfig.waterFogEnabled)
                 .setDefaultValue(true)
@@ -153,6 +146,12 @@ public class ClothScreen {
                 .build();
         overlays.addAll(List.of(waterOverlayEnabled, fireOverlayEnabled, fireOverlayOffset, firePotionOverlayOffset));
         general.addEntry(overlays.build());
+
+        var dimensionSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.dimensions"));
+        for (String location : modConfig.getDimensionStorage().keySet()) {
+            SubCategoryBuilder dimensionSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getDimensionStorage().get(location), false);
+            dimensionSettings.addEntry(dimensionSubCategory.build());
+        }
 
         var biomeSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.biomes"));
         for (String location : modConfig.getBiomeStorage().keySet()) {

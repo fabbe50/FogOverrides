@@ -47,7 +47,11 @@ dependencies {
 processResources {
     var replaceProperties = [
             version : project.version,
-            loader_version_range: rootProject.neoforge_loader_version_range
+            loader_version_range: rootProject.neoforge_loader_version_range,
+//            neoforge_version_range: rootProject.neoforge_version_range,
+//            minecraft_version_range: rootProject.neoforge_minecraft_version_range,
+//            architectury_major_version: rootProject.architectury_major_version,
+//            cloth_major_version: rootProject.cloth_major_version
     ]
     inputs.properties replaceProperties
 
