@@ -23,7 +23,7 @@ public abstract class MixinLevelRenderer {
     @Shadow @Final private CloudRenderer cloudRenderer;
 
     @Inject(at = @At(value = "HEAD"), method = "addCloudsPass", cancellable = true)
-    private void injectAddCloudPass(FrameGraphBuilder frameGraphBuilder, Matrix4f matrix4f, Matrix4f matrix4f2, CloudStatus cloudStatus, Vec3 vec3, float f, int i, float g, CallbackInfo ci) {
+    private void injectAddCloudPass(FrameGraphBuilder frameGraphBuilder, CloudStatus cloudStatus, Vec3 vec3, float f, int i, float g, CallbackInfo ci) {
         int cloudHeight = CurrentDataStorage.INSTANCE.getCloudHeight();
         if (cloudHeight != 192) {
             FramePass framePass = frameGraphBuilder.addPass("clouds");
@@ -33,15 +33,7 @@ public abstract class MixinLevelRenderer {
                 this.targets.main = framePass.readsAndWrites(this.targets.main);
             }
 
-            ResourceHandle<RenderTarget> resourceHandle = this.targets.clouds;
-            framePass.executes(() -> {
-                if (resourceHandle != null) {
-                    resourceHandle.get().setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-                    resourceHandle.get().clear();
-                }
-
-                this.cloudRenderer.render(i, cloudStatus, cloudHeight, matrix4f, matrix4f2, vec3, f);
-            });
+            framePass.executes(() -> this.cloudRenderer.render(i, cloudStatus, cloudHeight, vec3, f));
             ci.cancel();
         }
     }
