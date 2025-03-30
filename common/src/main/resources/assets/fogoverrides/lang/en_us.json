@@ -71,6 +71,7 @@
   "text.fogoverrides.option.fire-overlay-offset.tooltip": "The y-offset the fire overlay should be moved by.",
   "text.fogoverrides.option.fire-potion-overlay-offset": "Fire Potion Overlay Offset",
   "text.fogoverrides.option.fire-potion-overlay-offset.tooltip": "The y-offset the fire overlay should be moved by when there's an active fire resistance potion.",
+  "text.fogoverrides.category.dimensions": "Dimensions",
   "text.fogoverrides.category.biomes": "Biomes",
   "text.fogoverrides.option.override_fog": "Override Fog",
   "text.fogoverrides.option.override_fog.tooltip": "If the mod should override the fog in the specified location.",

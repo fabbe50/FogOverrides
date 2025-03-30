@@ -6,7 +6,6 @@ import com.fabbe50.fogoverrides.Utilities;
 import dev.architectury.registry.level.biome.BiomeModifications;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class CurrentDataStorage {
@@ -36,22 +35,14 @@ public class CurrentDataStorage {
     }
 
     public ModFogData getBiomeFogData(ResourceLocation location) {
-        return isOnFogOverridesEnabledServer && !integratedServer ? (SERVER_SETTINGS.biomeStorage.get(location.toString()) == null ? ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString()) : SERVER_SETTINGS.biomeStorage.get(location.toString())) : ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString());
+        return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.biomeStorage.getOrDefault(location.toString(), ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString())) : ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString());
     }
 
-    public ModFogData getDimensionFogData(ResourceLocation dimension) {
-        if (dimension == null) {
+    public ModFogData getDimensionFogData(ResourceLocation location) {
+        if (location == null) {
             return Utilities.getDefaultFogData();
         }
-//        System.out.println(dimension.getNamespace() + ":" + dimension.getPath());
-        if (dimension.equals(Utilities.getOverworld())) {
-            return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.overworldFogData : ModConfig.INSTANCE.overworldFogData;
-        } else if (dimension.equals(Utilities.getNether())) {
-            return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.netherFogData : ModConfig.INSTANCE.netherFogData;
-        } else if (dimension.equals(Utilities.getTheEnd())) {
-            return isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.theEndFogData : ModConfig.INSTANCE.theEndFogData;
-        }
-        return Utilities.getDefaultFogData();
+        return isOnFogOverridesEnabledServer && !integratedServer ? (SERVER_SETTINGS.dimensionStorage.getOrDefault(location.toString(), ModConfig.INSTANCE.getFogDataFromDimension(location))) : ModConfig.INSTANCE.getFogDataFromDimension(location);
     }
 
     public CalculationSetting getCalculationSetting() {
@@ -98,11 +89,8 @@ public class CurrentDataStorage {
         SERVER_SETTINGS.biomeStorage.put(location.toString(), fogData);
     }
 
-    public void refreshBiomeStorage(Map<String, ModFogData> biomeStorage) {
-        if (isOnFogOverridesEnabledServer && !integratedServer) {
-            SERVER_SETTINGS.biomeStorage.clear();
-            SERVER_SETTINGS.biomeStorage.putAll(biomeStorage);
-        }
+    public void addToDimensionStorage(ResourceLocation location, ModFogData fogData) {
+        SERVER_SETTINGS.dimensionStorage.put(location.toString(), fogData);
     }
 
     public void refreshWaterColor(ResourceLocation location, ModFogData fogData) {
@@ -110,10 +98,6 @@ public class CurrentDataStorage {
             Optional<ResourceLocation> optionalBiomeLocation = biomeContext.getKey();
             return optionalBiomeLocation.map(resourceLocation -> resourceLocation.equals(location)).orElse(false);
         }, (biomeContext, mutable) -> mutable.getEffectsProperties().setWaterColor(fogData.getWaterColor()));
-    }
-
-    public Map<String, ModFogData> getBiomeStorage() {
-        return  isOnFogOverridesEnabledServer && !integratedServer ? SERVER_SETTINGS.biomeStorage : INSTANCE.getBiomeStorage();
     }
 
     public ModConfig getServerSettings() {
@@ -137,18 +121,6 @@ public class CurrentDataStorage {
     
     public void updateCreativeSettings(GameModeSettings creativeSettings) {
         SERVER_SETTINGS.creativeSettings = creativeSettings;
-    }
-
-    public void updateOverworldFogData(ModFogData overworldFogData) {
-        SERVER_SETTINGS.overworldFogData = overworldFogData;
-    }
-
-    public void updateNetherFogData(ModFogData netherFogData) {
-        SERVER_SETTINGS.netherFogData = netherFogData;
-    }
-
-    public void updateTheEndFogData(ModFogData theEndFogData) {
-        SERVER_SETTINGS.theEndFogData = theEndFogData;
     }
 
     public void updateLiquids(boolean waterFogEnabled, boolean lavaFogEnabled) {
