@@ -37,6 +37,8 @@ public class ModConfig {
 
     private static File configFile;
 
+    public boolean modActive = true;
+
     private long serverSettingsLastUpdated = 0L;
 
     public final Map<String, ModFogData> dimensionStorage = new HashMap<>();
@@ -81,6 +83,8 @@ public class ModConfig {
             Properties properties = new Properties();
             properties.load(fis);
             fis.close();
+
+            INSTANCE.modActive = Setting.readBoolean(properties, "modActive", true);
 
             INSTANCE.serverSettingsLastUpdated = Long.parseLong((String)properties.computeIfAbsent("serverSettingsLastUpdated", o -> String.valueOf(System.currentTimeMillis())));
 
@@ -132,6 +136,8 @@ public class ModConfig {
 
     public static void save(File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file, false);
+
+        Utilities.writeData(fos, "modActive", String.valueOf(INSTANCE.modActive));
 
         Utilities.writeData(fos, "serverSettingsLastUpdated", String.valueOf(System.currentTimeMillis()));
 

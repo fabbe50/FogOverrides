@@ -53,6 +53,20 @@ public class ClothScreen {
         var entryBuilder = builder.entryBuilder();
         var general = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.general"));
         if (modConfigClient != null) {
+            BooleanListEntry modToggle = entryBuilder.startBooleanToggle(Component.translatable("text.fogoverrides.option.toggle_mod"), modConfig.modActive)
+                    .setDefaultValue(true)
+                    .setTooltip(Component.translatable("text.fogoverrides.option.toggle_mod.tooltip"))
+                    .setSaveConsumer(aBoolean -> modConfig.modActive = aBoolean)
+                    .build();
+            general.addEntry(modToggle);
+
+            KeyCodeEntry toggleModKeybind = entryBuilder.startKeyCodeField(Component.translatable("text.fogoverrides.key.toggle_mod"), modConfigClient.TOGGLE_MOD.key)
+                    .setDefaultValue(modConfigClient.TOGGLE_MOD.getDefaultKey())
+                    .setTooltip(Component.translatable("text.fogoverrides.key.toggle_mod.tooltip"))
+                    .setKeySaveConsumer(modConfigClient.TOGGLE_MOD::setKey)
+                    .build();
+            general.addEntry(toggleModKeybind);
+
             KeyCodeEntry openMenuKeyBind = entryBuilder.startKeyCodeField(Component.translatable("text.fogoverrides.key.open_menu"), modConfigClient.OPEN_CONFIG.key)
                     .setDefaultValue(modConfigClient.OPEN_CONFIG.getDefaultKey())
                     .setTooltip(Component.translatable("text.fogoverrides.key.open_menu.tooltip"))

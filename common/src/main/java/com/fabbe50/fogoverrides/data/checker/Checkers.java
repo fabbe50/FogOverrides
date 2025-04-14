@@ -8,7 +8,6 @@ import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.FogRenderer.MobEffectFogFunction;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -105,7 +104,7 @@ public class Checkers {
 
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
-            if (entity.isUnderWater() || entity.isInLava()) {
+            if (entity.isInLiquid()) {
                 ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
                 ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
                 switch (fogType) {
@@ -139,7 +138,7 @@ public class Checkers {
                     case NONE -> {
                         return Result.ALLOW_NEXT;
                     }
-                    default -> {
+                    case null, default -> {
                         return Result.SKIP_STACK;
                     }
                 }
@@ -193,11 +192,11 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
-            if (biomeData.isOverrideGameFog() && biomeData.hasValidFogDistance()) {
+            if (biomeData.isOverrideGameFog() && (!biomeData.isFogEnabled() || biomeData.hasValidFogDistance())) {
                 return Result.DO_RENDER;
             } else {
                 ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
-                if (dimensionData != null && dimensionData.isOverrideGameFog() && dimensionData.hasValidFogDistance()) {
+                if (dimensionData != null && dimensionData.isOverrideGameFog() && (!dimensionData.isFogEnabled() || dimensionData.hasValidFogDistance())) {
                     return Result.DO_RENDER;
                 }
             }
