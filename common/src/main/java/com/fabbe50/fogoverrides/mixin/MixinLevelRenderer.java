@@ -1,5 +1,6 @@
 package com.fabbe50.fogoverrides.mixin;
 
+import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -52,78 +53,80 @@ public abstract class MixinLevelRenderer {
 
     @Inject(at = @At(value = "HEAD"), method = "renderClouds", cancellable = true)
     private void injectRenderClouds(PoseStack poseStack, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
-        if (level != null && Float.isNaN(level.effects().getCloudHeight())) {
-            ci.cancel();
-            return;
-        }
-        float cloudHeight = CurrentDataStorage.INSTANCE.getCloudHeight();
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.depthMask(true);
-        float blockDiameter = 12f;
-        float blockHeight = 4f;
-        double colorDifference = 2.0E-4;
-        double l = (((float) this.ticks + f) * 0.03f);
-        double m = (d + l) / blockDiameter;
-        double n = (cloudHeight - (float) e + 0.33f);
-        double o = g / blockDiameter + 0.33000001311302185;
-        m -= Mth.floor(m / 2048.0) * 2048;
-        o -= Mth.floor(o / 2048.0) * 2048;
-        float posX = (float) (m - (double) Mth.floor(m));
-        float posY = (float) (n / blockHeight - (double) Mth.floor(n / blockHeight)) * blockHeight;
-        float posZ = (float) (o - (double) Mth.floor(o));
-        if (level == null) {
-            ci.cancel();
-            return;
-        }
-        Vec3 cloudColor = this.level.getCloudColor(f);
-        int cloudX = (int) Math.floor(m);
-        int cloudY = (int) Math.floor(n / blockHeight);
-        int cloudZ = (int) Math.floor(o);
-        if (cloudX != this.prevCloudX || cloudY != this.prevCloudY || cloudZ != this.prevCloudZ || this.minecraft.options.getCloudsType() != this.prevCloudsType || this.prevCloudColor.distanceToSqr(cloudColor) > colorDifference) {
-            this.prevCloudX = cloudX;
-            this.prevCloudY = cloudY;
-            this.prevCloudZ = cloudZ;
-            this.prevCloudColor = cloudColor;
-            this.prevCloudsType = this.minecraft.options.getCloudsType();
-            this.generateClouds = true;
-        }
-        if (this.generateClouds) {
-            this.generateClouds = false;
-            if (this.cloudBuffer != null) {
-                this.cloudBuffer.close();
+        if (ModConfig.INSTANCE.modActive) {
+            if (level != null && Float.isNaN(level.effects().getCloudHeight())) {
+                ci.cancel();
+                return;
             }
-            this.cloudBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-            this.cloudBuffer.bind();
-            this.cloudBuffer.upload(this.buildClouds(Tesselator.getInstance().getBuilder(), m, n, o, cloudColor));
-            VertexBuffer.unbind();
-        }
-        FogRenderer.levelFogColor();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-        RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
-        poseStack.pushPose();
-        poseStack.scale(blockDiameter, 1.0f, blockDiameter);
-        poseStack.translate(-posX, posY, -posZ);
-        if (this.cloudBuffer != null) {
-            this.cloudBuffer.bind();
-            int v = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
-            for (int w = v; w < 2; w++) {
-                if (w == 0) {
-                    RenderSystem.colorMask(false, false, false, false);
-                } else {
-                    RenderSystem.colorMask(true, true, true, true);
+            float cloudHeight = CurrentDataStorage.INSTANCE.getCloudHeight();
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            RenderSystem.depthMask(true);
+            float blockDiameter = 12f;
+            float blockHeight = 4f;
+            double colorDifference = 2.0E-4;
+            double l = (((float) this.ticks + f) * 0.03f);
+            double m = (d + l) / blockDiameter;
+            double n = (cloudHeight - (float) e + 0.33f);
+            double o = g / blockDiameter + 0.33000001311302185;
+            m -= Mth.floor(m / 2048.0) * 2048;
+            o -= Mth.floor(o / 2048.0) * 2048;
+            float posX = (float) (m - (double) Mth.floor(m));
+            float posY = (float) (n / blockHeight - (double) Mth.floor(n / blockHeight)) * blockHeight;
+            float posZ = (float) (o - (double) Mth.floor(o));
+            if (level == null) {
+                ci.cancel();
+                return;
+            }
+            Vec3 cloudColor = this.level.getCloudColor(f);
+            int cloudX = (int) Math.floor(m);
+            int cloudY = (int) Math.floor(n / blockHeight);
+            int cloudZ = (int) Math.floor(o);
+            if (cloudX != this.prevCloudX || cloudY != this.prevCloudY || cloudZ != this.prevCloudZ || this.minecraft.options.getCloudsType() != this.prevCloudsType || this.prevCloudColor.distanceToSqr(cloudColor) > colorDifference) {
+                this.prevCloudX = cloudX;
+                this.prevCloudY = cloudY;
+                this.prevCloudZ = cloudZ;
+                this.prevCloudColor = cloudColor;
+                this.prevCloudsType = this.minecraft.options.getCloudsType();
+                this.generateClouds = true;
+            }
+            if (this.generateClouds) {
+                this.generateClouds = false;
+                if (this.cloudBuffer != null) {
+                    this.cloudBuffer.close();
                 }
-                ShaderInstance shaderInstance = RenderSystem.getShader();
-                this.cloudBuffer.drawWithShader(poseStack.last().pose(), matrix4f, shaderInstance);
+                this.cloudBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+                this.cloudBuffer.bind();
+                this.cloudBuffer.upload(this.buildClouds(Tesselator.getInstance().getBuilder(), m, n, o, cloudColor));
+                VertexBuffer.unbind();
             }
-            VertexBuffer.unbind();
+            FogRenderer.levelFogColor();
+            RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+            RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
+            poseStack.pushPose();
+            poseStack.scale(blockDiameter, 1.0f, blockDiameter);
+            poseStack.translate(-posX, posY, -posZ);
+            if (this.cloudBuffer != null) {
+                this.cloudBuffer.bind();
+                int v = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
+                for (int w = v; w < 2; w++) {
+                    if (w == 0) {
+                        RenderSystem.colorMask(false, false, false, false);
+                    } else {
+                        RenderSystem.colorMask(true, true, true, true);
+                    }
+                    ShaderInstance shaderInstance = RenderSystem.getShader();
+                    this.cloudBuffer.drawWithShader(poseStack.last().pose(), matrix4f, shaderInstance);
+                }
+                VertexBuffer.unbind();
+            }
+            poseStack.popPose();
+            RenderSystem.enableCull();
+            RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
+            ci.cancel();
         }
-        poseStack.popPose();
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
-        ci.cancel();
     }
 }
