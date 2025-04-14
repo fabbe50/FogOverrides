@@ -1,5 +1,6 @@
 package com.fabbe50.fogoverrides.mixin;
 
+import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.framegraph.FramePass;
@@ -24,25 +25,27 @@ public abstract class MixinLevelRenderer {
 
     @Inject(at = @At(value = "HEAD"), method = "addCloudsPass", cancellable = true)
     private void injectAddCloudPass(FrameGraphBuilder frameGraphBuilder, Matrix4f matrix4f, Matrix4f matrix4f2, CloudStatus cloudStatus, Vec3 vec3, float f, int i, float g, CallbackInfo ci) {
-        int cloudHeight = CurrentDataStorage.INSTANCE.getCloudHeight();
-        if (cloudHeight != 192) {
-            FramePass framePass = frameGraphBuilder.addPass("clouds");
-            if (this.targets.clouds != null) {
-                this.targets.clouds = framePass.readsAndWrites(this.targets.clouds);
-            } else {
-                this.targets.main = framePass.readsAndWrites(this.targets.main);
-            }
-
-            ResourceHandle<RenderTarget> resourceHandle = this.targets.clouds;
-            framePass.executes(() -> {
-                if (resourceHandle != null) {
-                    resourceHandle.get().setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-                    resourceHandle.get().clear();
+        if (ModConfig.INSTANCE.modActive) {
+            int cloudHeight = CurrentDataStorage.INSTANCE.getCloudHeight();
+            if (cloudHeight != 192) {
+                FramePass framePass = frameGraphBuilder.addPass("clouds");
+                if (this.targets.clouds != null) {
+                    this.targets.clouds = framePass.readsAndWrites(this.targets.clouds);
+                } else {
+                    this.targets.main = framePass.readsAndWrites(this.targets.main);
                 }
 
-                this.cloudRenderer.render(i, cloudStatus, cloudHeight, matrix4f, matrix4f2, vec3, f);
-            });
-            ci.cancel();
+                ResourceHandle<RenderTarget> resourceHandle = this.targets.clouds;
+                framePass.executes(() -> {
+                    if (resourceHandle != null) {
+                        resourceHandle.get().setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+                        resourceHandle.get().clear();
+                    }
+
+                    this.cloudRenderer.render(i, cloudStatus, cloudHeight, matrix4f, matrix4f2, vec3, f);
+                });
+                ci.cancel();
+            }
         }
     }
 }

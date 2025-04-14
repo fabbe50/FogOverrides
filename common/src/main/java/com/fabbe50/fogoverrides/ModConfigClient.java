@@ -12,4 +12,10 @@ public class ModConfigClient {
             InputConstants.KEY_F8,
             "text.fogoverrides.keybinds"
     );
+    public final KeyMapping TOGGLE_MOD = new KeyMapping(
+            "text.fogoverrides.keybinds.toggle_mod",
+            InputConstants.Type.KEYSYM,
+            InputConstants.KEY_F7,
+            "text.fogoverrides.keybinds"
+    );
 }
