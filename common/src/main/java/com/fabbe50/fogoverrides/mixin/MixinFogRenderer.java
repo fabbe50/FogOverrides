@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FogRenderer.class)
 public abstract class MixinFogRenderer {
-
     @Shadow
     @Nullable
     private static FogRenderer.MobEffectFogFunction getPriorityFogFunction(Entity arg, float f) {
