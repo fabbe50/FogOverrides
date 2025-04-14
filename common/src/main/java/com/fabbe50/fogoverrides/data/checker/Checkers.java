@@ -1,8 +1,8 @@
 package com.fabbe50.fogoverrides.data.checker;
 
 import com.fabbe50.fogoverrides.ClientUtilities;
-import com.fabbe50.fogoverrides.FogUtils;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.FogUtils;
 import com.fabbe50.fogoverrides.data.FogSetting;
 import com.fabbe50.fogoverrides.data.GameModeSettings;
 import com.fabbe50.fogoverrides.data.ModFogData;
@@ -192,11 +192,11 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
-            if (biomeData.isOverrideGameFog() && (biomeData.hasValidFogDistance() || !biomeData.isFogEnabled())) {
+            if (biomeData.isOverrideGameFog() && (!biomeData.isFogEnabled() || biomeData.hasValidFogDistance())) {
                 return Result.DO_RENDER;
             } else {
                 ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
-                if (dimensionData != null && dimensionData.isOverrideGameFog() && (dimensionData.hasValidFogDistance() || !dimensionData.isFogEnabled())) {
+                if (dimensionData != null && dimensionData.isOverrideGameFog() && (!dimensionData.isFogEnabled() || dimensionData.hasValidFogDistance())) {
                     return Result.DO_RENDER;
                 }
             }

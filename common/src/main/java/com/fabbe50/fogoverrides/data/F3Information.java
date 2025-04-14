@@ -35,12 +35,17 @@ public class F3Information {
     private static int currentColor = 0;
 
     public static List<String> getDebugInformation() {
+        List<String> strings = new ArrayList<>();
+        if (!ModConfig.INSTANCE.modActive) {
+            strings.add(title + ": " + ChatFormatting.RED + "DISABLED");
+            return strings;
+        }
+
         data = CurrentDataStorage.INSTANCE;
         ResourceLocation biome = ClientUtilities.getCurrentBiomeLocation();
         ResourceLocation dimension = ClientUtilities.getCurrentDimensionLocation();
         biomeData = data.getBiomeFogData(biome);
         dimensionData = data.getDimensionFogData(dimension);
-        List<String> strings = new ArrayList<>();
         if (ModConfig.INSTANCE.advancedF3Info && data.isIntegratedServer()) {
             strings.add(title);
             strings.add(client + getClientInfo());
