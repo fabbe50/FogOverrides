@@ -1,10 +1,7 @@
 package com.fabbe50.fogoverrides.mixin;
 
-import com.fabbe50.fogoverrides.ColorUtils;
-import com.fabbe50.fogoverrides.FogOverrides;
-import com.fabbe50.fogoverrides.Utilities;
+import com.fabbe50.fogoverrides.*;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.fabbe50.fogoverrides.FogUtils;
 import com.fabbe50.fogoverrides.data.F3Information;
 import com.fabbe50.fogoverrides.data.checker.Mode;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
@@ -35,42 +32,46 @@ public abstract class MixinFogRenderer {
 
     @Inject(at = @At(value = "RETURN"), method = "setupFog", cancellable = true)
     private static void injectSetupFog(Camera camera, FogMode fogMode, Vector4f color, float renderDistance, boolean thickFog, float partialTicks, CallbackInfoReturnable<FogParameters> cir) {
-        FogParameters parameters = cir.getReturnValue();
-        if (parameters == FogParameters.NO_FOG) {
-            return;
-        }
-        CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
-        FogUtils.setRenderDistance(Minecraft.getInstance().options.renderDistance().get());
-        FogUtils.setCalculationSetting(settings.getCalculationSetting());
-
-        FogType fogType = camera.getFluidInCamera();
-        FogData fogData = new FogData(fogMode);
-        Entity entity = camera.getEntity();
-        MobEffectFogFunction effect = getPriorityFogFunction(entity, partialTicks);
-
-        Mode mode = FogUtils.getMode(settings, entity, effect, fogMode, fogType, thickFog);
-
-        if (mode != Mode.VANILLA) {
-            FogParameters fogParameters = FogUtils.processFog(mode, entity, effect, color, renderDistance, partialTicks, fogType, fogData);
-            if (fogParameters != null) {
-                cir.setReturnValue(fogParameters);
+        if (ModConfig.INSTANCE.modActive) {
+            FogParameters parameters = cir.getReturnValue();
+            if (parameters == FogParameters.NO_FOG) {
+                return;
             }
-        } else {
-            F3Information.setCurrentFogData(fogData, "VANILLA");
+            CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
+            FogUtils.setRenderDistance(Minecraft.getInstance().options.renderDistance().get());
+            FogUtils.setCalculationSetting(settings.getCalculationSetting());
+
+            FogType fogType = camera.getFluidInCamera();
+            FogData fogData = new FogData(fogMode);
+            Entity entity = camera.getEntity();
+            MobEffectFogFunction effect = getPriorityFogFunction(entity, partialTicks);
+
+            Mode mode = FogUtils.getMode(settings, entity, effect, fogMode, fogType, thickFog);
+
+            if (mode != Mode.VANILLA) {
+                FogParameters fogParameters = FogUtils.processFog(mode, entity, effect, color, renderDistance, partialTicks, fogType, fogData);
+                if (fogParameters != null) {
+                    cir.setReturnValue(fogParameters);
+                }
+            } else {
+                F3Information.setCurrentFogData(fogData, "VANILLA");
+            }
         }
     }
 
     @Inject(at = @At(value = "RETURN"), method = "computeFogColor", cancellable = true)
     private static void injectComputeFogColor(Camera camera, float gameTime, ClientLevel clientLevel, int i, float partialTicks, CallbackInfoReturnable<Vector4f> cir) {
-        float rainLevel = clientLevel.getRainLevel(gameTime);
-        if (rainLevel > 0) {
-            CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
-            Vector4f color = ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel);
-            if (color == null) {
-                color = cir.getReturnValue();
+        if (ModConfig.INSTANCE.modActive) {
+            float rainLevel = clientLevel.getRainLevel(gameTime);
+            if (rainLevel > 0) {
+                CurrentDataStorage settings = CurrentDataStorage.INSTANCE;
+                Vector4f color = ColorUtils.processColor(settings, rainLevel, camera, gameTime, clientLevel);
+                if (color == null) {
+                    color = cir.getReturnValue();
+                }
+                cir.setReturnValue(color);
             }
-            cir.setReturnValue(color);
+            F3Information.setCurrentColor(Utilities.getColorIntegerFromVec4F(cir.getReturnValue()));
         }
-        F3Information.setCurrentColor(Utilities.getColorIntegerFromVec4F(cir.getReturnValue()));
     }
 }

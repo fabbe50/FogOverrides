@@ -192,11 +192,11 @@ public class Checkers {
         @Override
         public Result getResult(CurrentDataStorage settings, Entity entity, FogRenderer.FogMode fogMode, FogType fogType) {
             ModFogData biomeData = settings.getBiomeFogData(ClientUtilities.getCurrentBiomeLocation());
-            if (biomeData.isOverrideGameFog() && biomeData.hasValidFogDistance()) {
+            if (biomeData.isOverrideGameFog() && (!biomeData.isFogEnabled() || biomeData.hasValidFogDistance())) {
                 return Result.DO_RENDER;
             } else {
                 ModFogData dimensionData = settings.getDimensionFogData(ClientUtilities.getCurrentDimensionLocation());
-                if (dimensionData != null && dimensionData.isOverrideGameFog() && dimensionData.hasValidFogDistance()) {
+                if (dimensionData != null && dimensionData.isOverrideGameFog() && (!dimensionData.isFogEnabled() || dimensionData.hasValidFogDistance())) {
                     return Result.DO_RENDER;
                 }
             }

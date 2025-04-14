@@ -11,6 +11,8 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class FogOverrides {
@@ -30,8 +32,16 @@ public class FogOverrides {
         Checkers.init();
         NetworkHandler.registerClientHandlers();
         NetworkHandler.registerClientHandshake();
+        KeyMappingRegistry.register(ModConfigClient.INSTANCE.TOGGLE_MOD);
         KeyMappingRegistry.register(ModConfigClient.INSTANCE.OPEN_CONFIG);
         ClientTickEvent.CLIENT_POST.register(instance -> {
+            while (ModConfigClient.INSTANCE.TOGGLE_MOD.consumeClick()) {
+                ModConfig.INSTANCE.modActive = !ModConfig.INSTANCE.modActive;
+                if (instance.player != null) {
+                    Component state = ModConfig.INSTANCE.modActive ? Component.translatable("text.fogoverrides.setting.enabled").withStyle(ChatFormatting.GREEN) : Component.translatable("text.fogoverrides.setting.disabled").withStyle(ChatFormatting.RED);
+                    instance.player.displayClientMessage(Component.translatable("text.fogoverrides.option.toggle_mod.changed", state), true);
+                }
+            }
             while (ModConfigClient.INSTANCE.OPEN_CONFIG.consumeClick()) {
                 instance.setScreen(ClothScreen.getConfigScreen(null));
             }
