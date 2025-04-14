@@ -1,5 +1,6 @@
 package com.fabbe50.fogoverrides.mixin;
 
+import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
@@ -38,31 +39,33 @@ public abstract class MixinScreenEffectRenderer {
 
     @Inject(at = @At("HEAD"), method = "renderScreenEffect", cancellable = true)
     private static void injectRenderScreenEffect(Minecraft minecraft, PoseStack poseStack, CallbackInfo ci) {
-        CurrentDataStorage dataStorage = CurrentDataStorage.INSTANCE;
-        Player player = minecraft.player;
-        if (player != null) {
-            if (!player.noPhysics) {
-                try {
-                    BlockState blockState = getViewBlockingState(player);
-                    if (blockState != null) {
-                        renderTex(minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(blockState), poseStack);
-                    }
-                } catch (NullPointerException ignored) {/* This catch is here cause Forge is a pain... */}
-            }
-            if (!player.isSpectator()) {
-                if (player.isEyeInFluid(FluidTags.WATER) && dataStorage.isRenderWaterOverlay()) {
-                    renderWater(minecraft, poseStack);
+        if (ModConfig.INSTANCE.modActive) {
+            CurrentDataStorage dataStorage = CurrentDataStorage.INSTANCE;
+            Player player = minecraft.player;
+            if (player != null) {
+                if (!player.noPhysics) {
+                    try {
+                        BlockState blockState = getViewBlockingState(player);
+                        if (blockState != null) {
+                            renderTex(minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(blockState), poseStack);
+                        }
+                    } catch (NullPointerException ignored) {/* This catch is here cause Forge is a pain... */}
                 }
-                if (player.isOnFire() && dataStorage.isRenderFireOverlay()) {
-                    if (player.hasEffect(MobEffects.FIRE_RESISTANCE)) {
-                        poseStack.translate(0, dataStorage.getFirePotionOverlayOffset() / 100f, 0);
-                    } else {
-                        poseStack.translate(0, dataStorage.getFireOverlayOffset() / 100f, 0);
+                if (!player.isSpectator()) {
+                    if (player.isEyeInFluid(FluidTags.WATER) && dataStorage.isRenderWaterOverlay()) {
+                        renderWater(minecraft, poseStack);
                     }
-                    renderFire(minecraft, poseStack);
+                    if (player.isOnFire() && dataStorage.isRenderFireOverlay()) {
+                        if (player.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+                            poseStack.translate(0, dataStorage.getFirePotionOverlayOffset() / 100f, 0);
+                        } else {
+                            poseStack.translate(0, dataStorage.getFireOverlayOffset() / 100f, 0);
+                        }
+                        renderFire(minecraft, poseStack);
+                    }
                 }
             }
+            ci.cancel();
         }
-        ci.cancel();
     }
 }
