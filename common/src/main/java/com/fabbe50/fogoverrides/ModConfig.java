@@ -96,7 +96,7 @@ public class ModConfig {
             INSTANCE.spectatorSettings = readGameModeSettingsFromProperties(properties, "spectator");
             INSTANCE.creativeSettings = readGameModeSettingsFromProperties(properties, "creative");
 
-            for (ResourceLocation location : Registry.getDimensions()) {
+            for (ResourceLocation location : ModRegistry.getDimensions()) {
                 ModFogData fogData = readModFogDataFromProperties(properties, location, "dimension");
                 INSTANCE.putDimensionInStorage(location, fogData);
                 CurrentDataStorage.INSTANCE.refreshWaterColor(location, fogData);
@@ -112,16 +112,16 @@ public class ModConfig {
             INSTANCE.fireOverlayOffset = Integer.parseInt((String) properties.computeIfAbsent("fireOffset", o -> "0"));
             INSTANCE.firePotionOverlayOffset = Integer.parseInt((String) properties.computeIfAbsent("firePotOffset", o -> "-25"));
 
-            for (ResourceLocation location : Registry.getBiomes()) {
+            for (ResourceLocation location : ModRegistry.getBiomes()) {
                 ModFogData fogData = readModFogDataFromProperties(properties, location, "biome");
                 INSTANCE.putBiomeInStorage(location, fogData);
                 CurrentDataStorage.INSTANCE.refreshWaterColor(location, fogData);
             }
         } catch (IOException e) {
-            for (ResourceLocation location : Registry.getDimensions()) {
+            for (ResourceLocation location : ModRegistry.getDimensions()) {
                 INSTANCE.putDimensionInStorage(location, Utilities.getDefaultFogData());
             }
-            for (ResourceLocation location : Registry.getBiomes()) {
+            for (ResourceLocation location : ModRegistry.getBiomes()) {
                 INSTANCE.putBiomeInStorage(location, Utilities.getDefaultFogData());
             }
             try {

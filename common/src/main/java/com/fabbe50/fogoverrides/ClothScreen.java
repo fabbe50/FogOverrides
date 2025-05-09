@@ -16,10 +16,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.fabbe50.fogoverrides.ModConfig.*;
 
@@ -160,14 +158,16 @@ public class ClothScreen {
         general.addEntry(overlays.build());
 
         var dimensionSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.dimensions"));
-        for (String location : modConfig.getDimensionStorage().keySet()) {
-            SubCategoryBuilder dimensionSubCategory = createModFogDataSubCat(entryBuilder, new ResourceLocation(location), modConfig.getDimensionStorage().get(location), false);
+        LinkedHashSet<String> dimensions = modConfig.getDimensionStorage().keySet().stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        for (String location : dimensions) {
+            SubCategoryBuilder dimensionSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getDimensionStorage().get(location), false);
             dimensionSettings.addEntry(dimensionSubCategory.build());
         }
 
         var biomeSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.biomes"));
-        for (String location : modConfig.getBiomeStorage().keySet()) {
-            SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, new ResourceLocation(location), modConfig.getBiomeStorage().get(location), true);
+        LinkedHashSet<String> biomes = modConfig.getBiomeStorage().keySet().stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        for (String location : biomes) {
+            SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getBiomeStorage().get(location), true);
             biomeSettings.addEntry(biomeSubCategory.build());
         }
 

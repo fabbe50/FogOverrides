@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Registry {
+public class ModRegistry {
     private static final List<ResourceLocation> BIOMES = new ArrayList<>();
     private static final List<ResourceLocation> DIMENSIONS = new ArrayList<>();
 

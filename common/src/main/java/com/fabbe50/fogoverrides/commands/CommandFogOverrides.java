@@ -36,6 +36,7 @@ public class CommandFogOverrides {
     private static int config(CommandSourceStack commandSourceStack) {
         if (CurrentDataStorage.INSTANCE.isIntegratedServer()) {
             commandSourceStack.sendFailure(Component.translatable("text.fogoverrides.commands.config.failure"));
+            return 0;
         }
         NetworkHandler.openConfigScreenOnClient(commandSourceStack.getPlayer());
 
