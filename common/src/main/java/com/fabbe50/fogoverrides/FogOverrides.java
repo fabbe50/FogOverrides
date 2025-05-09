@@ -101,4 +101,8 @@ public class FogOverrides {
     public static ResourceLocation location(String name) {
         return new ResourceLocation(MOD_ID, name);
     }
+
+    public static ResourceLocation locationParse(String location) {
+        return ResourceLocation.tryParse(location);
+    }
 }

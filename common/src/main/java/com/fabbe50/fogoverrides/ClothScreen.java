@@ -160,14 +160,14 @@ public class ClothScreen {
         var dimensionSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.dimensions"));
         LinkedHashSet<String> dimensions = modConfig.getDimensionStorage().keySet().stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
         for (String location : dimensions) {
-            SubCategoryBuilder dimensionSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getDimensionStorage().get(location), false);
+            SubCategoryBuilder dimensionSubCategory = createModFogDataSubCat(entryBuilder, FogOverrides.locationParse(location), modConfig.getDimensionStorage().get(location), false);
             dimensionSettings.addEntry(dimensionSubCategory.build());
         }
 
         var biomeSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.biomes"));
         LinkedHashSet<String> biomes = modConfig.getBiomeStorage().keySet().stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
         for (String location : biomes) {
-            SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getBiomeStorage().get(location), true);
+            SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, FogOverrides.locationParse(location), modConfig.getBiomeStorage().get(location), true);
             biomeSettings.addEntry(biomeSubCategory.build());
         }
 
