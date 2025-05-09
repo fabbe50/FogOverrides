@@ -12,14 +12,20 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
+import dev.architectury.utils.Env;
+import dev.architectury.utils.EnvExecutor;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+
+import java.util.stream.Collectors;
 
 public class FogOverrides {
     public static final String MOD_ID = "fogoverrides";
@@ -37,6 +43,7 @@ public class FogOverrides {
             loadLevelRegistry(level);
             ModConfig.loadMainConfig();
         });
+        EnvExecutor.runInEnv(Env.CLIENT, () -> FogOverrides::clientInit);
     }
 
     public static void clientInit() {
@@ -63,23 +70,22 @@ public class FogOverrides {
     }
 
     public static void serverInit() {
-        NetworkHandler.registerServerHandlers();
     }
 
     public static void loadLevelRegistry(Level level) {
         RegistryAccess registryAccess = level.registryAccess();
         try {
-            Registry<Level> dimensions = registryAccess.lookupOrThrow(Registries.DIMENSION);
-            for (ResourceLocation dimension : dimensions.keySet()) {
-                ModRegistry.addDimensionToList(dimension);
+            HolderLookup.RegistryLookup<Level> dimensions = registryAccess.lookupOrThrow(Registries.DIMENSION);
+            for (ResourceKey<Level> dimension : dimensions.listElementIds().toList()) {
+                ModRegistry.addDimensionToList(dimension.location());
             }
         } catch (Exception e) {
             Log.error("Dimensions couldn't load.");
         }
         try {
-            Registry<Biome> biomes = registryAccess.lookupOrThrow(Registries.BIOME);
-            for (ResourceLocation biome : biomes.keySet()) {
-                ModRegistry.addBiomeToList(biome);
+            HolderLookup.RegistryLookup<Biome> biomes = registryAccess.lookupOrThrow(Registries.BIOME);
+            for (ResourceKey<Biome> biome : biomes.listElementIds().toList()) {
+                ModRegistry.addBiomeToList(biome.location());
             }
         } catch (Exception e) {
             Log.error("Biomes couldn't load.");
@@ -93,6 +99,6 @@ public class FogOverrides {
     }
 
     public static ResourceLocation location(String name) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+        return new ResourceLocation(MOD_ID, name);
     }
 }

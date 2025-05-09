@@ -37,6 +37,7 @@ public class NetworkHandler {
         new OverlaysPacket().registerClient();
         new FogSettingsPacket().registerClient();
         new OpenFogSettingsPacket().registerClient();
+        new RegistryPacket().registerClient();
     }
 
     public static void registerClientHandshake() {
@@ -71,13 +72,13 @@ public class NetworkHandler {
     public static void sendSettingsToServer(ModConfig config) {
         sendToServer(new GameModeSettingsPacket(), new ConfigPair<>("spectator", config.spectatorSettings));
         sendToServer(new GameModeSettingsPacket(), new ConfigPair<>("creative", config.creativeSettings));
-        for (ResourceLocation location : Registry.getDimensions()) {
+        for (ResourceLocation location : ModRegistry.getDimensions()) {
             ModFogData fogData = config.getFogDataFromDimension(location);
             if (fogData != null) {
                 sendToServer(new FogSettingsPacket(), new ConfigPair<>(location, fogData));
             }
         }
-        for (ResourceLocation location : Registry.getBiomes()) {
+        for (ResourceLocation location : ModRegistry.getBiomes()) {
             ModFogData fogData = config.getFogDataFromBiomeLocation(location.toString());
             if (fogData != null) {
                 sendToServer(new FogSettingsPacket(), new ConfigPair<>(location, fogData));
@@ -108,13 +109,13 @@ public class NetworkHandler {
         Log.info("Sending settings to player: " + player.getName());
         sendToPlayer(player, new GameModeSettingsPacket(), new ConfigPair<>("spectator", ModConfig.INSTANCE.spectatorSettings));
         sendToPlayer(player, new GameModeSettingsPacket(), new ConfigPair<>("creative", ModConfig.INSTANCE.creativeSettings));
-        for (ResourceLocation location : Registry.getDimensions()) {
+        for (ResourceLocation location : ModRegistry.getDimensions()) {
             ModFogData fogData = ModConfig.INSTANCE.getFogDataFromDimension(location);
             if (fogData != null) {
                 sendToPlayer(player, new FogSettingsPacket(), new ConfigPair<>(location, fogData));
             }
         }
-        for (ResourceLocation location : Registry.getBiomes()) {
+        for (ResourceLocation location : ModRegistry.getBiomes()) {
             ModFogData fogData = ModConfig.INSTANCE.getFogDataFromBiomeLocation(location.toString());
             if (fogData != null) {
                 sendToPlayer(player, new FogSettingsPacket(), new ConfigPair<>(location, fogData));
