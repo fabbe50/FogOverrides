@@ -3,6 +3,7 @@ package com.fabbe50.fogoverrides;
 import com.fabbe50.fogoverrides.commands.CommandFogOverrides;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.F3Information;
+import com.fabbe50.fogoverrides.data.ModRegistry;
 import com.fabbe50.fogoverrides.data.checker.Checkers;
 import com.fabbe50.fogoverrides.network.NetworkHandler;
 import dev.architectury.event.events.client.ClientGuiEvent;
@@ -12,8 +13,13 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 
 public class FogOverrides {
     public static final String MOD_ID = "fogoverrides";
@@ -25,6 +31,11 @@ public class FogOverrides {
         NetworkHandler.registerServerHandshake();
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> {
             CommandFogOverrides.register(dispatcher);
+        });
+        LifecycleEvent.SERVER_STARTED.register(server -> {
+            Level level = server.overworld();
+            loadLevelRegistry(level);
+            ModConfig.loadMainConfig();
         });
     }
 
@@ -53,9 +64,26 @@ public class FogOverrides {
 
     public static void serverInit() {
         NetworkHandler.registerServerHandlers();
-        LifecycleEvent.SERVER_STARTED.register(minecraftServer -> {
-            ModConfig.loadMainConfig();
-        });
+    }
+
+    public static void loadLevelRegistry(Level level) {
+        RegistryAccess registryAccess = level.registryAccess();
+        try {
+            Registry<Level> dimensions = registryAccess.lookupOrThrow(Registries.DIMENSION);
+            for (ResourceLocation dimension : dimensions.keySet()) {
+                ModRegistry.addDimensionToList(dimension);
+            }
+        } catch (Exception e) {
+            Log.error("Dimensions couldn't load.");
+        }
+        try {
+            Registry<Biome> biomes = registryAccess.lookupOrThrow(Registries.BIOME);
+            for (ResourceLocation biome : biomes.keySet()) {
+                ModRegistry.addBiomeToList(biome);
+            }
+        } catch (Exception e) {
+            Log.error("Biomes couldn't load.");
+        }
     }
 
     public static void debugScreenInit() {

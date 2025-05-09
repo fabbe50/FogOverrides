@@ -1,10 +1,7 @@
 package com.fabbe50.fogoverrides;
 
-import com.fabbe50.fogoverrides.ModConfig.*;
-import com.fabbe50.fogoverrides.data.CurrentDataStorage;
-import com.fabbe50.fogoverrides.data.FogSetting;
-import com.fabbe50.fogoverrides.data.GameModeSettings;
-import com.fabbe50.fogoverrides.data.ModFogData;
+import com.fabbe50.fogoverrides.ModConfig.CalculationSetting;
+import com.fabbe50.fogoverrides.data.*;
 import com.fabbe50.fogoverrides.network.NetworkHandler;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -19,9 +16,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.fabbe50.fogoverrides.ModConfig.*;
 
@@ -162,13 +158,15 @@ public class ClothScreen {
         general.addEntry(overlays.build());
 
         var dimensionSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.dimensions"));
-        for (String location : modConfig.getDimensionStorage().keySet()) {
+        LinkedHashSet<String> dimensions = modConfig.getDimensionStorage().keySet().stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        for (String location : dimensions) {
             SubCategoryBuilder dimensionSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getDimensionStorage().get(location), false);
             dimensionSettings.addEntry(dimensionSubCategory.build());
         }
 
         var biomeSettings = builder.getOrCreateCategory(Component.translatable("text.fogoverrides.category.biomes"));
-        for (String location : modConfig.getBiomeStorage().keySet()) {
+        LinkedHashSet<String> biomes = modConfig.getBiomeStorage().keySet().stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        for (String location : biomes) {
             SubCategoryBuilder biomeSubCategory = createModFogDataSubCat(entryBuilder, ResourceLocation.parse(location), modConfig.getBiomeStorage().get(location), true);
             biomeSettings.addEntry(biomeSubCategory.build());
         }
@@ -288,7 +286,7 @@ public class ClothScreen {
                 .setDefaultValue((int)defaultFog.getNearDistance())
                 .setTooltip(Component.translatable("text.fogoverrides.option.fog_start_distance.tooltip"), SERVER_SETTING)
                 .setSaveConsumer(fogData::setNearDistance));
-        IntegerSliderEntry fogEndDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.fog_end_distance"), (int)fogData.getFarDistance(), 0, FOG_END_MAX)
+        IntegerSliderEntry fogEndDistance = buildDistanceSlider(entryBuilder.startIntSlider(Component.translatable("text.fogoverrides.option.fog_end_distance"), (int)fogData.getFarDistance(), -1, FOG_END_MAX)
                 .setDefaultValue((int)defaultFog.getFarDistance())
                 .setTooltip(Component.translatable("text.fogoverrides.option.fog_end_distance.tooltip"), SERVER_SETTING)
                 .setSaveConsumer(fogData::setFarDistance));

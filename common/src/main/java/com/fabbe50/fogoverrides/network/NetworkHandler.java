@@ -38,6 +38,7 @@ public class NetworkHandler {
         FogSettingsPacket.Client.registerServer();
         HandshakePacket.ClientPacket.registerServer();
         OpenFogSettingsPacket.register();
+        RegistryPacket.Client.registerServer();
     }
 
     public static void registerClientHandlers() {
@@ -49,6 +50,7 @@ public class NetworkHandler {
         CloudsPacket.Client.register();
         OverlaysPacket.Client.register();
         FogSettingsPacket.Client.register();
+        RegistryPacket.Client.register();
     }
 
     public static void registerClientHandshake() {
@@ -83,13 +85,13 @@ public class NetworkHandler {
     public static void sendSettingsToServer(ModConfig config) {
         NetworkManager.sendToServer(new GameModeSettingsPacket.Server.PacketPayload(getGameModeSettingsBuffer("spectator", config.spectatorSettings)));
         NetworkManager.sendToServer(new GameModeSettingsPacket.Server.PacketPayload(getGameModeSettingsBuffer("creative", config.creativeSettings)));
-        for (ResourceLocation location : Registry.getDimensions()) {
+        for (ResourceLocation location : ModRegistry.getDimensions()) {
             ModFogData fogData = config.getFogDataFromDimension(location);
             if (fogData != null) {
                 NetworkManager.sendToServer(new FogSettingsPacket.Server.PacketPayload(location, fogData));
             }
         }
-        for (ResourceLocation location : Registry.getBiomes()) {
+        for (ResourceLocation location : ModRegistry.getBiomes()) {
             ModFogData fogData = config.getFogDataFromBiomeLocation(location.toString());
             if (fogData != null) {
                 NetworkManager.sendToServer(new FogSettingsPacket.Server.PacketPayload(location, fogData));
@@ -121,7 +123,7 @@ public class NetworkHandler {
         Log.info("Sending settings to player: " + player.getName());
         NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.Client.PacketPayload(getGameModeSettingsBuffer("spectator", ModConfig.INSTANCE.spectatorSettings)));
         NetworkManager.sendToPlayer((ServerPlayer) player, new GameModeSettingsPacket.Client.PacketPayload(getGameModeSettingsBuffer("creative", ModConfig.INSTANCE.creativeSettings)));
-        for (ResourceLocation location : Registry.getDimensions()) {
+        for (ResourceLocation location : ModRegistry.getDimensions()) {
             ModFogData fogData = ModConfig.INSTANCE.getFogDataFromDimension(location);
             if (fogData != null) {
                 NetworkManager.sendToPlayer((ServerPlayer) player, new FogSettingsPacket.Client.PacketPayload(location, fogData));

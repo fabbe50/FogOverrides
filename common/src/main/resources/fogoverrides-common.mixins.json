@@ -10,8 +10,7 @@
     "MixinScreenEffectRenderer"
   ],
   "mixins": [
-    "MixinBiome",
-    "MixinResourceKey"
+    "MixinBiome"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -5,7 +5,7 @@ import com.fabbe50.fogoverrides.ModConfig;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
 import com.fabbe50.fogoverrides.data.FogSetting;
 import com.fabbe50.fogoverrides.data.ModFogData;
-import com.fabbe50.fogoverrides.data.Registry;
+import com.fabbe50.fogoverrides.data.ModRegistry;
 import dev.architectury.networking.NetworkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -76,9 +76,9 @@ public class FogSettingsPacket {
                 fogData.setLavaPotionNearDistance(lavaPotionNear);
                 fogData.setLavaPotionFarDistance(lavaPotionFar);
                 fogData.setRain(new FogSetting(rainEnabled, rainNear, rainFar, rainColor));
-                if (Registry.getDimensions().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
+                if (ModRegistry.getDimensions().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
                     CurrentDataStorage.INSTANCE.addToDimensionStorage(location, fogData);
-                } else if (Registry.getBiomes().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
+                } else if (ModRegistry.getBiomes().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
                     CurrentDataStorage.INSTANCE.addToBiomeStorage(location, fogData);
                     CurrentDataStorage.INSTANCE.refreshWaterColor(location, fogData);
                 }
@@ -203,9 +203,9 @@ public class FogSettingsPacket {
                     fogData.setLavaPotionNearDistance(lavaPotionNear);
                     fogData.setLavaPotionFarDistance(lavaPotionFar);
                     fogData.setRain(new FogSetting(rainEnabled, rainNear, rainFar, rainColor));
-                    if (Registry.getDimensions().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
+                    if (ModRegistry.getDimensions().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
                         ModConfig.INSTANCE.putDimensionInStorage(location, fogData);
-                    } else if (Registry.getBiomes().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
+                    } else if (ModRegistry.getBiomes().stream().anyMatch(location1 -> location1.toString().equals(location.toString()))) {
                         ModConfig.INSTANCE.putBiomeInStorage(location, fogData);
                     }
                 }
