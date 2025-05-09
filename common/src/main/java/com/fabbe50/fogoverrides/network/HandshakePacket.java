@@ -3,6 +3,7 @@ package com.fabbe50.fogoverrides.network;
 import com.fabbe50.fogoverrides.ClientUtilities;
 import com.fabbe50.fogoverrides.Log;
 import com.fabbe50.fogoverrides.data.CurrentDataStorage;
+import com.fabbe50.fogoverrides.data.ModRegistry;
 import dev.architectury.networking.NetworkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,6 +43,7 @@ public class HandshakePacket {
                         if (!NetworkHandler.modUsers.contains(context.getPlayer()))
                             NetworkHandler.modUsers.add(context.getPlayer());
                         NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new HandshakePacket.ClientPacket.PacketPayload(true));
+                        NetworkManager.sendToPlayer((ServerPlayer) context.getPlayer(), new RegistryPacket.Client.PacketPayload(ModRegistry.getDimensions(), ModRegistry.getBiomes()));
                         NetworkHandler.sendSettingsToPlayer(context.getPlayer());
                     }
                 });
