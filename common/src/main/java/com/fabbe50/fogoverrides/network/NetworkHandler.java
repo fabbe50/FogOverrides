@@ -7,9 +7,11 @@ import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +57,28 @@ public class NetworkHandler {
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(localPlayer -> {
             if (localPlayer.is(ClientUtilities.getClientPlayer())) {
                 try {
-                    NetworkManager.sendToServer(new HandshakePacket.ServerPacket.PacketPayload(true));
+                    if (NetworkManager.canServerReceive(HandshakePacket.ServerPacket.PACKET_ID)) {
+                        Log.info("Server can receive handshake, sending...");
+                        NetworkManager.sendToServer(new HandshakePacket.ServerPacket.PacketPayload(true));
+                    } else {
+                        Log.warn("Server does not have a valid version of Fog Overrides installed. Loading client registry...");
+                        if (!FogOverrides.loadLevelRegistry(localPlayer.connection.getLevel())) {
+                            Log.info("Failed to load client dimensions. Loading defaults...");
+                            for (ResourceKey<Level> level : localPlayer.connection.levels()) {
+                                ModRegistry.addDimensionToList(level.location());
+                            }
+                        }
+                        ModConfig.loadMainConfig();
+                    }
                 } catch (UnsupportedOperationException e) {
-                    System.out.println("Server does not have Fog Overrides installed.");
+                    Log.warn("Server does not have a valid version of Fog Overrides installed. Loading client registry...");
+                    if (!FogOverrides.loadLevelRegistry(localPlayer.connection.getLevel())) {
+                        Log.info("Failed to load client dimensions. Loading defaults...");
+                        for (ResourceKey<Level> level : localPlayer.connection.levels()) {
+                            ModRegistry.addDimensionToList(level.location());
+                        }
+                    }
+                    ModConfig.loadMainConfig();
                 }
             }
         });

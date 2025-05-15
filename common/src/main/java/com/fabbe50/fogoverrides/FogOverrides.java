@@ -57,16 +57,15 @@ public class FogOverrides {
                 instance.setScreen(ClothScreen.getConfigScreen(null));
             }
         });
-        ClientLifecycleEvent.CLIENT_STARTED.register(minecraft -> {
-            ModConfig.loadMainConfig();
-        });
+        ClientLifecycleEvent.CLIENT_STARTED.register(minecraft -> ModConfig.loadMainConfig());
     }
 
     public static void serverInit() {
         NetworkHandler.registerServerHandlers();
     }
 
-    public static void loadLevelRegistry(Level level) {
+    public static boolean loadLevelRegistry(Level level) {
+        boolean success = true;
         RegistryAccess registryAccess = level.registryAccess();
         try {
             Registry<Level> dimensions = registryAccess.lookupOrThrow(Registries.DIMENSION);
@@ -75,6 +74,7 @@ public class FogOverrides {
             }
         } catch (Exception e) {
             Log.error("Dimensions couldn't load.");
+            success = false;
         }
         try {
             Registry<Biome> biomes = registryAccess.lookupOrThrow(Registries.BIOME);
@@ -84,6 +84,7 @@ public class FogOverrides {
         } catch (Exception e) {
             Log.error("Biomes couldn't load.");
         }
+        return success;
     }
 
     public static void debugScreenInit() {
