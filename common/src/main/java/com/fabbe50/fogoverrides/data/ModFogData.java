@@ -6,6 +6,7 @@ public class ModFogData {
     private boolean overrideFogColor;
     private FogSetting terrain;
     private FogSetting rain;
+    private FogSetting thunder;
     private boolean overrideSkyColor;
     private int skyColor;
 
@@ -38,6 +39,7 @@ public class ModFogData {
         this.overrideFogColor = overrideFogColor;
         terrain = new FogSetting(isFogEnabled, nearDistance, farDistance, fogColor);
         rain = new FogSetting(false, nearDistance, farDistance, 0xFFFFFF);
+        thunder = new FogSetting(false, nearDistance, farDistance, 0xFFFFFF);
         this.overrideSkyColor = overrideSkyColor;
         this.skyColor = skyColor;
 
@@ -73,6 +75,14 @@ public class ModFogData {
 
     public FogSetting getRain() {
         return rain;
+    }
+
+    public void setThunder(FogSetting thunder) {
+        this.thunder = thunder;
+    }
+
+    public FogSetting getThunder() {
+        return thunder;
     }
 
     public void setWater(FogSetting water) {

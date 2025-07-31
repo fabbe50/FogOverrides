@@ -35,6 +35,8 @@ dependencies {
     modApi "com.terraformersmc:modmenu:${rootProject.mod_menu_version}"
     modRuntimeOnly("maven.modrinth:sodium:${rootProject.sodium_version}-fabric")
 
+    modRuntimeOnly "maven.modrinth:DistantHorizons:${distant_horizons_version}"
+
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
