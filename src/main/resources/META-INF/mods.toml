@@ -1,0 +1,19 @@
+modLoader = "javafml"
+loaderVersion = "*"
+license = "LGPLv3"
+issueTrackerURL="https://fabbe50/FogOverrides/issues"
+
+[[mods]]
+modId = "fogoverrides"
+version = "${version}"
+displayName = "${name}"
+authors = "fabbe50"
+description = ""
+logoFile = "assets/fogoverrides/icon.png"
+logoBlur = false
+
+[[mixins]]
+config = "fogoverrides-common.mixins.json"
+
+[[mixins]]
+config = "fogoverrides-neoforge.mixins.json"

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "",
+  "authors": [
+    "fabbe50"
+  ],
+  "contact": {
+  },
+  "license": "LGPLv3",
+  "icon": "assets/${id}/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.fabbe50.fogoverrides.fogoverrides.platforms.fabric.FogOverridesFabric"
+    ],
+    "modmenu": [
+      "com.fabbe50.fogoverrides.fogoverrides.platforms.fabric.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "fogoverrides-common.mixins.json",
+    "fogoverrides-fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15",
+    "minecraft": "${minecraft}"
+  }
+}
